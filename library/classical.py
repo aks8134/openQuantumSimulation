@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.linalg import expm
 from scipy.sparse import csr_matrix, eye, kron
 from scipy.sparse.linalg import expm_multiply
 
@@ -421,6 +422,223 @@ def exact_evolve(initial_density_matrix, liouvillian, times):
         vector.reshape(dimension, dimension, order="F")
         for vector in evolved_vectors
     ])
+
+
+# ============================================================
+# First-order Hamiltonian dilation from writeup.pdf
+# ============================================================
+
+def build_hamiltonian_dilation_terms(H, jump_operators, dt):
+    """Build the dimensionless terms K_H and K_j for one physical step.
+
+    For ``J`` jump operators, the shared ancilla has basis
+    ``|0>, |1>, ..., |J>``. The returned terms implement equations
+    (12), (13), and (22) of ``writeup.pdf``:
+
+        K_H = dt |0><0| (x) H,
+
+        K_j = sqrt(dt) (
+            |j><0| (x) V_j + |0><j| (x) V_j^dagger
+        ).
+
+    These are dimensionless exponents, not Liouvillian generators.
+    """
+    if not np.isfinite(dt) or dt <= 0.0:
+        raise ValueError("dt must be finite and positive")
+    jump_operators = tuple(jump_operators)
+    if not jump_operators:
+        raise ValueError("at least one jump operator is required")
+
+    H = csr_matrix(H, dtype=complex)
+    system_dimension = H.shape[0]
+    if H.shape != (system_dimension, system_dimension):
+        raise ValueError("H must be square")
+
+    jump_operators = tuple(
+        csr_matrix(jump_operator, dtype=complex)
+        for jump_operator in jump_operators
+    )
+    if any(
+        jump_operator.shape != H.shape
+        for jump_operator in jump_operators
+    ):
+        raise ValueError("every jump operator must have the shape of H")
+
+    ancilla_dimension = len(jump_operators) + 1
+
+    def ancilla_matrix(row, column):
+        return csr_matrix(
+            (
+                np.asarray([1.0], dtype=complex),
+                (np.asarray([row]), np.asarray([column])),
+            ),
+            shape=(ancilla_dimension, ancilla_dimension),
+        )
+
+    ancilla_ground_projector = ancilla_matrix(0, 0)
+    system_term = dt * kron(
+        ancilla_ground_projector,
+        H,
+        format="csr",
+    )
+    jump_terms = tuple(
+        np.sqrt(dt) * (
+            kron(
+                ancilla_matrix(index, 0),
+                jump_operator,
+                format="csr",
+            )
+            + kron(
+                ancilla_matrix(0, index),
+                jump_operator.getH(),
+                format="csr",
+            )
+        )
+        for index, jump_operator in enumerate(jump_operators, start=1)
+    )
+    return system_term, jump_terms
+
+
+def hamiltonian_dilation_evolve(
+    initial_density_matrix,
+    H,
+    jump_operators,
+    times,
+    *,
+    product_formula="exact",
+    steps_per_interval=1,
+):
+    """Evolve by resetting a shared dilation ancilla after every substep.
+
+    ``product_formula`` selects the unitary used before tracing out the
+    ancilla:
+
+    - ``"exact"``: ``exp[-i (K_H + sum_j K_j)]``;
+    - ``"lie"``: full ``K_H`` followed by every full ``K_j``;
+    - ``"strang"``: half of every jump term, the full system term,
+      then the jump half-steps in reverse order.
+
+    Every option is only a first-order approximation to the Lindblad channel
+    because the Hamiltonian-dilation construction itself has physical-step
+    error ``O(dt**2)``. The symmetric option reduces product-formula error
+    inside the dilation unitary; it does not make the Lindblad method
+    second-order.
+    """
+    times = np.asarray(times, dtype=float)
+    initial_density_matrix = np.asarray(
+        initial_density_matrix,
+        dtype=complex,
+    )
+    if times.ndim != 1 or times.size == 0:
+        raise ValueError("times must be a nonempty one-dimensional array")
+    if not np.all(np.isfinite(times)):
+        raise ValueError("times must contain only finite values")
+    if np.any(np.diff(times) <= 0.0):
+        raise ValueError("times must be strictly increasing")
+    if times.size > 2 and not np.allclose(
+        np.diff(times),
+        times[1] - times[0],
+    ):
+        raise ValueError("Hamiltonian dilation requires a uniform time grid")
+    if (
+        not isinstance(steps_per_interval, (int, np.integer))
+        or steps_per_interval < 1
+    ):
+        raise ValueError("steps_per_interval must be a positive integer")
+    if (
+        initial_density_matrix.ndim != 2
+        or initial_density_matrix.shape[0]
+        != initial_density_matrix.shape[1]
+    ):
+        raise ValueError("initial_density_matrix must be square")
+    if product_formula not in {"exact", "lie", "strang"}:
+        raise ValueError(
+            "product_formula must be 'exact', 'lie', or 'strang'"
+        )
+
+    system_dimension = initial_density_matrix.shape[0]
+    H = csr_matrix(H, dtype=complex)
+    jump_operators = tuple(jump_operators)
+    if H.shape != (system_dimension, system_dimension):
+        raise ValueError("H must act on the initial density matrix")
+    if any(
+        jump_operator.shape != H.shape
+        for jump_operator in jump_operators
+    ):
+        raise ValueError("every jump operator must have the shape of H")
+
+    evolved_density_matrices = np.empty(
+        (times.size, system_dimension, system_dimension),
+        dtype=complex,
+    )
+    evolved_density_matrices[0] = initial_density_matrix
+    if times.size == 1:
+        return evolved_density_matrices
+
+    dt = (times[1] - times[0]) / steps_per_interval
+    system_term, jump_terms = build_hamiltonian_dilation_terms(
+        H,
+        jump_operators,
+        dt,
+    )
+    ancilla_dimension = len(jump_operators) + 1
+
+    if product_formula == "exact":
+        dimensionless_generators = (
+            sum(jump_terms, start=system_term),
+        )
+    elif product_formula == "lie":
+        dimensionless_generators = (system_term, *jump_terms)
+    else:
+        dimensionless_generators = (
+            *(0.5 * jump_term for jump_term in jump_terms),
+            system_term,
+            *(0.5 * jump_term for jump_term in reversed(jump_terms)),
+        )
+
+    propagators = tuple(
+        expm(-1j * generator.toarray())
+        for generator in dimensionless_generators
+    )
+    # Only the block column U(|0>_a (x) I_S) is needed to obtain the
+    # reduced channel. Keeping its Kraus blocks avoids constructing and
+    # propagating a (3 * 2**N)-dimensional joint density matrix at every
+    # time step, which is important when N is larger than two.
+    dilation_isometry = np.zeros(
+        (
+            ancilla_dimension * system_dimension,
+            system_dimension,
+        ),
+        dtype=complex,
+    )
+    dilation_isometry[:system_dimension] = np.eye(
+        system_dimension,
+        dtype=complex,
+    )
+    for propagator in propagators:
+        dilation_isometry = propagator @ dilation_isometry
+
+    kraus_operators = dilation_isometry.reshape(
+        ancilla_dimension,
+        system_dimension,
+        system_dimension,
+    )
+    density_matrix = initial_density_matrix.copy()
+
+    for time_index in range(1, times.size):
+        for _ in range(steps_per_interval):
+            density_matrix = sum(
+                (
+                    kraus_operator
+                    @ density_matrix
+                    @ kraus_operator.conj().T
+                )
+                for kraus_operator in kraus_operators
+            )
+
+        evolved_density_matrices[time_index] = density_matrix
+
+    return evolved_density_matrices
 
 
 # ============================================================

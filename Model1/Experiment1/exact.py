@@ -1,41 +1,40 @@
+import argparse
+from pathlib import Path
+import sys
+
 import numpy as np
 from scipy.sparse import eye
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
+
 from library import classical
-from library.plotter import *
+from library.plotter import plot_observables
 
 
 # ============================================================
 # Configuration
 # ============================================================
 
-N_QUBITS = 7
+DEFAULT_NUMBER_OF_QUBITS = 7
 
 J = 1.0
 h = 0.0
 gamma = 0.2
 
 T_FINAL = 10.0
-NUM_TIMES = 201
-
-# Site labels are 0, 1, ..., N_QUBITS - 1.
-# Begin with one excitation in the middle of the chain.
-INITIALLY_EXCITED_SITES = [N_QUBITS // 2]
-
-
-# ============================================================
-# Single-qubit operators
-# ============================================================
-I2, X, Y, Z, SIGMA_MINUS = classical.get_single_qubit_operators()
-
-
-
-
+NUM_TIMES = 51
 
 # ============================================================
 # Simulation
 # ============================================================
 
-def main():
+def main(number_of_qubits=DEFAULT_NUMBER_OF_QUBITS):
+    if number_of_qubits < 2:
+        raise ValueError("number_of_qubits must be at least two")
+
     (
         H,
         jump_operators,
@@ -43,7 +42,7 @@ def main():
         Y_ops,
         Z_ops,
     ) = classical.build_linear_chain(
-        number_of_qubits=N_QUBITS,
+        number_of_qubits=number_of_qubits,
         J=J,
         h=h,
         gamma=gamma,
@@ -51,7 +50,7 @@ def main():
 
     liouvillian = classical.build_liouvillian(H, jump_operators)
 
-    hilbert_dimension = 2**N_QUBITS
+    hilbert_dimension = 2**number_of_qubits
 
     identity = eye(
         hilbert_dimension,
@@ -60,8 +59,8 @@ def main():
     )
 
     psi0 = classical.computational_state(
-        number_of_qubits=N_QUBITS,
-        excited_sites=INITIALLY_EXCITED_SITES,
+        number_of_qubits=number_of_qubits,
+        excited_sites=[number_of_qubits // 2],
     )
 
     rho0 = np.outer(psi0, psi0.conj())
@@ -94,19 +93,19 @@ def main():
         J=J,
     )
 
-    # n_i(t), shape: (N_QUBITS, NUM_TIMES)
+    # n_i(t), shape: (number_of_qubits, NUM_TIMES)
     site_populations = np.asarray([
         classical.expectation_series(density_matrices, operator)
         for operator in population_operators
     ])
 
-    # C_i^XY(t), shape: (N_QUBITS - 1, NUM_TIMES)
+    # C_i^XY(t), shape: (number_of_qubits - 1, NUM_TIMES)
     exchange_correlations = np.asarray([
         classical.expectation_series(density_matrices, operator)
         for operator in exchange_operators
     ])
 
-    # I_{i -> i+1}(t), shape: (N_QUBITS - 1, NUM_TIMES)
+    # I_{i -> i+1}(t), shape: (number_of_qubits - 1, NUM_TIMES)
     bond_flows = np.asarray([
         classical.expectation_series(density_matrices, operator)
         for operator in flow_operators
@@ -156,7 +155,7 @@ def main():
 
     # Interior sites:
     # dn_i/dt = I_{i-1 -> i} - I_{i -> i+1}
-    for i in range(1, N_QUBITS - 1):
+    for i in range(1, number_of_qubits - 1):
         continuity_rhs[i] += (
             bond_flows[i - 1]
             - bond_flows[i]
@@ -197,7 +196,7 @@ def main():
 
     final_rho = density_matrices[-1]
 
-    print(f"Number of qubits: {N_QUBITS}")
+    print(f"Number of system qubits: {number_of_qubits}")
     print(f"Hilbert-space dimension: {hilbert_dimension}")
     print(f"Liouville-space dimension: {hilbert_dimension**2}")
 
@@ -223,18 +222,18 @@ def main():
     )
 
     print("\nFinal site populations")
-    for i in range(N_QUBITS):
+    for i in range(number_of_qubits):
         print(f"n_{i} = {site_populations[i, -1]:+.6f}")
 
     print("\nFinal exchange correlations")
-    for i in range(N_QUBITS - 1):
+    for i in range(number_of_qubits - 1):
         print(
             f"C_XY({i},{i + 1}) = "
             f"{exchange_correlations[i, -1]:+.6f}"
         )
 
     print("\nFinal excitation flows")
-    for i in range(N_QUBITS - 1):
+    for i in range(number_of_qubits - 1):
         print(
             f"I({i}->{i + 1}) = "
             f"{bond_flows[i, -1]:+.6f}"
@@ -245,7 +244,10 @@ def main():
         {
             "Local excitation populations": {
                 "values": site_populations,
-                "labels": [f"site {site}" for site in range(N_QUBITS)],
+                "labels": [
+                    f"site {site}"
+                    for site in range(number_of_qubits)
+                ],
                 "ylabel": r"$\langle n_i\rangle$",
                 "legend_columns": 2,
             },
@@ -253,7 +255,7 @@ def main():
                 "values": exchange_correlations,
                 "labels": [
                     f"bond {bond}-{bond + 1}"
-                    for bond in range(N_QUBITS - 1)
+                    for bond in range(number_of_qubits - 1)
                 ],
                 "ylabel": r"$C_i^{XY}$",
                 "legend_columns": 2,
@@ -262,7 +264,7 @@ def main():
                 "values": bond_flows,
                 "labels": [
                     f"{bond} → {bond + 1}"
-                    for bond in range(N_QUBITS - 1)
+                    for bond in range(number_of_qubits - 1)
                 ],
                 "ylabel": r"$I_{i\rightarrow i+1}$",
                 "legend_columns": 2,
@@ -275,7 +277,11 @@ def main():
                 "styles": [{"linewidth": 2}],
             },
         },
-        output_path=f"Model1/figures/obs_exact_{N_QUBITS}.png",
+        output_path=(
+            Path(__file__).resolve().parent
+            / "figures"
+            / f"obs_exact_{number_of_qubits}.png"
+        ),
     )
 
     # Variables available for further analysis:
@@ -289,5 +295,22 @@ def main():
     # mean_excitation_flow[t]
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Exact Lindblad reference for the N-qubit XY chain."
+    )
+    parser.add_argument(
+        "--n-qubits",
+        type=int,
+        default=DEFAULT_NUMBER_OF_QUBITS,
+        help=(
+            "number of system qubits (default: "
+            f"{DEFAULT_NUMBER_OF_QUBITS})"
+        ),
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    main()
+    arguments = parse_arguments()
+    main(arguments.n_qubits)
