@@ -4,6 +4,7 @@ from dataclasses import FrozenInstanceError
 from IBMRuntime import (
     Aer,
     Circuit,
+    CompilationMetrics,
     DensityMatrixResult,
     Err,
     Estimate,
@@ -14,6 +15,7 @@ from IBMRuntime import (
     Sample,
     SimulateDensityMatrices,
     counts_dict,
+    compile_circuit_batch_sync,
     empty,
     execution_plan,
     h,
@@ -141,6 +143,24 @@ class AerIntegrationTests(unittest.TestCase):
             all(sum(counts_dict(item).values()) == 64 for item in result.value)
         )
         self.assertEqual(result.value[0].job_id, result.value[1].job_id)
+
+    def test_compile_batch_returns_metrics_without_sampling(self):
+        result = compile_circuit_batch_sync(
+            (bell_circuit(), bell_circuit()),
+            Aer(),
+        )
+
+        self.assertIsInstance(result, Ok)
+        self.assertEqual(len(result.value), 2)
+        self.assertTrue(
+            all(isinstance(item, CompilationMetrics) for item in result.value)
+        )
+        self.assertTrue(
+            all(item.original_gate_count > 0 for item in result.value)
+        )
+        self.assertTrue(
+            all(item.compiled_depth > 0 for item in result.value)
+        )
 
     def test_ibm_target_without_account_returns_error_data(self):
         result = run_sync(bell_plan(IBMHardware("unused-backend"), shots=1))

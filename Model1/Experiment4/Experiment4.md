@@ -139,8 +139,9 @@ By default, `--time-points M --t-final T` creates the uniform grid
 t_k=k\frac{T}{M-1}.
 \]
 
-An explicit nonuniform grid can instead be supplied with `--times`. The
-values must start at zero and be strictly increasing. Space-separated and
+An explicit nonuniform grid can instead be supplied with `--times`. A list
+of multiple values must start at zero and be strictly increasing. A single
+value is treated as one standalone target time. Space-separated and
 comma-separated forms are both accepted:
 
 ```bash
@@ -158,6 +159,20 @@ uv run python Model1/Experiment4/dynamic_lie_trotter.py \
   --backend aer \
   --times 0,0.1,0.25,0.7,1.5,3.0
 ```
+
+A single nonnegative target time produces only that saved-time circuit. For
+example,
+
+```bash
+uv run python Model1/Experiment4/dynamic_lie_trotter.py \
+  --n-qubits 4 \
+  --backend aer \
+  --times 0.8
+```
+
+produces only the (t=0.8) sampling circuits. Each circuit still prepares
+the initial state internally and evolves from zero to 0.8. Use
+`--times 0 0.8` when the separate (t=0) baseline circuits are also wanted.
 
 `--times` overrides `--time-points` and `--t-final`. The internal Trotter
 resolution can be set independently with `--trotter-delta-t`. This value is
@@ -239,10 +254,10 @@ classically manageable \(N\).
 
 ## Outputs
 
-Each run writes
+For each backend and system size, the script maintains
 
-- a figure to `Model1/Experiment4/figures/`; and
-- a JSON record to `Model1/Experiment4/results/`.
+- one cumulative figure in `Model1/Experiment4/figures/`; and
+- one cumulative JSON record in `Model1/Experiment4/results/`.
 
 The filenames contain the backend name and \(N\), for example
 `dynamic_lie_trotter_ibm_kingston_7.png` and
@@ -252,6 +267,35 @@ The JSON record contains the physical parameters, time grid, measurement
 settings, observable estimates, propagated shot-noise standard errors, raw
 counts, provider job IDs, and pre/post-transpilation operation counts and
 depths for every circuit. It contains no IBM credentials.
+
+Later runs with the same backend and $N$ update this archive instead of
+discarding earlier time points. A previously absent time is appended, the
+saved times are sorted, and rerunning a time replaces that time's
+observables, counts, uncertainties, job ID, and circuit metadata with the
+new result. The observable figure is regenerated from the full combined
+archive. The JSON `run_history` retains the time grid, evolution schedule,
+completion timestamp, and job IDs of each contributing run.
+
+Before a checkpoint is created or a Sampler job is submitted, the script
+checks that an existing archive has the same backend, $N$, shot count,
+measurement bases, compiler and simulator seeds, optimization level, Aer
+method, effective Trotter step, and classical-reference setting. An
+incompatible run stops with an error and must use matching options or a
+different `--output-directory`.
+
+For example, these commands leave both $t=0.8$ and $t=1.0$ in the same
+JSON record and figure:
+
+```bash
+uv run python Model1/Experiment4/dynamic_lie_trotter.py \
+  --n-qubits 4 --backend aer --times 0.8 --trotter-delta-t 0.2
+
+uv run python Model1/Experiment4/dynamic_lie_trotter.py \
+  --n-qubits 4 --backend aer --times 1.0 --trotter-delta-t 0.2
+```
+
+Running the first command again replaces only the archived $t=0.8$
+entry. A separate JSON file is not created for each time point.
 
 Use `--output-directory` to redirect both output folders:
 
@@ -267,9 +311,14 @@ uv run python Model1/Experiment4/dynamic_lie_trotter.py \
 The hardware script atomically updates a `*_checkpoint.json` file after
 every completed batch. A provider failure therefore leaves all earlier raw
 counts and job IDs on disk. Resume the same time grid without resubmitting
-the completed circuit prefix by adding `--resume`; (N), backend, shots,
+the completed circuit prefix by adding `--resume`; $N$, backend, shots,
 time grid, and compiler settings must match, while `--batch-size` may be
 changed.
+
+There is one active checkpoint beside the cumulative result file. Starting
+a different run without `--resume` replaces that working checkpoint, but
+does not remove any completed time points already stored in the cumulative
+result JSON.
 
 Completed jobs from a run made before checkpointing was enabled can be
 downloaded with the read-only recovery utility. First inspect a narrow time
@@ -289,6 +338,33 @@ checkpoint, partial JSON record, and partial figure. The recovery utility
 never submits or cancels QPU work. Explicit repeated `--job-id` arguments,
 in oldest-to-newest order, are the safest option when the time window also
 contains unrelated jobs.
+
+### Backfilling recovered circuit metrics
+
+Recovered IBM `PrimitiveResult` objects contain counts but not the original
+and compiled circuit metrics, so the recovery utility records unavailable
+operation counts and depths as `-1`. These fields can be filled without
+executing a circuit by using metadata-only mode:
+
+```bash
+uv run python Model1/Experiment4/dynamic_lie_trotter.py \
+  --metadata-only \
+  --metadata-file Model1/Experiment4/results/recovered_dynamic_lie_trotter_ibm_kingston_4_39_times.json
+```
+
+This mode reads the backend, time grid, \(N\), Trotter step, optimization
+level, and transpiler seed from the JSON file. It rebuilds the recorded
+circuit prefix, fetches the current backend target, and transpiles locally.
+It does not instantiate a Sampler or submit a hardware job. Before updating
+the JSON atomically, it creates a sibling `*.before_metadata.json` backup.
+By default only missing or negative metrics are replaced;
+`--overwrite-metadata` also recomputes existing values.
+
+The compiled values describe the backend target available when metadata-only
+mode is run. They can differ from the historical job's exact compilation if
+the backend target or calibration changed after submission. The logical
+pre-transpilation metrics are reconstructed exactly from the saved
+experiment configuration.
 
 Run `--help` for all options:
 

@@ -13,6 +13,7 @@ system site n are stored in classical bit n + 1.
 
 import argparse
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import json
 from math import pi, sqrt
 from pathlib import Path
@@ -42,6 +43,7 @@ from IBMRuntime import (
     RuntimeEnvironment,
     Sample,
     SampleResult,
+    compile_circuit_batch_sync,
     counts_dict,
     h,
     load_ibm_account,
@@ -76,9 +78,13 @@ class EvolutionSchedule:
     interval_jump_probabilities: tuple[tuple[float, ...], ...]
     interval_jump_angles: tuple[tuple[float, ...], ...]
     requested_trotter_delta_t: float | None
+    includes_initial_time: bool = True
 
     def prefix(self, time_count):
-        interval_count = max(0, time_count - 1)
+        interval_count = max(
+            0,
+            time_count - 1 if self.includes_initial_time else time_count,
+        )
         return EvolutionSchedule(
             interval_substep_dts=(
                 self.interval_substep_dts[:interval_count]
@@ -90,6 +96,7 @@ class EvolutionSchedule:
                 self.interval_jump_angles[:interval_count]
             ),
             requested_trotter_delta_t=self.requested_trotter_delta_t,
+            includes_initial_time=self.includes_initial_time,
         )
 
     @property
@@ -128,10 +135,21 @@ def _uniform_value(values):
 
 
 def _schedule_payload(times, schedule):
+    interval_start_times = (
+        tuple(float(value) for value in times[:-1])
+        if schedule.includes_initial_time
+        else (0.0, *tuple(float(value) for value in times[:-1]))
+    )
+    interval_end_times = (
+        tuple(float(value) for value in times[1:])
+        if schedule.includes_initial_time
+        else tuple(float(value) for value in times)
+    )
     return {
         "requested_trotter_delta_t": (
             schedule.requested_trotter_delta_t
         ),
+        "includes_initial_time": schedule.includes_initial_time,
         "uniform_substep_dt": _uniform_value(schedule.substep_dts),
         "uniform_system_exchange_angle": _uniform_value(
             tuple(2.0 * reference_tools.J * dt for dt in schedule.substep_dts)
@@ -142,8 +160,8 @@ def _schedule_payload(times, schedule):
         ),
         "intervals": [
             {
-                "start_time": float(times[index]),
-                "end_time": float(times[index + 1]),
+                "start_time": interval_start_times[index],
+                "end_time": interval_end_times[index],
                 "substep_count": len(
                     schedule.interval_substep_dts[index]
                 ),
@@ -220,15 +238,44 @@ def build_sample_circuits(
     trotter_delta_t=None,
 ):
     """Build five terminal-measurement circuits per saved time."""
+    requested_times = np.asarray(times, dtype=float)
+    if requested_times.ndim != 1 or requested_times.size < 1:
+        raise ValueError("times must contain at least one value")
+    if not np.all(np.isfinite(requested_times)):
+        raise ValueError("times must contain only finite values")
+
+    single_target = requested_times.size == 1
+    if single_target:
+        target_time = float(requested_times[0])
+        if target_time < 0.0:
+            raise ValueError("a single time must be nonnegative")
+        # The Experiment 3 builder requires an interval.  For t=0, the
+        # arbitrary endpoint is never executed because only its initial
+        # prefix is retained.
+        evolution_times = np.asarray(
+            (0.0, target_time if target_time > 0.0 else 1.0)
+        )
+        saved_circuit_indices = (1,) if target_time > 0.0 else (0,)
+    else:
+        evolution_times = requested_times
+        saved_circuit_indices = tuple(range(requested_times.size))
+
     (
         evolution_circuits,
         interval_substep_dts,
         interval_dilation_exchange_probabilities,
         interval_jump_angles,
     ) = dynamic_circuits.build_dynamic_lie_trotter_circuits_with_schedule(
-        times,
+        evolution_times,
         number_of_qubits,
         trotter_delta_t=trotter_delta_t,
+    )
+    if single_target and np.isclose(requested_times[0], 0.0):
+        interval_substep_dts = ()
+        interval_dilation_exchange_probabilities = ()
+        interval_jump_angles = ()
+    saved_circuits = tuple(
+        evolution_circuits[index] for index in saved_circuit_indices
     )
     entries = tuple(
         (
@@ -240,7 +287,7 @@ def build_sample_circuits(
                 basis,
             ),
         )
-        for time_index, circuit in enumerate(evolution_circuits)
+        for time_index, circuit in enumerate(saved_circuits)
         for basis in MEASUREMENT_BASES
     )
     return (
@@ -253,6 +300,9 @@ def build_sample_circuits(
             ),
             interval_jump_angles=interval_jump_angles,
             requested_trotter_delta_t=trotter_delta_t,
+            includes_initial_time=not (
+                single_target and requested_times[0] > 0.0
+            ),
         ),
     )
 
@@ -471,13 +521,18 @@ def observables_from_results(
 
 
 def calculate_references(times, number_of_qubits, schedule=None):
-    if schedule is None:
+    time_grid = np.asarray(times, dtype=float)
+    if (
+        schedule is None
+        and time_grid.size >= 2
+        and np.isclose(time_grid[0], 0.0)
+    ):
         (
             exact_density_matrices,
             coherent_lie_density_matrices,
             reference_observables,
         ) = reference_tools.calculate_reference_solutions(
-            times,
+            time_grid,
             number_of_qubits,
         )
     else:
@@ -506,22 +561,32 @@ def calculate_references(times, number_of_qubits, schedule=None):
             jump_operators,
         )
         exact_density_matrices = np.asarray(
-            (
-                initial_density_matrix,
-                *(
-                    classical.exact_evolve(
-                        initial_density_matrix,
-                        liouvillian,
-                        np.asarray((0.0, float(time))),
-                    )[-1]
-                    for time in times[1:]
-                ),
+            tuple(
+                initial_density_matrix
+                if np.isclose(time, 0.0)
+                else classical.exact_evolve(
+                    initial_density_matrix,
+                    liouvillian,
+                    np.asarray((0.0, float(time))),
+                )[-1]
+                for time in time_grid
             )
         )
 
         coherent_density_matrix = initial_density_matrix
         coherent_values = [initial_density_matrix]
-        for interval_substeps in schedule.interval_substep_dts:
+        interval_substeps_values = (
+            schedule.interval_substep_dts
+            if schedule is not None
+            else tuple(
+                (float(interval),)
+                for interval in np.diff(
+                    np.concatenate(((0.0,), time_grid))
+                )
+                if interval > 0.0
+            )
+        )
+        for interval_substeps in interval_substeps_values:
             for dt in interval_substeps:
                 coherent_density_matrix = (
                     classical.hamiltonian_dilation_evolve(
@@ -534,7 +599,15 @@ def calculate_references(times, number_of_qubits, schedule=None):
                     )[-1]
                 )
             coherent_values.append(coherent_density_matrix)
-        coherent_lie_density_matrices = np.asarray(coherent_values)
+        coherent_lie_density_matrices = np.asarray(
+            coherent_values
+            if (
+                schedule.includes_initial_time
+                if schedule is not None
+                else np.isclose(time_grid[0], 0.0)
+            )
+            else coherent_values[1:]
+        )
         identity = reference_tools.eye(
             2**number_of_qubits,
             dtype=complex,
@@ -719,6 +792,266 @@ def _atomic_write_json(path, payload):
     temporary_path.replace(path)
 
 
+def _metadata_file_specification(payload):
+    configuration = payload.get("configuration")
+    checkpoint_records = payload.get("results")
+    if isinstance(configuration, dict) and isinstance(
+        checkpoint_records,
+        list,
+    ):
+        return {
+            "kind": "checkpoint",
+            "backend": configuration.get("backend"),
+            "number_of_qubits": configuration.get(
+                "number_of_system_qubits"
+            ),
+            "times": configuration.get("times"),
+            "optimization_level": configuration.get(
+                "optimization_level",
+                DEFAULT_OPTIMIZATION_LEVEL,
+            ),
+            "seed_transpiler": configuration.get(
+                "seed_transpiler",
+                DEFAULT_SEED_TRANSPILER,
+            ),
+            "trotter_delta_t": configuration.get("trotter_delta_t"),
+            "records": checkpoint_records,
+        }
+
+    result_records = payload.get("circuit_metadata")
+    if isinstance(result_records, list):
+        schedule = payload.get("evolution_schedule")
+        return {
+            "kind": "result",
+            "backend": payload.get("backend"),
+            "number_of_qubits": payload.get("number_of_system_qubits"),
+            "times": payload.get("times"),
+            "optimization_level": payload.get(
+                "optimization_level",
+                DEFAULT_OPTIMIZATION_LEVEL,
+            ),
+            "seed_transpiler": payload.get(
+                "seed_transpiler",
+                DEFAULT_SEED_TRANSPILER,
+            ),
+            "trotter_delta_t": (
+                schedule.get("requested_trotter_delta_t")
+                if isinstance(schedule, dict)
+                else None
+            ),
+            "records": result_records,
+        }
+    raise ValueError(
+        "metadata file is neither an Experiment 4 result nor checkpoint"
+    )
+
+
+def _next_metadata_backup_path(path):
+    candidate = path.with_name(
+        f"{path.stem}.before_metadata{path.suffix}"
+    )
+    index = 1
+    while candidate.exists():
+        candidate = path.with_name(
+            f"{path.stem}.before_metadata_{index}{path.suffix}"
+        )
+        index += 1
+    return candidate
+
+
+def _backfilled_record(record, metrics, overwrite):
+    replacements = {
+        "original_operation_count": metrics.original_gate_count,
+        "original_depth": metrics.original_depth,
+        "compiled_operation_count": metrics.compiled_gate_count,
+        "compiled_depth": metrics.compiled_depth,
+    }
+    return {
+        **record,
+        **{
+            field: value
+            for field, value in replacements.items()
+            if overwrite
+            or not isinstance(record.get(field), int)
+            or record[field] < 0
+        },
+    }
+
+
+def backfill_metadata_only(options):
+    """Recompile recorded circuits and update metrics without submission."""
+    if options.metadata_file is None:
+        raise ValueError("--metadata-only requires --metadata-file PATH")
+    metadata_path = Path(options.metadata_file)
+    try:
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise ValueError(
+            f"could not read metadata file {metadata_path}: {error}"
+        ) from error
+
+    specification = _metadata_file_specification(payload)
+    backend_name = specification["backend"]
+    number_of_qubits = specification["number_of_qubits"]
+    records = specification["records"]
+    if not isinstance(backend_name, str) or not backend_name:
+        raise ValueError("metadata file has no valid backend name")
+    if not isinstance(number_of_qubits, int) or number_of_qubits < 2:
+        raise ValueError("metadata file has no valid system-qubit count")
+    if not records:
+        raise ValueError("metadata file contains no completed circuits")
+
+    if specification["kind"] == "result" and "archive" in payload:
+        circuit_values = []
+        metadata_values = []
+        histories = payload.get("run_history", ())
+        rebuilt_runs = {}
+        for time_index, time in enumerate(specification["times"]):
+            matching_history_index = next(
+                (
+                    index
+                    for index in reversed(range(len(histories)))
+                    if any(
+                        np.isclose(
+                            time,
+                            candidate,
+                            rtol=1e-12,
+                            atol=1e-12,
+                        )
+                        for candidate in histories[index].get("times", ())
+                    )
+                ),
+                None,
+            )
+            if matching_history_index is None:
+                run_times = (time,)
+                run_delta_t = specification["trotter_delta_t"]
+            else:
+                history = histories[matching_history_index]
+                run_times = history["times"]
+                history_schedule = history.get("evolution_schedule")
+                run_delta_t = (
+                    history_schedule.get("requested_trotter_delta_t")
+                    if isinstance(history_schedule, dict)
+                    else specification["trotter_delta_t"]
+                )
+            cache_key = (
+                matching_history_index,
+                tuple(map(float, run_times)),
+                run_delta_t,
+            )
+            if cache_key not in rebuilt_runs:
+                rebuilt_runs[cache_key] = build_sample_circuits(
+                    run_times,
+                    number_of_qubits,
+                    trotter_delta_t=run_delta_t,
+                )[:2]
+            run_circuits, run_metadata = rebuilt_runs[cache_key]
+            run_time_index = next(
+                index
+                for index, candidate in enumerate(run_times)
+                if np.isclose(
+                    time,
+                    candidate,
+                    rtol=1e-12,
+                    atol=1e-12,
+                )
+            )
+            selected = tuple(
+                (circuit, basis)
+                for circuit, (candidate_time_index, basis) in zip(
+                    run_circuits,
+                    run_metadata,
+                    strict=True,
+                )
+                if candidate_time_index == run_time_index
+            )
+            circuit_values.extend(circuit for circuit, _ in selected)
+            metadata_values.extend(
+                (time_index, basis) for _, basis in selected
+            )
+        circuits = tuple(circuit_values)
+        metadata = tuple(metadata_values)
+    else:
+        circuits, metadata, _ = build_sample_circuits(
+            specification["times"],
+            number_of_qubits,
+            trotter_delta_t=specification["trotter_delta_t"],
+        )
+    if len(records) > len(circuits):
+        raise ValueError("metadata file contains too many circuit records")
+    for index, record in enumerate(records):
+        expected_time_index, expected_basis = metadata[index]
+        if (
+            record.get("time_index") != expected_time_index
+            or record.get("basis") != expected_basis
+        ):
+            raise ValueError(
+                "metadata records do not match the rebuilt circuit order"
+            )
+
+    target, environment = _runtime_target(
+        backend_name,
+        options.aer_method,
+        options.account_file,
+    )
+    compiler = CompilerConfig(
+        optimization_level=int(specification["optimization_level"]),
+        seed_transpiler=specification["seed_transpiler"],
+    )
+    print(
+        f"Metadata-only: transpiling {len(records)} circuits for "
+        f"{backend_name}; no Sampler job will be submitted"
+    )
+    match compile_circuit_batch_sync(
+        circuits[: len(records)],
+        target,
+        compiler,
+        environment,
+    ):
+        case Err(error):
+            raise RuntimeError(_runtime_error_message(error))
+        case Ok(metrics):
+            pass
+
+    updated_records = [
+        _backfilled_record(record, metric, options.overwrite_metadata)
+        for record, metric in zip(records, metrics, strict=True)
+    ]
+    changed_count = sum(
+        original != updated
+        for original, updated in zip(records, updated_records, strict=True)
+    )
+    if changed_count == 0:
+        print("All circuit metrics are already present; no file was changed.")
+        return
+
+    backup_path = _next_metadata_backup_path(metadata_path)
+    _atomic_write_json(backup_path, payload)
+    record_key = (
+        "results"
+        if specification["kind"] == "checkpoint"
+        else "circuit_metadata"
+    )
+    updated_payload = {
+        **payload,
+        record_key: updated_records,
+        "metadata_backfill": {
+            "backend": backend_name,
+            "optimization_level": compiler.optimization_level,
+            "seed_transpiler": compiler.seed_transpiler,
+            "computed_at_utc": datetime.now(timezone.utc).isoformat(),
+            "circuit_count": len(metrics),
+            "uses_current_backend_target": backend_name.lower() != "aer",
+            "hardware_job_submitted": False,
+        },
+    }
+    _atomic_write_json(metadata_path, updated_payload)
+    print(f"Updated metrics for {changed_count} circuits: {metadata_path}")
+    print(f"Backup: {backup_path}")
+    print("Hardware jobs submitted: 0")
+
+
 def _checkpoint_configuration(options, times, metadata):
     return {
         "backend": options.backend.lower(),
@@ -863,6 +1196,295 @@ def load_checkpoint(checkpoint_path, options, times, metadata):
     return tuple(_sample_result_from_record(record) for record in records)
 
 
+def _array_families_payload(values):
+    return {
+        "populations": values[0].tolist(),
+        "xy_correlations": values[1].tolist(),
+        "excitation_flows": values[2].tolist(),
+    }
+
+
+def _result_compatibility_signature(payload):
+    schedule = payload.get("evolution_schedule")
+    requested_delta_t = (
+        schedule.get("requested_trotter_delta_t")
+        if isinstance(schedule, dict)
+        else None
+    )
+    effective_delta_t = (
+        requested_delta_t
+        if requested_delta_t is not None
+        else (
+            schedule.get("uniform_substep_dt")
+            if isinstance(schedule, dict)
+            else None
+        )
+    )
+    return {
+        "experiment": payload.get("experiment"),
+        "backend": str(payload.get("backend", "")).lower(),
+        "number_of_system_qubits": payload.get("number_of_system_qubits"),
+        "shots_per_measurement_circuit": payload.get(
+            "shots_per_measurement_circuit"
+        ),
+        "measurement_bases": tuple(payload.get("measurement_bases", ())),
+        "optimization_level": payload.get("optimization_level"),
+        "seed_transpiler": payload.get("seed_transpiler"),
+        "seed_simulator": payload.get("seed_simulator"),
+        "aer_method": payload.get("aer_method", "automatic"),
+        "effective_trotter_delta_t": effective_delta_t,
+        "has_classical_reference": all(
+            key in payload
+            for key in (
+                "exact_reference_observables",
+                "coherent_lie_reference_observables",
+            )
+        ),
+    }
+
+
+def _prospective_compatibility_signature(options, schedule):
+    return {
+        "experiment": "Model1/Experiment4 dynamic Lie-Trotter",
+        "backend": options.backend.lower(),
+        "number_of_system_qubits": options.n_qubits,
+        "shots_per_measurement_circuit": options.shots,
+        "measurement_bases": MEASUREMENT_BASES,
+        "optimization_level": options.optimization_level,
+        "seed_transpiler": options.seed_transpiler,
+        "seed_simulator": options.seed_simulator,
+        "aer_method": options.aer_method,
+        "effective_trotter_delta_t": (
+            options.trotter_delta_t
+            if options.trotter_delta_t is not None
+            else _uniform_value(schedule.substep_dts)
+        ),
+        "has_classical_reference": options.classical_reference,
+    }
+
+
+def _load_result_payload(path):
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise ValueError(
+            f"could not read existing result {path}: {error}"
+        ) from error
+
+
+def validate_existing_result_compatibility(output_path, options, schedule):
+    """Reject unsafe archive mixtures before any sampling is submitted."""
+    path = Path(output_path)
+    if not path.exists():
+        return None
+    payload = _load_result_payload(path)
+    existing = _result_compatibility_signature(payload)
+    requested = _prospective_compatibility_signature(options, schedule)
+    mismatches = tuple(
+        key for key in requested if existing.get(key) != requested[key]
+    )
+    if mismatches:
+        raise ValueError(
+            "existing Experiment 4 result is incompatible in: "
+            f"{', '.join(mismatches)}. Use matching options or a different "
+            "--output-directory; no circuits were submitted."
+        )
+    return payload
+
+
+def _merged_time_sources(existing_times, new_times):
+    """Return sorted times and prefer the new run at matching times."""
+    merged_times = [float(value) for value in existing_times]
+    for value in map(float, new_times):
+        if not any(
+            np.isclose(value, current, rtol=1e-12, atol=1e-12)
+            for current in merged_times
+        ):
+            merged_times.append(value)
+    merged_times.sort()
+
+    sources = []
+    for value in merged_times:
+        new_index = next(
+            (
+                index
+                for index, current in enumerate(new_times)
+                if np.isclose(value, current, rtol=1e-12, atol=1e-12)
+            ),
+            None,
+        )
+        if new_index is not None:
+            sources.append(("new", new_index))
+            continue
+        old_index = next(
+            index
+            for index, current in enumerate(existing_times)
+            if np.isclose(value, current, rtol=1e-12, atol=1e-12)
+        )
+        sources.append(("old", old_index))
+    return merged_times, tuple(sources)
+
+
+def _merge_array_on_time_axis(old_values, new_values, sources, axis):
+    old_array = np.asarray(old_values)
+    new_array = np.asarray(new_values)
+    slices = tuple(
+        np.take(
+            new_array if source == "new" else old_array,
+            index,
+            axis=axis,
+        )
+        for source, index in sources
+    )
+    return np.stack(slices, axis=axis).tolist()
+
+
+def _merge_family_payload(old_values, new_values, sources, axis=1):
+    return {
+        family: _merge_array_on_time_axis(
+            old_values[family],
+            new_values[family],
+            sources,
+            axis,
+        )
+        for family in (
+            "populations",
+            "xy_correlations",
+            "excitation_flows",
+        )
+    }
+
+
+def _records_by_time(records):
+    grouped = {}
+    for record in records:
+        grouped.setdefault(int(record["time_index"]), []).append(record)
+    return grouped
+
+
+def _merge_indexed_records(
+    old_records,
+    new_records,
+    sources,
+    merged_times,
+    *,
+    include_time,
+):
+    old_grouped = _records_by_time(old_records)
+    new_grouped = _records_by_time(new_records)
+    merged = []
+    for new_time_index, ((source, source_index), time) in enumerate(
+        zip(sources, merged_times, strict=True)
+    ):
+        source_group = new_grouped if source == "new" else old_grouped
+        for record in source_group[source_index]:
+            updated = {**record, "time_index": new_time_index}
+            if include_time:
+                updated["time"] = float(time)
+            merged.append(updated)
+    return merged
+
+
+def _run_history_record(payload):
+    return {
+        "completed_at_utc": payload.get("completed_at_utc"),
+        "times": payload.get("times", ()),
+        "job_ids": payload.get("job_ids", ()),
+        "evolution_schedule": payload.get("evolution_schedule"),
+    }
+
+
+def merge_result_payloads(existing, new):
+    """Merge time points, with the new run replacing matching times."""
+    if _result_compatibility_signature(existing) != (
+        _result_compatibility_signature(new)
+    ):
+        raise ValueError("cannot merge incompatible Experiment 4 results")
+    merged_times, sources = _merged_time_sources(
+        existing["times"],
+        new["times"],
+    )
+    merged = {**existing, **new, "times": merged_times}
+    for key in ("observables", "standard_errors"):
+        merged[key] = _merge_family_payload(
+            existing[key],
+            new[key],
+            sources,
+        )
+    if "exact_reference_observables" in new:
+        for key in (
+            "exact_reference_observables",
+            "coherent_lie_reference_observables",
+        ):
+            merged[key] = _merge_family_payload(
+                existing[key],
+                new[key],
+                sources,
+            )
+        for key in (
+            "aggregate_observable_error_vs_exact",
+            "aggregate_observable_error_vs_coherent_lie",
+        ):
+            merged[key] = _merge_array_on_time_axis(
+                existing[key],
+                new[key],
+                sources,
+                0,
+            )
+    merged["raw_counts"] = _merge_indexed_records(
+        existing["raw_counts"],
+        new["raw_counts"],
+        sources,
+        merged_times,
+        include_time=True,
+    )
+    merged["circuit_metadata"] = _merge_indexed_records(
+        existing["circuit_metadata"],
+        new["circuit_metadata"],
+        sources,
+        merged_times,
+        include_time=True,
+    )
+    uses_existing = any(source == "old" for source, _ in sources)
+    merged["job_ids"] = tuple(
+        dict.fromkeys(
+            (
+                *(existing.get("job_ids", ()) if uses_existing else ()),
+                *new.get("job_ids", ()),
+            )
+        )
+    )
+    existing_history = existing.get("run_history")
+    merged["run_history"] = (
+        list(existing_history)
+        if isinstance(existing_history, list)
+        else [_run_history_record(existing)]
+    )
+    merged["run_history"].append(_run_history_record(new))
+    merged["archive"] = {
+        "schema_version": 1,
+        "merge_policy": "new run replaces matching times",
+        "saved_time_count": len(merged_times),
+        "latest_run_times": new["times"],
+    }
+    return merged
+
+
+def _family_arrays(values):
+    return tuple(
+        np.asarray(values[family], dtype=float)
+        for family in (
+            "populations",
+            "xy_correlations",
+            "excitation_flows",
+        )
+    )
+
+
+def _payload_observables(payload, key):
+    return _family_arrays(payload[key])
+
+
 def save_results(
     output_path,
     options,
@@ -904,7 +1526,8 @@ def save_results(
         "system_terminal_bits_by_site": tuple(
             range(1, options.n_qubits + 1)
         ),
-        "times": times.tolist(),
+        "completed_at_utc": datetime.now(timezone.utc).isoformat(),
+        "times": np.asarray(times, dtype=float).tolist(),
         # Scalar aliases remain populated for uniform grids and are null
         # for genuinely nonuniform schedules.
         "dt": schedule_payload["uniform_substep_dt"],
@@ -919,11 +1542,14 @@ def save_results(
         "optimization_level": options.optimization_level,
         "seed_transpiler": options.seed_transpiler,
         "seed_simulator": options.seed_simulator,
+        "aer_method": options.aer_method,
         "job_ids": job_ids,
         "circuit_metadata": tuple(
             {
                 "time_index": time_index,
                 "basis": basis,
+                "time": float(times[time_index]),
+                "job_id": results[index].job_id,
                 "original_operation_count": (
                     results[index].original_gate_count
                 ),
@@ -935,24 +1561,37 @@ def save_results(
             }
             for index, (time_index, basis) in enumerate(metadata)
         ),
-        "observables": {
-            "populations": measured[0].tolist(),
-            "xy_correlations": measured[1].tolist(),
-            "excitation_flows": measured[2].tolist(),
-        },
-        "standard_errors": {
-            "populations": standard_errors[0].tolist(),
-            "xy_correlations": standard_errors[1].tolist(),
-            "excitation_flows": standard_errors[2].tolist(),
-        },
+        "observables": _array_families_payload(measured),
+        "standard_errors": _array_families_payload(standard_errors),
         "raw_counts": raw_counts,
     }
     if extra_payload is not None:
         payload.update(extra_payload)
-    _atomic_write_json(output_path, payload)
+    path = Path(output_path)
+    if path.exists():
+        payload = merge_result_payloads(
+            _load_result_payload(path),
+            payload,
+        )
+    else:
+        payload["archive"] = {
+            "schema_version": 1,
+            "merge_policy": "new run replaces matching times",
+            "saved_time_count": len(payload["times"]),
+            "latest_run_times": payload["times"],
+        }
+        payload["run_history"] = [_run_history_record(payload)]
+    _atomic_write_json(path, payload)
+    return payload
 
 
 def main(options):
+    if options.metadata_only:
+        backfill_metadata_only(options)
+        return
+    if options.metadata_file is not None:
+        raise ValueError("--metadata-file is only valid with --metadata-only")
+
     times = time_grid_from_options(options)
     (
         circuits,
@@ -972,6 +1611,17 @@ def main(options):
         options.n_qubits,
         options.output_directory,
     )
+    existing_payload = validate_existing_result_compatibility(
+        result_path,
+        options,
+        schedule,
+    )
+    if existing_payload is not None:
+        print(
+            f"Existing archive contains {len(existing_payload['times'])} "
+            "saved time(s); new values will be appended and matching "
+            "times replaced"
+        )
     checkpoint_path = (
         default_checkpoint_path(result_path)
         if options.checkpoint_file is None
@@ -1041,16 +1691,7 @@ def main(options):
             schedule,
         )
 
-    plot_results(
-        times,
-        options.backend,
-        measured,
-        standard_errors,
-        figure_path,
-        exact,
-        coherent_lie,
-    )
-    save_results(
+    combined_payload = save_results(
         result_path,
         options,
         times,
@@ -1060,6 +1701,53 @@ def main(options):
         measured,
         standard_errors,
         grouped_counts,
+        extra_payload=(
+            None
+            if exact is None
+            else {
+                "exact_reference_observables": (
+                    _array_families_payload(exact)
+                ),
+                "coherent_lie_reference_observables": (
+                    _array_families_payload(coherent_lie)
+                ),
+                "aggregate_observable_error_vs_exact": (
+                    reference_tools.aggregate_observable_error(
+                        measured,
+                        exact,
+                    ).tolist()
+                ),
+                "aggregate_observable_error_vs_coherent_lie": (
+                    reference_tools.aggregate_observable_error(
+                        measured,
+                        coherent_lie,
+                    ).tolist()
+                ),
+            }
+        ),
+    )
+    plot_results(
+        np.asarray(combined_payload["times"], dtype=float),
+        options.backend,
+        _payload_observables(combined_payload, "observables"),
+        _payload_observables(combined_payload, "standard_errors"),
+        figure_path,
+        (
+            _payload_observables(
+                combined_payload,
+                "exact_reference_observables",
+            )
+            if "exact_reference_observables" in combined_payload
+            else None
+        ),
+        (
+            _payload_observables(
+                combined_payload,
+                "coherent_lie_reference_observables",
+            )
+            if "coherent_lie_reference_observables" in combined_payload
+            else None
+        ),
     )
     save_checkpoint(
         checkpoint_path,
@@ -1082,6 +1770,10 @@ def main(options):
     print(f"System qubits: {options.n_qubits}")
     print(f"Total circuit qubits: {options.n_qubits + 2}")
     print(f"Shots per measurement circuit: {options.shots}")
+    print(
+        f"Archive saved times: {combined_payload['times']} "
+        "(new run replaces matching times)"
+    )
     if options.trotter_delta_t is None:
         print("Trotter resolution: one substep per saved-time interval")
     else:
@@ -1091,7 +1783,9 @@ def main(options):
         )
     print(f"Total Trotter substeps: {len(schedule.substep_dts)}")
     uniform_dt = _uniform_value(schedule.substep_dts)
-    if uniform_dt is None:
+    if not schedule.substep_dts:
+        print("Lie--Trotter substeps: none (initial-state-only run)")
+    elif uniform_dt is None:
         print(
             "Lie--Trotter substep range: "
             f"{min(schedule.substep_dts):.8f}--"
@@ -1165,8 +1859,13 @@ def time_grid_from_options(options):
             "--times must contain only comma- or space-separated numbers"
         ) from error
     time_grid = np.asarray(values, dtype=float)
+    if time_grid.size == 1:
+        if not np.isfinite(time_grid[0]) or time_grid[0] < 0.0:
+            raise ValueError(
+                "a single --times value must be finite and nonnegative"
+            )
     if time_grid.size < 2:
-        raise ValueError("--times must contain at least two values")
+        return time_grid
     if not np.all(np.isfinite(time_grid)):
         raise ValueError("--times must contain only finite values")
     if not np.isclose(time_grid[0], 0.0):
@@ -1236,9 +1935,10 @@ def parse_arguments(arguments=None):
         default=None,
         metavar="T",
         help=(
-            "explicit increasing saved times starting at 0; accepts "
-            "space- or comma-separated values and overrides --t-final "
-            "and --time-points"
+            "explicit saved times; one nonnegative value T saves only T, "
+            "while a list must start at 0; accepts space- or "
+            "comma-separated values and overrides --t-final and "
+            "--time-points"
         ),
     )
     parser.add_argument(
@@ -1308,6 +2008,31 @@ def parse_arguments(arguments=None):
         help=(
             "checkpoint JSON path (default: a *_checkpoint.json file "
             "beside the final result)"
+        ),
+    )
+    parser.add_argument(
+        "--metadata-only",
+        action="store_true",
+        help=(
+            "rebuild and transpile recorded circuits to fill unavailable "
+            "operation/depth metrics; never submit a Sampler job"
+        ),
+    )
+    parser.add_argument(
+        "--metadata-file",
+        type=Path,
+        default=None,
+        help=(
+            "Experiment 4 result or checkpoint JSON updated by "
+            "--metadata-only"
+        ),
+    )
+    parser.add_argument(
+        "--overwrite-metadata",
+        action="store_true",
+        help=(
+            "replace existing nonnegative metrics in metadata-only mode; "
+            "by default only missing or negative values are replaced"
         ),
     )
     parser.add_argument(

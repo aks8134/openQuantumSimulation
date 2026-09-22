@@ -1,7 +1,12 @@
 """Immutable, OCaml-inspired functional wrapper for IBM Quantum and Aer."""
 
 from .backend import AER_METHODS, Aer, IBMHardware
-from .api import run_async, run_sample_batch_sync, run_sync
+from .api import (
+    compile_circuit_batch_sync,
+    run_async,
+    run_sample_batch_sync,
+    run_sync,
+)
 from .circuit import (
     CX,
     H,
@@ -31,7 +36,7 @@ from .circuit import (
     x,
     xx_plus_yy,
 )
-from .compile import CompilerConfig
+from .compile import CompilationMetrics, CompilerConfig
 from .execute import (
     ExecutionFailure,
     ExecutionPlan,
@@ -71,6 +76,7 @@ __all__ = (
     "Circuit",
     "ClassicallyControlledXXPlusYY",
     "CompilerConfig",
+    "CompilationMetrics",
     "Err",
     "Estimate",
     "EstimateResult",
@@ -102,6 +108,7 @@ __all__ = (
     "counts_dict",
     "concat_map",
     "classically_controlled_xx_plus_yy",
+    "compile_circuit_batch_sync",
     "controlled_xx_plus_yy",
     "cx",
     "draw_circuit",

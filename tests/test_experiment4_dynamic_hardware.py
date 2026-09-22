@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime, timezone
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
@@ -7,7 +8,14 @@ from unittest.mock import patch
 
 import numpy as np
 
-from IBMRuntime import Err, ExecutionFailure, Measure, Ok, SampleResult
+from IBMRuntime import (
+    CompilationMetrics,
+    Err,
+    ExecutionFailure,
+    Measure,
+    Ok,
+    SampleResult,
+)
 from Model1.Experiment4 import dynamic_lie_trotter as experiment
 from Model1.Experiment4 import recover_dynamic_lie_trotter as recovery
 
@@ -128,6 +136,40 @@ class Experiment4CircuitTests(unittest.TestCase):
             experiment.time_grid_from_options(options),
             (0.0, 0.1, 0.4, 1.0),
         )
+
+    def test_single_explicit_time_saves_only_target(self):
+        options = experiment.parse_arguments(("--times", "0.7"))
+
+        np.testing.assert_allclose(
+            experiment.time_grid_from_options(options),
+            (0.7,),
+        )
+
+    def test_single_zero_time_is_allowed(self):
+        options = experiment.parse_arguments(("--times", "0"))
+
+        np.testing.assert_allclose(
+            experiment.time_grid_from_options(options),
+            (0.0,),
+        )
+
+    def test_single_target_has_only_target_circuits_with_internal_steps(self):
+        circuits, metadata, schedule = experiment.build_sample_circuits(
+            (0.7,),
+            2,
+            trotter_delta_t=0.2,
+        )
+
+        self.assertEqual(len(circuits), len(experiment.MEASUREMENT_BASES))
+        self.assertEqual(
+            metadata,
+            tuple((0, basis) for basis in experiment.MEASUREMENT_BASES),
+        )
+        np.testing.assert_allclose(
+            schedule.substep_dts,
+            (0.2, 0.2, 0.2, 0.1),
+        )
+        self.assertFalse(schedule.includes_initial_time)
 
     def test_command_line_accepts_maximum_trotter_step(self):
         options = experiment.parse_arguments(
@@ -287,6 +329,136 @@ class Experiment4CircuitTests(unittest.TestCase):
 
         self.assertEqual(restored, results)
 
+    def test_result_archive_appends_and_replaces_matching_times(self):
+        options = SimpleNamespace(
+            backend="aer",
+            n_qubits=2,
+            shots=10,
+            optimization_level=1,
+            seed_transpiler=11,
+            seed_simulator=17,
+            aer_method="automatic",
+            trotter_delta_t=0.05,
+            classical_reference=False,
+        )
+
+        def save_run(path, times, marker):
+            times = np.asarray(times, dtype=float)
+            _, metadata, schedule = experiment.build_sample_circuits(
+                times,
+                options.n_qubits,
+                trotter_delta_t=options.trotter_delta_t,
+            )
+            results = tuple(
+                sample_result({str(marker): options.shots})
+                for _ in metadata
+            )
+            measured = (
+                np.full((2, len(times)), marker, dtype=float),
+                np.full((1, len(times)), marker, dtype=float),
+                np.full((1, len(times)), marker, dtype=float),
+            )
+            standard_errors = tuple(
+                np.zeros_like(values) for values in measured
+            )
+            grouped_counts = tuple(
+                {
+                    basis: {str(marker): options.shots}
+                    for basis in experiment.MEASUREMENT_BASES
+                }
+                for _ in times
+            )
+            return experiment.save_results(
+                path,
+                options,
+                times,
+                schedule,
+                results,
+                metadata,
+                measured,
+                standard_errors,
+                grouped_counts,
+            )
+
+        with TemporaryDirectory() as directory:
+            result_path = Path(directory) / "result.json"
+            save_run(result_path, (0.1,), 1)
+            save_run(result_path, (0.2,), 2)
+            combined = save_run(result_path, (0.1,), 9)
+
+        self.assertEqual(combined["times"], [0.1, 0.2])
+        np.testing.assert_allclose(
+            combined["observables"]["populations"][0],
+            (9.0, 2.0),
+        )
+        self.assertEqual(len(combined["raw_counts"]), 10)
+        self.assertEqual(len(combined["circuit_metadata"]), 10)
+        replacement_counts = [
+            record["counts"]
+            for record in combined["raw_counts"]
+            if np.isclose(record["time"], 0.1)
+        ]
+        self.assertEqual(replacement_counts, [{"9": 10}] * 5)
+        self.assertEqual(len(combined["run_history"]), 3)
+
+    def test_archive_compatibility_is_checked_before_sampling(self):
+        options = SimpleNamespace(
+            backend="aer",
+            n_qubits=2,
+            shots=10,
+            optimization_level=1,
+            seed_transpiler=11,
+            seed_simulator=17,
+            aer_method="automatic",
+            trotter_delta_t=0.05,
+            classical_reference=False,
+        )
+        times = np.asarray((0.2,), dtype=float)
+        _, metadata, schedule = experiment.build_sample_circuits(
+            times,
+            2,
+            trotter_delta_t=options.trotter_delta_t,
+        )
+        results = tuple(
+            sample_result({"0": options.shots}) for _ in metadata
+        )
+        measured = (
+            np.zeros((2, 1)),
+            np.zeros((1, 1)),
+            np.zeros((1, 1)),
+        )
+        grouped_counts = tuple(
+            {
+                basis: {"0": options.shots}
+                for basis in experiment.MEASUREMENT_BASES
+            }
+            for _ in times
+        )
+
+        with TemporaryDirectory() as directory:
+            result_path = Path(directory) / "result.json"
+            experiment.save_results(
+                result_path,
+                options,
+                times,
+                schedule,
+                results,
+                metadata,
+                measured,
+                measured,
+                grouped_counts,
+            )
+            incompatible = SimpleNamespace(**{**vars(options), "shots": 20})
+            with self.assertRaisesRegex(
+                ValueError,
+                "shots_per_measurement_circuit",
+            ):
+                experiment.validate_existing_result_compatibility(
+                    result_path,
+                    incompatible,
+                    schedule,
+                )
+
     def test_recovery_downloads_only_completed_sampler_jobs(self):
         class CountsData:
             def get_counts(self):
@@ -324,6 +496,169 @@ class Experiment4CircuitTests(unittest.TestCase):
         self.assertEqual(results[0].job_id, "completed-job")
         self.assertEqual(results[0].compiled_depth, -1)
         self.assertEqual(len(records), 2)
+
+    def test_metadata_only_backfills_negative_metrics_without_submission(self):
+        payload = {
+            "experiment": "Model1/Experiment4 dynamic Lie-Trotter",
+            "backend": "ibm_kingston",
+            "number_of_system_qubits": 2,
+            "times": [0.0, 0.2],
+            "optimization_level": 1,
+            "seed_transpiler": 11,
+            "circuit_metadata": [
+                {
+                    "time_index": 0,
+                    "basis": "Z",
+                    "original_operation_count": -1,
+                    "original_depth": -1,
+                    "compiled_operation_count": -1,
+                    "compiled_depth": -1,
+                }
+            ],
+        }
+        metrics = CompilationMetrics(
+            original_gate_count=3,
+            original_depth=2,
+            compiled_gate_count=9,
+            compiled_depth=7,
+        )
+
+        with TemporaryDirectory() as directory:
+            metadata_file = Path(directory) / "recovered.json"
+            metadata_file.write_text(
+                json.dumps(payload),
+                encoding="utf-8",
+            )
+            options = SimpleNamespace(
+                metadata_file=metadata_file,
+                overwrite_metadata=False,
+                aer_method="automatic",
+                account_file=experiment.DEFAULT_ACCOUNT_FILE,
+            )
+            with (
+                patch.object(
+                    experiment,
+                    "_runtime_target",
+                    return_value=(object(), object()),
+                ),
+                patch.object(
+                    experiment,
+                    "compile_circuit_batch_sync",
+                    return_value=Ok((metrics,)),
+                ) as compile_batch,
+                patch.object(
+                    experiment,
+                    "run_sample_batch_sync",
+                    side_effect=AssertionError("must not submit"),
+                ) as sample_batch,
+            ):
+                experiment.backfill_metadata_only(options)
+
+            updated = json.loads(
+                metadata_file.read_text(encoding="utf-8")
+            )
+            backup = metadata_file.with_name(
+                "recovered.before_metadata.json"
+            )
+            backup_exists = backup.exists()
+
+        self.assertEqual(
+            updated["circuit_metadata"][0]["original_operation_count"],
+            3,
+        )
+        self.assertEqual(
+            updated["circuit_metadata"][0]["compiled_depth"],
+            7,
+        )
+        self.assertFalse(
+            updated["metadata_backfill"]["hardware_job_submitted"]
+        )
+        self.assertTrue(backup_exists)
+        compile_batch.assert_called_once()
+        sample_batch.assert_not_called()
+
+    def test_metadata_only_rebuilds_each_archived_run_schedule(self):
+        run_options = SimpleNamespace(
+            backend="aer",
+            n_qubits=2,
+            shots=10,
+            optimization_level=1,
+            seed_transpiler=11,
+            seed_simulator=17,
+            aer_method="automatic",
+            trotter_delta_t=0.05,
+        )
+        measured = (
+            np.zeros((2, 1)),
+            np.zeros((1, 1)),
+            np.zeros((1, 1)),
+        )
+
+        with TemporaryDirectory() as directory:
+            metadata_file = Path(directory) / "archive.json"
+            for time in (0.1, 0.2):
+                times = np.asarray((time,))
+                _, metadata, schedule = experiment.build_sample_circuits(
+                    times,
+                    2,
+                    trotter_delta_t=run_options.trotter_delta_t,
+                )
+                results = tuple(
+                    sample_result({"0": 10}) for _ in metadata
+                )
+                grouped_counts = (
+                    {
+                        basis: {"0": 10}
+                        for basis in experiment.MEASUREMENT_BASES
+                    },
+                )
+                experiment.save_results(
+                    metadata_file,
+                    run_options,
+                    times,
+                    schedule,
+                    results,
+                    metadata,
+                    measured,
+                    measured,
+                    grouped_counts,
+                )
+
+            metrics = CompilationMetrics(
+                original_gate_count=3,
+                original_depth=2,
+                compiled_gate_count=9,
+                compiled_depth=7,
+            )
+            metadata_options = SimpleNamespace(
+                metadata_file=metadata_file,
+                overwrite_metadata=True,
+                aer_method="automatic",
+                account_file=experiment.DEFAULT_ACCOUNT_FILE,
+            )
+            with (
+                patch.object(
+                    experiment,
+                    "_runtime_target",
+                    return_value=(object(), object()),
+                ),
+                patch.object(
+                    experiment,
+                    "compile_circuit_batch_sync",
+                    return_value=Ok((metrics,) * 10),
+                ) as compile_batch,
+            ):
+                experiment.backfill_metadata_only(metadata_options)
+
+            updated = json.loads(metadata_file.read_text(encoding="utf-8"))
+
+        self.assertEqual(len(updated["circuit_metadata"]), 10)
+        self.assertEqual(
+            {record["time"] for record in updated["circuit_metadata"]},
+            {0.1, 0.2},
+        )
+        compiled_circuits = compile_batch.call_args.args[0]
+        self.assertEqual(len(compiled_circuits), 10)
 
 
 if __name__ == "__main__":
