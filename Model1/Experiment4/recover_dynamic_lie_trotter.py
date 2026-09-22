@@ -384,9 +384,9 @@ def parse_arguments(arguments=None):
         default=None,
         metavar="T",
         help=(
-            "explicit saved times from the original run; accepts space- "
-            "or comma-separated values and overrides --t-final and "
-            "--time-points"
+            "explicit saved times from the original run; one nonnegative "
+            "value T saves only T; accepts space- or comma-separated values "
+            "and overrides --t-final and --time-points"
         ),
     )
     parser.add_argument(

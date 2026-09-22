@@ -7,6 +7,7 @@ from .effects import async_ as async_effect
 from .effects import sync as sync_effect
 from .execute import ExecutionPlan, Sample
 from .interpreters.qiskit import (
+    compile_circuit_batch_sync as _compile_circuit_batch_sync,
     make_runtime,
     run_sample_batch_sync as _run_sample_batch_sync,
 )
@@ -16,6 +17,22 @@ from .workflow import make_workflow
 
 _SYNC_WORKFLOW = make_workflow(make_runtime(sync_effect))
 _ASYNC_WORKFLOW = make_workflow(make_runtime(async_effect))
+
+
+def compile_circuit_batch_sync(
+    circuits: tuple[Circuit, ...],
+    target: Target,
+    compiler: CompilerConfig = CompilerConfig(),
+    environment: RuntimeEnvironment = RuntimeEnvironment(),
+):
+    """Transpile circuits and return metrics without submitting a job."""
+
+    return _compile_circuit_batch_sync(
+        circuits,
+        target,
+        compiler,
+        environment,
+    )
 
 
 def run_sync(

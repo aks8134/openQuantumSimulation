@@ -5,7 +5,12 @@ from dataclasses import dataclass, field
 from types import ModuleType
 from typing import Any, Literal, TypeVar
 
-from ..backend import Aer, IBMHardware, Target
+from ..backend import (
+    Aer,
+    IBMHardware,
+    Target,
+    validation_errors as target_errors,
+)
 from ..circuit import (
     CX,
     H,
@@ -21,8 +26,13 @@ from ..circuit import (
     Reset,
     SaveDensityMatrix,
     XXPlusYY,
+    validation_errors as circuit_errors,
 )
-from ..compile import CompilerConfig
+from ..compile import (
+    CompilationMetrics,
+    CompilerConfig,
+    validation_errors as compiler_errors,
+)
 from ..execute import (
     DensityMatrix,
     DensityMatrixResult,
@@ -467,6 +477,58 @@ def _job_id(job: Any) -> str | None:
         return str(candidate())
     except Exception:
         return None
+
+
+def compile_circuit_batch_sync(
+    circuits: tuple[Circuit, ...],
+    target: Target,
+    compiler: CompilerConfig = CompilerConfig(),
+    environment: RuntimeEnvironment = RuntimeEnvironment(),
+) -> Result[tuple[CompilationMetrics, ...], RuntimeFailure]:
+    """Resolve and transpile circuits without submitting provider work."""
+
+    if not circuits:
+        return Err(ValidationFailure(("a compilation batch cannot be empty",)))
+
+    common_problems = (*target_errors(target), *compiler_errors(compiler))
+    problems = (
+        *common_problems,
+        *concat_map(
+            lambda indexed_circuit: map_tuple(
+                lambda problem: f"circuit {indexed_circuit[0]}: {problem}",
+                circuit_errors(indexed_circuit[1]),
+            ),
+            enumerate(circuits),
+        ),
+    )
+    if problems:
+        return Err(ValidationFailure(problems))
+
+    match _resolve_backend(target, environment):
+        case Err(error):
+            return Err(error)
+        case Ok(backend):
+            pass
+
+    match _compile_circuits(backend, circuits, compiler):
+        case Err(error):
+            return Err(error)
+        case Ok(executables):
+            return Ok(
+                map_tuple(
+                    lambda executable: CompilationMetrics(
+                        original_gate_count=(
+                            executable.original_gate_count
+                        ),
+                        original_depth=executable.original_depth,
+                        compiled_gate_count=(
+                            executable.compiled_gate_count
+                        ),
+                        compiled_depth=executable.compiled_depth,
+                    ),
+                    executables,
+                )
+            )
 
 
 def _to_qiskit_observable(

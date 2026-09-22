@@ -17,6 +17,14 @@ class CompilerConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class CompilationMetrics:
+    original_gate_count: int
+    original_depth: int
+    compiled_gate_count: int
+    compiled_depth: int
+
+
+@dataclass(frozen=True, slots=True)
 class CompileRequest:
     circuit: Circuit
     target: Target
