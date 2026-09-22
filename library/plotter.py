@@ -20,8 +20,8 @@ def plot_observables(
     ``observables`` maps subplot titles to dictionaries containing a
     ``values`` array. Values may have shape ``(n_times,)`` or
     ``(n_curves, n_times)``. Optional entries are ``labels``, ``ylabel``,
-    ``styles`` (one dictionary of Matplotlib options per curve), and
-    ``zero_line``.
+    ``styles`` (one dictionary of Matplotlib options per curve),
+    ``zero_line``, and ``yscale`` (for example, ``"log"``).
     """
     times = np.asarray(times)
     if times.ndim != 1:
@@ -74,6 +74,7 @@ def plot_observables(
         axis.set_title(title)
         axis.set_xlabel("Time")
         axis.set_ylabel(specification.get("ylabel", ""))
+        axis.set_yscale(specification.get("yscale", "linear"))
         if any(label is not None for label in labels):
             axis.legend(ncol=specification.get("legend_columns", 1))
         axis.grid(alpha=0.3)
