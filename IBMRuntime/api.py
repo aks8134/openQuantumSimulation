@@ -43,6 +43,7 @@ def draw_transpiled_circuit_layout_sync(
     environment: RuntimeEnvironment = RuntimeEnvironment(),
     *,
     view="virtual",
+    logical_labels=None,
 ):
     """Compile a circuit and draw its backend qubit placement."""
     return _draw_transpiled_circuit_layout_sync(
@@ -51,6 +52,7 @@ def draw_transpiled_circuit_layout_sync(
         compiler,
         environment,
         view=view,
+        logical_labels=logical_labels,
     )
 
 

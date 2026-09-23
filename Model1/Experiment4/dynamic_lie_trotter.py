@@ -893,6 +893,18 @@ def plot_one_step_circuit(number_of_qubits, dt, jump_angle, output_path):
     dynamic_circuits.plot_one_step_circuit(circuit, output_path)
 
 
+def logical_qubit_roles(number_of_qubits):
+    """Describe Experiment 4's little-endian logical circuit qubits."""
+    return (
+        *tuple(
+            f"system site {number_of_qubits - 1 - qubit}"
+            for qubit in range(number_of_qubits)
+        ),
+        "low ancilla a_L",
+        "high ancilla a_H",
+    )
+
+
 def plot_transpiled_circuit_layout(circuit, options, output_path):
     """Compile and plot the representative circuit's backend placement."""
     target, environment = _runtime_target(
@@ -910,6 +922,7 @@ def plot_transpiled_circuit_layout(circuit, options, output_path):
         compiler,
         environment,
         view="virtual",
+        logical_labels=logical_qubit_roles(options.n_qubits),
     ):
         case Err(error):
             raise RuntimeError(_runtime_error_message(error))

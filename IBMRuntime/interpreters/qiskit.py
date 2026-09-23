@@ -538,6 +538,7 @@ def draw_transpiled_circuit_layout_sync(
     environment: RuntimeEnvironment = RuntimeEnvironment(),
     *,
     view: Literal["virtual", "physical"] = "virtual",
+    logical_labels: tuple[str, ...] | None = None,
 ):
     """Compile a circuit and return its backend-layout Matplotlib figure."""
     common_problems = (*target_errors(target), *compiler_errors(compiler))
@@ -548,6 +549,14 @@ def draw_transpiled_circuit_layout_sync(
             ()
             if view in ("virtual", "physical")
             else ("layout view must be 'virtual' or 'physical'",)
+        ),
+        *(
+            ()
+            if logical_labels is None
+            or len(logical_labels) == circuit.qubit_count
+            else (
+                "logical label count must match the circuit qubit count",
+            )
         ),
     )
     if problems:
@@ -565,14 +574,94 @@ def draw_transpiled_circuit_layout_sync(
             pass
 
     def draw_layout():
+        layout = executable.native.layout
+        physical_by_logical = (
+            tuple(range(circuit.qubit_count))
+            if layout is None
+            else tuple(
+                layout.initial_index_layout(filter_ancillas=True)
+            )
+        )
+        if len(physical_by_logical) != circuit.qubit_count:
+            raise ValueError(
+                "transpiler layout does not map every logical qubit"
+            )
+
+        def add_mapping_table(figure):
+            width, height = figure.get_size_inches()
+            figure.set_size_inches(
+                max(float(width) + 4.5, 11.0),
+                max(
+                    float(height),
+                    min(14.0, 0.45 * (circuit.qubit_count + 3)),
+                ),
+            )
+            if figure.axes:
+                figure.axes[0].set_position((0.02, 0.06, 0.65, 0.88))
+            table_axis = figure.add_axes((0.71, 0.08, 0.27, 0.84))
+            table_axis.axis("off")
+            table_axis.set_title(
+                "Logical \u2192 physical mapping",
+                fontsize=12,
+                pad=12,
+            )
+            columns = (
+                ("Logical", "Physical")
+                if logical_labels is None
+                else ("Logical", "Role", "Physical")
+            )
+
+            def mapping_row(index):
+                endpoints = (f"q[{index}]", str(physical_by_logical[index]))
+                return (
+                    endpoints
+                    if logical_labels is None
+                    else (
+                        endpoints[0],
+                        logical_labels[index],
+                        endpoints[1],
+                    )
+                )
+
+            table = table_axis.table(
+                cellText=map_tuple(
+                    mapping_row,
+                    range(circuit.qubit_count),
+                ),
+                colLabels=columns,
+                colColours=("#648fff",) * len(columns),
+                colWidths=(
+                    (0.42, 0.58)
+                    if logical_labels is None
+                    else (0.25, 0.50, 0.25)
+                ),
+                cellLoc="center",
+                colLoc="center",
+                loc="center",
+            )
+            table.auto_set_font_size(False)
+            table.set_fontsize(
+                max(7.0, min(11.0, 100.0 / (circuit.qubit_count + 4)))
+            )
+            table.scale(
+                1.0,
+                max(
+                    0.72,
+                    min(1.5, 12.0 / (circuit.qubit_count + 2)),
+                ),
+            )
+            return figure
+
         coupling_map = getattr(backend.native, "coupling_map", None)
         if coupling_map is not None:
             from qiskit.visualization import plot_circuit_layout
 
-            return plot_circuit_layout(
-                executable.native,
-                backend.native,
-                view=view,
+            return add_mapping_table(
+                plot_circuit_layout(
+                    executable.native,
+                    backend.native,
+                    view=view,
+                )
             )
 
         if backend.provider != "aer":
@@ -628,8 +717,7 @@ def draw_transpiled_circuit_layout_sync(
         axis.set_xlim(-1.35, 1.35)
         axis.set_ylim(-1.35, 1.35)
         axis.axis("off")
-        figure.tight_layout()
-        return figure
+        return add_mapping_table(figure)
 
     return _protected("compile", draw_layout)
 
