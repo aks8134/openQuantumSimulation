@@ -2,12 +2,14 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import numpy as np
 
 from IBMRuntime import (
     ClassicallyControlledXXPlusYY,
     Measure,
+    Ok,
     Reset,
     SampleResult,
     XXPlusYY,
@@ -115,6 +117,129 @@ def result_payload(times, marker, job_id):
 
 
 class Experiment5RandomizedLieTests(unittest.TestCase):
+    def test_layout_figure_contains_both_randomized_step_choices(self):
+        options = experiment.parse_arguments(
+            (
+                "--n-qubits",
+                "2",
+                "--trajectories",
+                "2",
+                "--shots",
+                "100",
+                "--times",
+                "0.2",
+                "--trotter-delta-t",
+                "0.2",
+            )
+        )
+        circuits, metadata, _ = experiment.build_sample_circuits(
+            (0.2,),
+            number_of_qubits=2,
+            trajectories=2,
+            seed_trajectories=29,
+            trotter_delta_t=0.2,
+        )
+        full_circuit = experiment._representative_full_circuit(
+            circuits,
+            metadata,
+            0,
+        )
+        one_step_circuits = tuple(
+            experiment.build_one_step_circuit(2, 0.2, boundary)
+            for boundary in (
+                experiment.LEFT_BOUNDARY,
+                experiment.RIGHT_BOUNDARY,
+            )
+        )
+        layout_figure, _ = experiment.plt.subplots()
+        left_figure, _ = experiment.plt.subplots()
+        right_figure, _ = experiment.plt.subplots()
+
+        with TemporaryDirectory() as directory:
+            output_path = Path(directory) / "layout.png"
+            with (
+                patch.object(
+                    experiment.hardware_tools,
+                    "_runtime_target",
+                    return_value=(object(), object()),
+                ),
+                patch.object(
+                    experiment,
+                    "draw_transpiled_circuit_layout_sync",
+                    return_value=Ok(layout_figure),
+                ) as draw_layout,
+                patch.object(
+                    experiment,
+                    "draw_circuit",
+                    side_effect=(left_figure, right_figure),
+                ) as draw_step,
+            ):
+                experiment.plot_transpiled_circuit_layout(
+                    full_circuit,
+                    options,
+                    output_path,
+                    one_step_circuits=one_step_circuits,
+                )
+            output_exists = output_path.exists()
+
+        self.assertTrue(output_exists)
+        self.assertEqual(draw_step.call_count, 2)
+        self.assertEqual(draw_layout.call_args.kwargs["view"], "physical")
+        self.assertEqual(
+            draw_layout.call_args.kwargs["logical_labels"],
+            (
+                "system site 1",
+                "system site 0",
+                "boundary ancilla a",
+            ),
+        )
+
+    def test_fake_fez_layout_only_never_samples_or_writes_results(self):
+        with TemporaryDirectory() as directory:
+            options = experiment.parse_arguments(
+                (
+                    "--layout-only",
+                    "--n-qubits",
+                    "2",
+                    "--backend",
+                    "fake_fez",
+                    "--trajectories",
+                    "2",
+                    "--shots",
+                    "100",
+                    "--times",
+                    "0.2",
+                    "--trotter-delta-t",
+                    "0.2",
+                    "--output-directory",
+                    directory,
+                )
+            )
+            with (
+                patch.object(
+                    experiment,
+                    "plot_transpiled_circuit_layout",
+                ) as plot_layout,
+                patch.object(
+                    experiment,
+                    "execute_sample_circuits",
+                    side_effect=AssertionError("must not submit"),
+                ) as execute,
+            ):
+                experiment.main(options)
+
+            result_directory_exists = (
+                Path(directory) / "results"
+            ).exists()
+
+        plot_layout.assert_called_once()
+        self.assertEqual(
+            len(plot_layout.call_args.kwargs["one_step_circuits"]),
+            2,
+        )
+        execute.assert_not_called()
+        self.assertFalse(result_directory_exists)
+
     def test_result_archive_appends_and_replaces_time_points(self):
         existing = result_payload((0.1, 0.2), marker=1, job_id="old")
         new = result_payload((0.2, 0.3), marker=9, job_id="new")

@@ -21,6 +21,7 @@ saved times and in all five measurement bases.
 import argparse
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from io import BytesIO
 import json
 from math import pi, sqrt
 from pathlib import Path
@@ -50,6 +51,7 @@ from IBMRuntime import (
     compile_circuit_batch_sync,
     counts_dict,
     draw_circuit,
+    draw_transpiled_circuit_layout_sync,
     empty,
     fold_left,
     h,
@@ -840,6 +842,13 @@ def _representative_full_result(results, metadata, time_index):
     raise ValueError("could not locate the representative full circuit")
 
 
+def _representative_full_circuit(circuits, metadata, time_index):
+    for circuit, entry in zip(circuits, metadata, strict=True):
+        if entry == (time_index, 0, "Z"):
+            return circuit
+    raise ValueError("could not locate the representative full circuit")
+
+
 def transpilation_summary(one_step_metrics, full_result):
     full_pair = (
         (full_result.original_gate_count, full_result.original_depth),
@@ -929,6 +938,122 @@ def plot_one_step_circuits(number_of_qubits, dt, left_path, right_path):
         plt.close(figure)
 
 
+def logical_qubit_roles(number_of_qubits):
+    """Describe Experiment 5's little-endian system and ancilla wires."""
+    return (
+        *tuple(
+            f"system site {number_of_qubits - 1 - qubit}"
+            for qubit in range(number_of_qubits)
+        ),
+        "boundary ancilla a",
+    )
+
+
+def _draw_circuit_image(axis, circuit, title):
+    """Embed a normally sized Qiskit circuit rendering into an axis."""
+    circuit_figure = draw_circuit(circuit, fold=-1)
+    with BytesIO() as image_buffer:
+        circuit_figure.savefig(
+            image_buffer,
+            format="png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        image_buffer.seek(0)
+        circuit_image = plt.imread(image_buffer, format="png")
+    plt.close(circuit_figure)
+    axis.imshow(circuit_image)
+    axis.axis("off")
+    axis.set_title(title, fontsize=13, pad=10)
+
+
+def plot_transpiled_circuit_layout(
+    circuit,
+    options,
+    output_path,
+    *,
+    one_step_circuits=None,
+):
+    """Plot placement, mapping, and both randomized one-step choices."""
+    target, environment = hardware_tools._runtime_target(
+        options.backend,
+        options.aer_method,
+        options.account_file,
+    )
+    compiler = CompilerConfig(
+        optimization_level=options.optimization_level,
+        seed_transpiler=options.seed_transpiler,
+    )
+    match draw_transpiled_circuit_layout_sync(
+        circuit,
+        target,
+        compiler,
+        environment,
+        view="physical",
+        logical_labels=logical_qubit_roles(options.n_qubits),
+    ):
+        case Err(error):
+            raise RuntimeError(hardware_tools._runtime_error_message(error))
+        case Ok(figure):
+            pass
+
+    width, height = figure.get_size_inches()
+    figure.set_size_inches(
+        max(float(width), 16.0),
+        max(float(height) + 6.5, 13.5),
+    )
+    if figure.axes:
+        figure.axes[0].set_position((0.025, 0.52, 0.63, 0.42))
+    if len(figure.axes) > 1:
+        figure.axes[1].set_position((0.69, 0.55, 0.285, 0.36))
+
+    if one_step_circuits is None:
+        circuit_axis = figure.add_axes((0.025, 0.035, 0.95, 0.40))
+        circuit_axis.text(
+            0.5,
+            0.5,
+            "No positive-time Trotter substep is present in this run.",
+            ha="center",
+            va="center",
+            fontsize=12,
+            transform=circuit_axis.transAxes,
+        )
+        circuit_axis.axis("off")
+        circuit_axis.set_title(
+            "Randomized one-step circuits before transpilation",
+            fontsize=13,
+            pad=10,
+        )
+    else:
+        left_axis = figure.add_axes((0.025, 0.035, 0.46, 0.40))
+        right_axis = figure.add_axes((0.515, 0.035, 0.46, 0.40))
+        _draw_circuit_image(
+            left_axis,
+            one_step_circuits[LEFT_BOUNDARY],
+            "One randomized left-boundary substep before transpilation",
+        )
+        _draw_circuit_image(
+            right_axis,
+            one_step_circuits[RIGHT_BOUNDARY],
+            "One randomized right-boundary substep before transpilation",
+        )
+
+    title = (
+        f"Final-time trajectory-0 Z-basis qubit layout on "
+        f"{options.backend} (R={options.trajectories})"
+    )
+    if options.backend.lower() == "aer" and figure.axes:
+        figure.axes[0].set_title(
+            "Unconstrained connectivity; identity placement",
+            fontsize=12,
+            pad=10,
+        )
+    figure.suptitle(title, fontsize=16, y=0.985)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(figure)
+
+
 def _safe_name(value):
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", value)
 
@@ -958,6 +1083,9 @@ def output_paths(
         ),
         "right_circuit_figure": (
             directory / "figures" / f"{stem}_one_step_right.png"
+        ),
+        "layout_figure": (
+            directory / "figures" / f"{stem}_transpiled_layout.png"
         ),
         "result": directory / "results" / f"{stem}.json",
     }
@@ -1890,6 +2018,16 @@ def backfill_metadata_only(options):
 
 
 def main(options):
+    if options.layout_only and options.metadata_only:
+        raise ValueError("--layout-only cannot be combined with --metadata-only")
+    if options.layout_only and options.resume:
+        raise ValueError("--layout-only cannot be combined with --resume")
+    if (
+        not options.metadata_only
+        and options.backend.lower() == "fake_fez"
+        and not options.layout_only
+    ):
+        raise ValueError("--backend fake_fez requires --layout-only")
     if options.metadata_only:
         backfill_metadata_only(options)
         return
@@ -1923,6 +2061,36 @@ def main(options):
         options.trajectories,
         options.output_directory,
     )
+    representative_dt = (
+        schedule.substep_dts[0] if schedule.substep_dts else None
+    )
+    one_step_circuits = (
+        tuple(
+            build_one_step_circuit(
+                options.n_qubits,
+                representative_dt,
+                boundary,
+            )
+            for boundary in (LEFT_BOUNDARY, RIGHT_BOUNDARY)
+        )
+        if representative_dt is not None
+        else None
+    )
+    if options.layout_only:
+        full_circuit = _representative_full_circuit(
+            circuits,
+            metadata,
+            len(times) - 1,
+        )
+        plot_transpiled_circuit_layout(
+            full_circuit,
+            options,
+            paths["layout_figure"],
+            one_step_circuits=one_step_circuits,
+        )
+        print(f"Saved transpiled layout: {paths['layout_figure']}")
+        print("Sampler jobs submitted: 0 (layout-only mode)")
+        return
     existing_payload = validate_existing_result_compatibility(
         paths["result"],
         options,
@@ -2010,8 +2178,10 @@ def main(options):
         metadata,
         len(times) - 1,
     )
-    representative_dt = (
-        schedule.substep_dts[0] if schedule.substep_dts else None
+    full_circuit = _representative_full_circuit(
+        circuits,
+        metadata,
+        len(times) - 1,
     )
     one_step_metrics = (
         compile_one_step_metrics(options, representative_dt)
@@ -2025,6 +2195,12 @@ def main(options):
     plot_transpilation_metrics(
         metrics_summary,
         paths["metrics_figure"],
+    )
+    plot_transpiled_circuit_layout(
+        full_circuit,
+        options,
+        paths["layout_figure"],
+        one_step_circuits=one_step_circuits,
     )
     if representative_dt is not None:
         plot_one_step_circuits(
@@ -2045,21 +2221,34 @@ def main(options):
         trajectory_observables,
         grouped_counts,
         metrics_summary,
-        extra_payload=(
-            None
-            if exact is None
-            else {
-                "exact_reference_observables": (
-                    _array_families_payload(exact)
+        extra_payload={
+            "transpiled_layout": {
+                "backend": options.backend,
+                "basis": "Z",
+                "trajectory_index": 0,
+                "saved_time": float(times[-1]),
+                "view": "physical",
+                "figure": paths["layout_figure"].name,
+                "includes_left_and_right_one_step_circuits": (
+                    one_step_circuits is not None
                 ),
-                "aggregate_observable_error_vs_exact": (
-                    chain_tools.aggregate_observable_error(
-                        measured,
-                        exact,
-                    ).tolist()
-                ),
-            }
-        ),
+            },
+            **(
+                {}
+                if exact is None
+                else {
+                    "exact_reference_observables": (
+                        _array_families_payload(exact)
+                    ),
+                    "aggregate_observable_error_vs_exact": (
+                        chain_tools.aggregate_observable_error(
+                            measured,
+                            exact,
+                        ).tolist()
+                    ),
+                }
+            ),
+        },
     )
     combined_uncertainties = ObservableUncertainties(
         shot=_family_arrays(
@@ -2134,7 +2323,12 @@ def main(options):
     )
     if job_ids:
         print(f"Provider job IDs: {', '.join(job_ids)}")
-    generated_path_names = ["results_figure", "metrics_figure", "result"]
+    generated_path_names = [
+        "results_figure",
+        "metrics_figure",
+        "layout_figure",
+        "result",
+    ]
     if representative_dt is not None:
         generated_path_names.extend(
             ("left_circuit_figure", "right_circuit_figure")
@@ -2183,7 +2377,11 @@ def parse_arguments(arguments=None):
     parser.add_argument(
         "--backend",
         default=DEFAULT_BACKEND,
-        help="'aer' or an IBM backend name (default: aer)",
+        help=(
+            "use 'aer' for local simulation, 'fake_fez' for offline "
+            "--layout-only transpilation, or an IBM backend name "
+            "(default: aer)"
+        ),
     )
     parser.add_argument(
         "--account-file",
@@ -2296,6 +2494,15 @@ def parse_arguments(arguments=None):
         "--resume",
         action="store_true",
         help="resume a matching checkpoint's missing circuit suffix",
+    )
+    parser.add_argument(
+        "--layout-only",
+        action="store_true",
+        help=(
+            "transpile and draw only the final saved-time trajectory-0 "
+            "Z-basis backend layout with both one-step choices; never "
+            "submit a Sampler job or alter results"
+        ),
     )
     parser.add_argument(
         "--metadata-only",

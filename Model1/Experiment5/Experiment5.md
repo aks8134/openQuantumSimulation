@@ -258,10 +258,28 @@ uv run python Model1/Experiment5/randomized_lie_trotter.py \
   --batch-size 5
 ```
 
-Any non-`aer` backend submits real QPU work. Credentials are read from
-`IBMRuntime/apikey.json` by default. The selected backend needs at least
-\(N+1\) qubits and reset support; unlike Experiment 4, it does not need
-mid-circuit measurement or conditional-gate support.
+Any real non-`aer` backend submits QPU work unless `--layout-only` is used.
+Credentials are read from `IBMRuntime/apikey.json` by default. The selected
+backend needs at least \(N+1\) qubits and reset support; unlike Experiment 4,
+it does not need mid-circuit measurement or conditional-gate support.
+
+To inspect compilation and placement on the 156-qubit Fez topology without
+IBM credentials or hardware execution, use the local fake-backend snapshot:
+
+```bash
+uv run python Model1/Experiment5/randomized_lie_trotter.py \
+  --n-qubits 4 \
+  --backend fake_fez \
+  --trajectories 16 \
+  --shots 8192 \
+  --times 0.2 \
+  --trotter-delta-t 0.2 \
+  --layout-only
+```
+
+The `fake_fez` name is accepted only with `--layout-only`. This mode loads
+no account, submits no Sampler job, and changes no checkpoint or result
+archive. It writes only the composite transpiled-layout figure.
 
 The hardware default batch size is five circuits. The script does not
 automatically bisect a failed batch. Reduce `--batch-size` yourself and add
@@ -276,6 +294,9 @@ Every complete run writes the following under `Model1/Experiment5` unless
 - a transpilation figure for a left one-step circuit, a right one-step
   circuit, and a representative full final-time circuit;
 - separate untranspiled one-step circuit diagrams for left and right choices;
+- a composite transpiled-layout figure with the backend topology and
+  logical-to-physical mapping table on the top row and both untranspiled
+  randomized one-step choices on the bottom row;
 - a JSON result containing paths, raw counts, trajectory-resolved
   observables, averaged observables, uncertainty components, provider job
   IDs, and per-circuit compilation metrics; and
@@ -285,6 +306,14 @@ Operation counts include reset and measurement operations. The one-step
 metrics contain the physical substep including reset but no terminal
 observable measurements. The full-circuit metrics include state preparation,
 all substeps and resets, basis rotations, and terminal measurements.
+
+The layout uses the final saved-time, trajectory-0, Z-basis circuit. Active
+backend nodes are black and labeled with their physical indices; the table
+identifies every logical wire as a chain site or the single boundary
+ancilla. Matplotlib renders the topology and labels directly for consistent
+Linux and Windows output. Layout generation is a transpilation-only
+diagnostic and never submits an additional job. The existing standalone
+left/right one-step PNG files remain separate and unchanged.
 
 ## Incremental time archive
 
