@@ -668,8 +668,10 @@ def draw_transpiled_circuit_layout_sync(
 
         coupling_map = getattr(backend.native, "coupling_map", None)
         if coupling_map is not None:
+            import matplotlib.pyplot as plt
+            import numpy as np
             import rustworkx as rx
-            from qiskit.visualization import plot_gate_map
+            from matplotlib.collections import LineCollection
 
             active_physical = frozenset(physical_by_logical)
             logical_by_physical = dict(
@@ -681,28 +683,26 @@ def draw_transpiled_circuit_layout_sync(
             physical_count = backend.native.num_qubits
             active_color = "#000000"
             inactive_color = "#648fff"
-            qubit_colors = map_tuple(
-                lambda physical: (
-                    active_color
-                    if physical in active_physical
-                    else inactive_color
+            graph = coupling_map.graph.to_undirected(multigraph=False)
+            coupling_edges = tuple(graph.edge_list())
+            positions = rx.spring_layout(
+                graph,
+                seed=(
+                    0
+                    if compiler.seed_transpiler is None
+                    else compiler.seed_transpiler
                 ),
-                range(physical_count),
+                num_iter=150,
+                scale=1.0,
             )
-            qubit_labels = map_tuple(
-                lambda physical: (
-                    str(physical)
-                    if physical in active_physical and view == "physical"
-                    else (
-                        str(logical_by_physical[physical])
-                        if physical in active_physical
-                        else ""
-                    )
+            edge_segments = map_tuple(
+                lambda edge: (
+                    tuple(map(float, positions[edge[0]])),
+                    tuple(map(float, positions[edge[1]])),
                 ),
-                range(physical_count),
+                coupling_edges,
             )
-            coupling_edges = tuple(coupling_map.get_edges())
-            line_colors = map_tuple(
+            edge_colors = map_tuple(
                 lambda edge: (
                     active_color
                     if edge[0] in active_physical
@@ -711,52 +711,93 @@ def draw_transpiled_circuit_layout_sync(
                 ),
                 coupling_edges,
             )
-
-            # Qiskit only supplies fixed device coordinates for a small set
-            # of legacy device sizes.  In particular, FakeFez has 156 qubits;
-            # allowing Graphviz to infer its coordinates creates an enormous
-            # raster.  A seeded spring layout keeps unsupported backends
-            # deterministic and bounded while retaining their real coupling
-            # graph.
-            qiskit_coordinate_counts = frozenset(
-                (5, 7, 15, 16, 20, 27, 28, 53, 65, 127, 433)
-            )
-            positions = (
-                None
-                if physical_count in qiskit_coordinate_counts
-                else rx.spring_layout(
-                    coupling_map.graph.to_undirected(multigraph=False),
-                    seed=compiler.seed_transpiler,
-                    num_iter=150,
-                    scale=12.0,
-                )
-            )
-            coordinates = (
-                None
-                if positions is None
-                else map_tuple(
-                    lambda physical: tuple(
-                        map(float, positions[physical])
-                    ),
+            inactive_physical = tuple(
+                filter(
+                    lambda physical: physical not in active_physical,
                     range(physical_count),
                 )
             )
-            return add_mapping_table(
-                plot_gate_map(
-                    backend.native,
-                    figsize=(10.0, 8.0),
-                    plot_directed=False,
-                    label_qubits=True,
-                    qubit_size=44,
-                    line_width=2,
-                    font_size=13,
-                    qubit_color=qubit_colors,
-                    qubit_labels=qubit_labels,
-                    line_color=line_colors,
-                    font_color="white",
-                    qubit_coordinates=coordinates,
+            figure, axis = plt.subplots(figsize=(10.0, 8.0))
+            axis.add_collection(
+                LineCollection(
+                    edge_segments,
+                    colors=edge_colors,
+                    linewidths=map_tuple(
+                        lambda color: 2.4 if color == active_color else 1.4,
+                        edge_colors,
+                    ),
+                    zorder=1,
                 )
             )
+            axis.scatter(
+                map_tuple(
+                    lambda physical: float(positions[physical][0]),
+                    inactive_physical,
+                ),
+                map_tuple(
+                    lambda physical: float(positions[physical][1]),
+                    inactive_physical,
+                ),
+                s=95,
+                color=inactive_color,
+                edgecolors=inactive_color,
+                linewidths=0.8,
+                zorder=2,
+            )
+            axis.scatter(
+                map_tuple(
+                    lambda physical: float(positions[physical][0]),
+                    physical_by_logical,
+                ),
+                map_tuple(
+                    lambda physical: float(positions[physical][1]),
+                    physical_by_logical,
+                ),
+                s=430,
+                color=active_color,
+                edgecolors=active_color,
+                linewidths=1.2,
+                zorder=3,
+            )
+
+            def draw_active_label(physical):
+                label = (
+                    str(physical)
+                    if view == "physical"
+                    else str(logical_by_physical[physical])
+                )
+                return axis.text(
+                    float(positions[physical][0]),
+                    float(positions[physical][1]),
+                    label,
+                    color="white",
+                    ha="center",
+                    va="center",
+                    fontsize=9,
+                    fontfamily="DejaVu Sans",
+                    fontweight="bold",
+                    zorder=4,
+                )
+
+            map_tuple(draw_active_label, physical_by_logical)
+            all_coordinates = np.asarray(
+                map_tuple(
+                    lambda physical: positions[physical],
+                    range(physical_count),
+                ),
+                dtype=float,
+            )
+            axis.set_xlim(
+                float(np.min(all_coordinates[:, 0])) - 0.08,
+                float(np.max(all_coordinates[:, 0])) + 0.08,
+            )
+            axis.set_ylim(
+                float(np.min(all_coordinates[:, 1])) - 0.08,
+                float(np.max(all_coordinates[:, 1])) + 0.08,
+            )
+            axis.set_aspect("equal", adjustable="box")
+            axis.axis("off")
+            return add_mapping_table(figure)
 
         if backend.provider != "aer":
             raise ValueError(

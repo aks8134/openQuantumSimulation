@@ -292,7 +292,10 @@ small labels drawn inside a large backend graph.
 The active black nodes on an IBM device graph are labeled with their
 physical backend-qubit numbers. Those numbers therefore match the
 `Physical` column of the table directly; the corresponding logical qubit
-and chain/ancilla role are read from the same row.
+and chain/ancilla role are read from the same row. The graph and its node
+labels are rendered directly by Matplotlib rather than relying on
+Graphviz's operating-system font discovery, so the physical indices render
+consistently on Linux and Windows.
 
 To test the same 156-qubit Fez topology entirely offline, without IBM
 credentials, circuit execution, checkpoint creation, or changes to the

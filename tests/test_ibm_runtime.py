@@ -210,6 +210,12 @@ class AerIntegrationTests(unittest.TestCase):
         self.assertIn("Physical", table_text)
         self.assertIn("control", table_text)
         self.assertIn("target", table_text)
+        node_labels = tuple(
+            text.get_text() for text in result.value.axes[0].texts
+        )
+        self.assertEqual(len(node_labels), 2)
+        self.assertTrue(all(label.isdecimal() for label in node_labels))
+        self.assertTrue(set(node_labels).issubset(set(table_text)))
         result.value.clear()
 
     def test_ibm_target_without_account_returns_error_data(self):
