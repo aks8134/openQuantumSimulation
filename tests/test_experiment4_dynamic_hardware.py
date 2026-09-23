@@ -304,7 +304,15 @@ class Experiment4CircuitTests(unittest.TestCase):
             seed_transpiler=11,
         )
         circuit = experiment.build_sample_circuits((0.2,), 2)[0][0]
+        one_step_circuit = (
+            experiment.dynamic_circuits.build_one_step_circuit(
+                2,
+                0.2,
+                0.4,
+            )
+        )
         figure, _ = experiment.plt.subplots()
+        step_figure, _ = experiment.plt.subplots()
 
         with TemporaryDirectory() as directory:
             output_path = Path(directory) / "layout.png"
@@ -321,6 +329,11 @@ class Experiment4CircuitTests(unittest.TestCase):
                 ) as draw_layout,
                 patch.object(
                     experiment,
+                    "draw_circuit",
+                    return_value=step_figure,
+                ) as draw_step,
+                patch.object(
+                    experiment,
                     "run_sample_batch_sync",
                     side_effect=AssertionError("must not submit"),
                 ) as sample_batch,
@@ -329,11 +342,15 @@ class Experiment4CircuitTests(unittest.TestCase):
                     circuit,
                     options,
                     output_path,
+                    one_step_circuit=one_step_circuit,
                 )
             output_exists = output_path.exists()
 
         self.assertTrue(output_exists)
         draw_layout.assert_called_once()
+        draw_step.assert_called_once()
+        self.assertIs(draw_step.call_args.args[0], one_step_circuit)
+        self.assertEqual(draw_step.call_args.kwargs["fold"], -1)
         self.assertEqual(draw_layout.call_args.kwargs["view"], "physical")
         self.assertEqual(
             draw_layout.call_args.kwargs["logical_labels"],
@@ -381,6 +398,9 @@ class Experiment4CircuitTests(unittest.TestCase):
             ).exists()
 
         plot_layout.assert_called_once()
+        self.assertIsNotNone(
+            plot_layout.call_args.kwargs["one_step_circuit"]
+        )
         execute.assert_not_called()
         self.assertFalse(result_directory_exists)
 

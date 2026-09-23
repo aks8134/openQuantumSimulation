@@ -14,6 +14,7 @@ system site n are stored in classical bit n + 1.
 import argparse
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from io import BytesIO
 import json
 from math import pi, sqrt
 from pathlib import Path
@@ -46,6 +47,7 @@ from IBMRuntime import (
     SampleResult,
     compile_circuit_batch_sync,
     counts_dict,
+    draw_circuit,
     draw_transpiled_circuit_layout_sync,
     h,
     load_ibm_account,
@@ -908,8 +910,14 @@ def logical_qubit_roles(number_of_qubits):
     )
 
 
-def plot_transpiled_circuit_layout(circuit, options, output_path):
-    """Compile and plot the representative circuit's backend placement."""
+def plot_transpiled_circuit_layout(
+    circuit,
+    options,
+    output_path,
+    *,
+    one_step_circuit=None,
+):
+    """Plot backend placement with the pre-transpilation step below it."""
     target, environment = _runtime_target(
         options.backend,
         options.aer_method,
@@ -931,15 +939,54 @@ def plot_transpiled_circuit_layout(circuit, options, output_path):
             raise RuntimeError(_runtime_error_message(error))
         case Ok(figure):
             pass
+    width, height = figure.get_size_inches()
+    figure.set_size_inches(
+        max(float(width), 15.0),
+        max(float(height) + 6.5, 13.0),
+    )
+    if figure.axes:
+        figure.axes[0].set_position((0.025, 0.52, 0.63, 0.42))
+    if len(figure.axes) > 1:
+        figure.axes[1].set_position((0.69, 0.55, 0.285, 0.36))
+    circuit_axis = figure.add_axes((0.025, 0.035, 0.95, 0.40))
+    if one_step_circuit is None:
+        circuit_axis.text(
+            0.5,
+            0.5,
+            "No positive-time Trotter substep is present in this run.",
+            ha="center",
+            va="center",
+            fontsize=12,
+            transform=circuit_axis.transAxes,
+        )
+        circuit_axis.axis("off")
+    else:
+        step_figure = draw_circuit(one_step_circuit, fold=-1)
+        with BytesIO() as image_buffer:
+            step_figure.savefig(
+                image_buffer,
+                format="png",
+                dpi=300,
+                bbox_inches="tight",
+            )
+            image_buffer.seek(0)
+            step_image = plt.imread(image_buffer, format="png")
+        plt.close(step_figure)
+        circuit_axis.imshow(step_image)
+        circuit_axis.axis("off")
+    circuit_axis.set_title(
+        "One dynamic Lie--Trotter substep before transpilation",
+        fontsize=13,
+        pad=12,
+    )
     title = f"Final-time Z-basis qubit layout on {options.backend}"
     if options.backend.lower() == "aer" and figure.axes:
         figure.axes[0].set_title(
-            f"{title}\nunconstrained connectivity; identity placement",
-            fontsize=14,
-            pad=16,
+            "Unconstrained connectivity; identity placement",
+            fontsize=12,
+            pad=10,
         )
-    else:
-        figure.suptitle(title, fontsize=14)
+    figure.suptitle(title, fontsize=16, y=0.985)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.close(figure)
@@ -1842,6 +1889,18 @@ def main(options):
         options.n_qubits,
         options.output_directory,
     )
+    representative_dt = (
+        schedule.substep_dts[0] if schedule.substep_dts else None
+    )
+    one_step_circuit = (
+        dynamic_circuits.build_one_step_circuit(
+            options.n_qubits,
+            representative_dt,
+            schedule.jump_angles[0],
+        )
+        if representative_dt is not None
+        else None
+    )
     if options.layout_only:
         full_circuit = _representative_full_circuit(
             circuits,
@@ -1852,6 +1911,7 @@ def main(options):
             full_circuit,
             options,
             layout_figure_path,
+            one_step_circuit=one_step_circuit,
         )
         print(f"Saved transpiled layout: {layout_figure_path}")
         print("Sampler jobs submitted: 0 (layout-only mode)")
@@ -1946,9 +2006,6 @@ def main(options):
         metadata,
         len(times) - 1,
     )
-    representative_dt = (
-        schedule.substep_dts[0] if schedule.substep_dts else None
-    )
     one_step_metrics = (
         compile_one_step_metrics(
             options,
@@ -1967,6 +2024,7 @@ def main(options):
         full_circuit,
         options,
         layout_figure_path,
+        one_step_circuit=one_step_circuit,
     )
     if representative_dt is not None:
         plot_one_step_circuit(

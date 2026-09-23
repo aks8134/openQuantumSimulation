@@ -279,8 +279,12 @@ is not restricted to unitary gates.
 
 The layout figure recompiles the complete final-time Z-basis circuit with
 the selected optimization level and transpiler seed, then displays the
-virtual-to-physical placement on the selected IBM backend using Qiskit's
-backend coupling-map visualization. Aer has no physical coupling map, so
+virtual-to-physical placement on the selected IBM backend's coupling map.
+The topology and mapping table occupy the top row, while the same isolated
+pre-transpilation dynamic Lie substep used by the standalone
+`_one_step_circuit.png` figure spans the full-width bottom row. The
+standalone circuit figure is still generated separately. Aer has no
+physical coupling map, so
 its layout figure explicitly shows the unconstrained identity placement
 instead of inventing a device topology. Layout generation only transpiles;
 it does not submit an additional QPU job. A table beside the graph gives
