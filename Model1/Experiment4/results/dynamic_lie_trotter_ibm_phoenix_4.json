@@ -1,0 +1,478 @@
+{
+  "aer_method": "automatic",
+  "aggregate_observable_error_vs_coherent_lie": [
+    0.1403587526181306
+  ],
+  "aggregate_observable_error_vs_exact": [
+    0.1400579249663494
+  ],
+  "archive": {
+    "latest_run_times": [
+      0.2
+    ],
+    "merge_policy": "new run replaces matching times",
+    "saved_time_count": 1,
+    "schema_version": 1
+  },
+  "backend": "ibm_phoenix",
+  "circuit_metadata": [
+    {
+      "basis": "Z",
+      "compiled_depth": 24,
+      "compiled_operation_count": 82,
+      "job_id": "dapp18ac505c73cijpb0",
+      "original_depth": 5,
+      "original_operation_count": 13,
+      "time": 0.2,
+      "time_index": 0
+    },
+    {
+      "basis": "X",
+      "compiled_depth": 27,
+      "compiled_operation_count": 81,
+      "job_id": "dapp18ac505c73cijpb0",
+      "original_depth": 6,
+      "original_operation_count": 17,
+      "time": 0.2,
+      "time_index": 0
+    },
+    {
+      "basis": "Y",
+      "compiled_depth": 26,
+      "compiled_operation_count": 83,
+      "job_id": "dapp18ac505c73cijpb0",
+      "original_depth": 7,
+      "original_operation_count": 21,
+      "time": 0.2,
+      "time_index": 0
+    },
+    {
+      "basis": "XY",
+      "compiled_depth": 26,
+      "compiled_operation_count": 80,
+      "job_id": "dapp18ac505c73cijpb0",
+      "original_depth": 7,
+      "original_operation_count": 19,
+      "time": 0.2,
+      "time_index": 0
+    },
+    {
+      "basis": "YX",
+      "compiled_depth": 27,
+      "compiled_operation_count": 81,
+      "job_id": "dapp18ac505c73cijpb0",
+      "original_depth": 6,
+      "original_operation_count": 19,
+      "time": 0.2,
+      "time_index": 0
+    }
+  ],
+  "coherent_lie_reference_observables": {
+    "excitation_flows": [
+      [
+        -0.007607983360883036
+      ],
+      [
+        -0.3764910864206098
+      ],
+      [
+        0.37148114840898905
+      ]
+    ],
+    "populations": [
+      [
+        0.00037659337441012095
+      ],
+      [
+        0.038424342243232504
+      ],
+      [
+        0.9222378958167856
+      ],
+      [
+        0.0374085266527251
+      ]
+    ],
+    "xy_correlations": [
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ]
+    ]
+  },
+  "completed_at_utc": "2026-09-23T08:41:13.394268+00:00",
+  "dt": 0.2,
+  "evolution_schedule": {
+    "includes_initial_time": false,
+    "intervals": [
+      {
+        "end_time": 0.2,
+        "start_time": 0.0,
+        "substep_count": 1,
+        "substeps": [
+          {
+            "dt": 0.2,
+            "jump_angle": 0.4,
+            "jump_exchange_probability": 0.039469502998557456,
+            "substep_index": 0,
+            "system_exchange_angle": 0.4
+          }
+        ]
+      }
+    ],
+    "requested_trotter_delta_t": 0.2,
+    "uniform_jump_angle": 0.4,
+    "uniform_jump_exchange_probability": 0.039469502998557456,
+    "uniform_substep_dt": 0.2,
+    "uniform_system_exchange_angle": 0.4
+  },
+  "exact_reference_observables": {
+    "excitation_flows": [
+      [
+        -0.007711746395742245
+      ],
+      [
+        -0.3765679203790954
+      ],
+      [
+        0.3753101630343737
+      ]
+    ],
+    "populations": [
+      [
+        0.00038688384260493475
+      ],
+      [
+        0.03842951418687971
+      ],
+      [
+        0.9224901853368351
+      ],
+      [
+        0.03817322956814328
+      ]
+    ],
+    "xy_correlations": [
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ]
+    ]
+  },
+  "experiment": "Model1/Experiment4 dynamic Lie-Trotter",
+  "job_ids": [
+    "dapp18ac505c73cijpb0"
+  ],
+  "jump_angle": 0.4,
+  "jump_exchange_probability": 0.039469502998557456,
+  "measurement_bases": [
+    "Z",
+    "X",
+    "Y",
+    "XY",
+    "YX"
+  ],
+  "mid_circuit_classical_bit": 0,
+  "number_of_circuit_qubits": 6,
+  "number_of_system_qubits": 4,
+  "observables": {
+    "excitation_flows": [
+      [
+        0.0875244140625
+      ],
+      [
+        -0.3631591796875
+      ],
+      [
+        0.3856201171875
+      ]
+    ],
+    "populations": [
+      [
+        0.044677734375
+      ],
+      [
+        0.090087890625
+      ],
+      [
+        0.9083251953125
+      ],
+      [
+        0.0496826171875
+      ]
+    ],
+    "xy_correlations": [
+      [
+        -0.001220703125
+      ],
+      [
+        -0.048828125
+      ],
+      [
+        -0.053955078125
+      ]
+    ]
+  },
+  "optimization_level": 3,
+  "raw_counts": [
+    {
+      "basis": "Z",
+      "counts": {
+        "00000": 92,
+        "00001": 1,
+        "00010": 2,
+        "00100": 281,
+        "00101": 1,
+        "00110": 13,
+        "00111": 1,
+        "01000": 6709,
+        "01001": 7,
+        "01010": 259,
+        "01011": 3,
+        "01100": 354,
+        "01110": 62,
+        "10000": 328,
+        "10010": 14,
+        "10100": 12,
+        "10101": 1,
+        "10110": 5,
+        "11000": 36,
+        "11010": 3,
+        "11100": 4,
+        "11110": 4
+      },
+      "time": 0.2,
+      "time_index": 0
+    },
+    {
+      "basis": "X",
+      "counts": {
+        "00000": 686,
+        "00001": 2,
+        "00010": 755,
+        "00011": 3,
+        "00100": 354,
+        "00101": 3,
+        "00110": 233,
+        "00111": 2,
+        "01000": 775,
+        "01001": 2,
+        "01010": 797,
+        "01011": 2,
+        "01100": 389,
+        "01110": 209,
+        "01111": 1,
+        "10000": 600,
+        "10001": 2,
+        "10010": 730,
+        "10011": 2,
+        "10100": 412,
+        "10110": 305,
+        "11000": 599,
+        "11010": 680,
+        "11011": 1,
+        "11100": 403,
+        "11101": 1,
+        "11110": 244
+      },
+      "time": 0.2,
+      "time_index": 0
+    },
+    {
+      "basis": "Y",
+      "counts": {
+        "00000": 788,
+        "00010": 289,
+        "00100": 606,
+        "00101": 2,
+        "00110": 360,
+        "00111": 3,
+        "01000": 815,
+        "01001": 3,
+        "01010": 291,
+        "01100": 535,
+        "01110": 344,
+        "01111": 1,
+        "10000": 766,
+        "10001": 2,
+        "10010": 242,
+        "10100": 809,
+        "10101": 1,
+        "10110": 378,
+        "11000": 729,
+        "11010": 229,
+        "11011": 1,
+        "11100": 660,
+        "11110": 335,
+        "11111": 3
+      },
+      "time": 0.2,
+      "time_index": 0
+    },
+    {
+      "basis": "XY",
+      "counts": {
+        "00000": 169,
+        "00001": 2,
+        "00010": 116,
+        "00011": 1,
+        "00100": 469,
+        "00101": 1,
+        "00110": 462,
+        "00111": 1,
+        "01000": 985,
+        "01001": 3,
+        "01010": 819,
+        "01011": 1,
+        "01100": 467,
+        "01101": 2,
+        "01110": 499,
+        "01111": 1,
+        "10000": 539,
+        "10010": 431,
+        "10011": 1,
+        "10100": 941,
+        "10101": 2,
+        "10110": 958,
+        "10111": 2,
+        "11000": 510,
+        "11001": 1,
+        "11010": 459,
+        "11011": 3,
+        "11100": 178,
+        "11110": 169
+      },
+      "time": 0.2,
+      "time_index": 0
+    },
+    {
+      "basis": "YX",
+      "counts": {
+        "00000": 1883,
+        "00001": 5,
+        "00010": 722,
+        "00011": 1,
+        "00100": 296,
+        "00101": 1,
+        "00110": 203,
+        "01000": 413,
+        "01010": 145,
+        "01100": 398,
+        "01101": 5,
+        "01110": 215,
+        "10000": 816,
+        "10001": 1,
+        "10010": 342,
+        "10011": 1,
+        "10100": 95,
+        "10101": 1,
+        "10110": 59,
+        "10111": 1,
+        "11000": 1024,
+        "11001": 3,
+        "11010": 401,
+        "11100": 763,
+        "11101": 3,
+        "11110": 395
+      },
+      "time": 0.2,
+      "time_index": 0
+    }
+  ],
+  "run_history": [
+    {
+      "completed_at_utc": "2026-09-23T08:41:13.394268+00:00",
+      "evolution_schedule": {
+        "includes_initial_time": false,
+        "intervals": [
+          {
+            "end_time": 0.2,
+            "start_time": 0.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 0.2,
+                "jump_angle": 0.4,
+                "jump_exchange_probability": 0.039469502998557456,
+                "substep_index": 0,
+                "system_exchange_angle": 0.4
+              }
+            ]
+          }
+        ],
+        "requested_trotter_delta_t": 0.2,
+        "uniform_jump_angle": 0.4,
+        "uniform_jump_exchange_probability": 0.039469502998557456,
+        "uniform_substep_dt": 0.2,
+        "uniform_system_exchange_angle": 0.4
+      },
+      "job_ids": [
+        "dapp18ac505c73cijpb0"
+      ],
+      "times": [
+        0.2
+      ]
+    }
+  ],
+  "seed_simulator": 17,
+  "seed_transpiler": 11,
+  "shots_per_measurement_circuit": 8192,
+  "standard_errors": {
+    "excitation_flows": [
+      [
+        0.007707945214659489
+      ],
+      [
+        0.007278837612105708
+      ],
+      [
+        0.007208111358477877
+      ]
+    ],
+    "populations": [
+      [
+        0.002282577589569926
+      ],
+      [
+        0.003163282361148739
+      ],
+      [
+        0.0031882377913183208
+      ],
+      [
+        0.0024007204814780144
+      ]
+    ],
+    "xy_correlations": [
+      [
+        0.015537242528808188
+      ],
+      [
+        0.015619895052694236
+      ],
+      [
+        0.015619135991190974
+      ]
+    ]
+  },
+  "system_exchange_angle": 0.4,
+  "system_terminal_bits_by_site": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "times": [
+    0.2
+  ]
+}
