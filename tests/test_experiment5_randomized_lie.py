@@ -117,6 +117,17 @@ def result_payload(times, marker, job_id):
 
 
 class Experiment5RandomizedLieTests(unittest.TestCase):
+    def test_optimization_level_accepts_hyphen_and_underscore_spellings(self):
+        hyphenated = experiment.parse_arguments(
+            ("--optimization-level", "3")
+        )
+        underscored = experiment.parse_arguments(
+            ("--optimization_level", "2")
+        )
+
+        self.assertEqual(hyphenated.optimization_level, 3)
+        self.assertEqual(underscored.optimization_level, 2)
+
     def test_layout_figure_contains_both_randomized_step_choices(self):
         options = experiment.parse_arguments(
             (

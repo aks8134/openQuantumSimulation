@@ -2456,9 +2456,15 @@ def parse_arguments(arguments=None):
     )
     parser.add_argument(
         "--optimization-level",
+        "--optimization_level",
+        dest="optimization_level",
         type=int,
         choices=(0, 1, 2, 3),
         default=DEFAULT_OPTIMIZATION_LEVEL,
+        help=(
+            "Qiskit transpiler optimization level 0, 1, 2, or 3 "
+            f"(default: {DEFAULT_OPTIMIZATION_LEVEL})"
+        ),
     )
     parser.add_argument(
         "--seed-transpiler",
