@@ -216,6 +216,125 @@ class Experiment4CircuitTests(unittest.TestCase):
         self.assertEqual(options.backend, "ibm_kingston")
         self.assertEqual(options.account_file, experiment.DEFAULT_ACCOUNT_FILE)
 
+    def test_transpilation_summary_covers_one_step_and_full_circuit(self):
+        one_step = CompilationMetrics(
+            original_gate_count=12,
+            original_depth=8,
+            compiled_gate_count=31,
+            compiled_depth=22,
+        )
+        full_result = SampleResult(
+            counts=(("0", 10),),
+            shots=10,
+            backend_name="aer",
+            job_id="job",
+            original_gate_count=50,
+            original_depth=40,
+            compiled_gate_count=140,
+            compiled_depth=95,
+        )
+
+        summary = experiment.transpilation_summary(
+            one_step,
+            full_result,
+        )
+
+        self.assertEqual(
+            tuple(record["label"] for record in summary),
+            (
+                "one dynamic Lie substep",
+                "complete final-time circuit (Z basis)",
+            ),
+        )
+        self.assertEqual(summary[0]["pre"]["operation_count"], 12)
+        self.assertEqual(summary[0]["post"]["depth"], 22)
+        self.assertEqual(summary[1]["pre"]["operation_count"], 50)
+        self.assertEqual(summary[1]["post"]["depth"], 95)
+
+    def test_compiles_one_step_without_submitting_a_sampler_job(self):
+        options = SimpleNamespace(
+            n_qubits=4,
+            backend="aer",
+            aer_method="automatic",
+            account_file=experiment.DEFAULT_ACCOUNT_FILE,
+            optimization_level=1,
+            seed_transpiler=11,
+        )
+        metrics = CompilationMetrics(
+            original_gate_count=12,
+            original_depth=8,
+            compiled_gate_count=31,
+            compiled_depth=22,
+        )
+
+        with (
+            patch.object(
+                experiment,
+                "_runtime_target",
+                return_value=(object(), object()),
+            ),
+            patch.object(
+                experiment,
+                "compile_circuit_batch_sync",
+                return_value=Ok((metrics,)),
+            ) as compile_batch,
+            patch.object(
+                experiment,
+                "run_sample_batch_sync",
+                side_effect=AssertionError("must not submit"),
+            ) as sample_batch,
+        ):
+            observed = experiment.compile_one_step_metrics(
+                options,
+                dt=0.2,
+                jump_angle=0.4,
+            )
+
+        self.assertEqual(observed, metrics)
+        self.assertEqual(len(compile_batch.call_args.args[0]), 1)
+        sample_batch.assert_not_called()
+
+    def test_layout_figure_compiles_without_sampler_submission(self):
+        options = SimpleNamespace(
+            backend="aer",
+            aer_method="automatic",
+            account_file=experiment.DEFAULT_ACCOUNT_FILE,
+            optimization_level=1,
+            seed_transpiler=11,
+        )
+        circuit = experiment.build_sample_circuits((0.2,), 2)[0][0]
+        figure, _ = experiment.plt.subplots()
+
+        with TemporaryDirectory() as directory:
+            output_path = Path(directory) / "layout.png"
+            with (
+                patch.object(
+                    experiment,
+                    "_runtime_target",
+                    return_value=(object(), object()),
+                ),
+                patch.object(
+                    experiment,
+                    "draw_transpiled_circuit_layout_sync",
+                    return_value=Ok(figure),
+                ) as draw_layout,
+                patch.object(
+                    experiment,
+                    "run_sample_batch_sync",
+                    side_effect=AssertionError("must not submit"),
+                ) as sample_batch,
+            ):
+                experiment.plot_transpiled_circuit_layout(
+                    circuit,
+                    options,
+                    output_path,
+                )
+            output_exists = output_path.exists()
+
+        self.assertTrue(output_exists)
+        draw_layout.assert_called_once()
+        sample_batch.assert_not_called()
+
     def test_hardware_memory_error_is_reported_without_retry(self):
         circuits = tuple(range(5))
         options = SimpleNamespace(

@@ -45,6 +45,7 @@ from IBMRuntime import (
     SampleResult,
     compile_circuit_batch_sync,
     counts_dict,
+    draw_transpiled_circuit_layout_sync,
     h,
     load_ibm_account,
     measure,
@@ -756,6 +757,178 @@ def plot_results(
     plt.close(figure)
 
 
+def _metrics_pair(metrics):
+    return (
+        (metrics.original_gate_count, metrics.original_depth),
+        (metrics.compiled_gate_count, metrics.compiled_depth),
+    )
+
+
+def compile_one_step_metrics(options, dt, jump_angle):
+    """Compile one isolated dynamic Lie substep without executing it."""
+    circuit = dynamic_circuits.build_one_step_circuit(
+        options.n_qubits,
+        dt,
+        jump_angle,
+    )
+    target, environment = _runtime_target(
+        options.backend,
+        options.aer_method,
+        options.account_file,
+    )
+    compiler = CompilerConfig(
+        optimization_level=options.optimization_level,
+        seed_transpiler=options.seed_transpiler,
+    )
+    match compile_circuit_batch_sync(
+        (circuit,),
+        target,
+        compiler,
+        environment,
+    ):
+        case Err(error):
+            raise RuntimeError(_runtime_error_message(error))
+        case Ok(metrics):
+            return metrics[0]
+
+
+def _representative_full_result(results, metadata, time_index):
+    for result, entry in zip(results, metadata, strict=True):
+        if entry == (time_index, "Z"):
+            return result
+    raise ValueError("could not locate the representative full circuit")
+
+
+def _representative_full_circuit(circuits, metadata, time_index):
+    for circuit, entry in zip(circuits, metadata, strict=True):
+        if entry == (time_index, "Z"):
+            return circuit
+    raise ValueError("could not locate the representative full circuit")
+
+
+def transpilation_summary(one_step_metrics, full_result):
+    """Return pre/post operation-count and depth records for plotting."""
+    full_pair = (
+        (full_result.original_gate_count, full_result.original_depth),
+        (full_result.compiled_gate_count, full_result.compiled_depth),
+    )
+    if one_step_metrics is None:
+        labels = ("initial-state circuit",)
+        pairs = (full_pair,)
+    else:
+        labels = (
+            "one dynamic Lie substep",
+            "complete final-time circuit (Z basis)",
+        )
+        pairs = (_metrics_pair(one_step_metrics), full_pair)
+    return tuple(
+        {
+            "label": label,
+            "pre": {
+                "operation_count": pair[0][0],
+                "depth": pair[0][1],
+            },
+            "post": {
+                "operation_count": pair[1][0],
+                "depth": pair[1][1],
+            },
+        }
+        for label, pair in zip(labels, pairs, strict=True)
+    )
+
+
+def plot_transpilation_metrics(summary, output_path):
+    """Plot pre/post operation count and depth for step and full circuit."""
+    figure, axes = plt.subplots(
+        1,
+        len(summary),
+        figsize=(6.5 * len(summary), 5),
+    )
+    axes = np.atleast_1d(axes)
+    positions = np.arange(2)
+    width = 0.36
+    for axis, record in zip(axes, summary, strict=True):
+        pre_values = (
+            record["pre"]["operation_count"],
+            record["pre"]["depth"],
+        )
+        post_values = (
+            record["post"]["operation_count"],
+            record["post"]["depth"],
+        )
+        pre_bars = axis.bar(
+            positions - width / 2,
+            pre_values,
+            width,
+            label="pre-transpilation",
+        )
+        post_bars = axis.bar(
+            positions + width / 2,
+            post_values,
+            width,
+            label="post-transpilation",
+        )
+        axis.bar_label(pre_bars, fmt="%d", padding=3)
+        axis.bar_label(post_bars, fmt="%d", padding=3)
+        axis.set_xticks(positions, ("Operations", "Depth"))
+        axis.set_title(record["label"])
+        axis.grid(axis="y", alpha=0.25)
+        axis.set_ylim(0, 1.18 * max((*pre_values, *post_values, 1)))
+    axes[0].set_ylabel("Count")
+    axes[-1].legend(fontsize="small")
+    figure.suptitle("Dynamic Lie--Trotter transpilation metrics")
+    figure.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(figure)
+
+
+def plot_one_step_circuit(number_of_qubits, dt, jump_angle, output_path):
+    """Draw one pre-transpilation dynamic Lie substep."""
+    circuit = dynamic_circuits.build_one_step_circuit(
+        number_of_qubits,
+        dt,
+        jump_angle,
+    )
+    dynamic_circuits.plot_one_step_circuit(circuit, output_path)
+
+
+def plot_transpiled_circuit_layout(circuit, options, output_path):
+    """Compile and plot the representative circuit's backend placement."""
+    target, environment = _runtime_target(
+        options.backend,
+        options.aer_method,
+        options.account_file,
+    )
+    compiler = CompilerConfig(
+        optimization_level=options.optimization_level,
+        seed_transpiler=options.seed_transpiler,
+    )
+    match draw_transpiled_circuit_layout_sync(
+        circuit,
+        target,
+        compiler,
+        environment,
+        view="virtual",
+    ):
+        case Err(error):
+            raise RuntimeError(_runtime_error_message(error))
+        case Ok(figure):
+            pass
+    title = f"Final-time Z-basis qubit layout on {options.backend}"
+    if options.backend.lower() == "aer" and figure.axes:
+        figure.axes[0].set_title(
+            f"{title}\nunconstrained connectivity; identity placement",
+            fontsize=14,
+            pad=16,
+        )
+    else:
+        figure.suptitle(title, fontsize=14)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(figure)
+
+
 def _safe_name(value):
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", value)
 
@@ -773,6 +946,24 @@ def output_paths(backend_name, number_of_qubits, output_directory=None):
     return (
         directory / "figures" / f"{stem}.png",
         directory / "results" / f"{stem}.json",
+    )
+
+
+def diagnostic_output_paths(
+    backend_name,
+    number_of_qubits,
+    output_directory=None,
+):
+    results_figure, result_path = output_paths(
+        backend_name,
+        number_of_qubits,
+        output_directory,
+    )
+    stem = result_path.stem
+    return (
+        results_figure.with_name(f"{stem}_transpilation_metrics.png"),
+        results_figure.with_name(f"{stem}_one_step_circuit.png"),
+        results_figure.with_name(f"{stem}_transpiled_layout.png"),
     )
 
 
@@ -1391,6 +1582,11 @@ def _run_history_record(payload):
         "times": payload.get("times", ()),
         "job_ids": payload.get("job_ids", ()),
         "evolution_schedule": payload.get("evolution_schedule"),
+        "transpilation_summary": payload.get(
+            "transpilation_summary",
+            (),
+        ),
+        "transpiled_layout": payload.get("transpiled_layout"),
     }
 
 
@@ -1611,6 +1807,15 @@ def main(options):
         options.n_qubits,
         options.output_directory,
     )
+    (
+        metrics_figure_path,
+        circuit_figure_path,
+        layout_figure_path,
+    ) = diagnostic_output_paths(
+        options.backend,
+        options.n_qubits,
+        options.output_directory,
+    )
     existing_payload = validate_existing_result_compatibility(
         result_path,
         options,
@@ -1691,20 +1896,59 @@ def main(options):
             schedule,
         )
 
-    combined_payload = save_results(
-        result_path,
-        options,
-        times,
-        schedule,
+    full_result = _representative_full_result(
         results,
         metadata,
-        measured,
-        standard_errors,
-        grouped_counts,
-        extra_payload=(
-            None
-            if exact is None
-            else {
+        len(times) - 1,
+    )
+    full_circuit = _representative_full_circuit(
+        circuits,
+        metadata,
+        len(times) - 1,
+    )
+    representative_dt = (
+        schedule.substep_dts[0] if schedule.substep_dts else None
+    )
+    one_step_metrics = (
+        compile_one_step_metrics(
+            options,
+            representative_dt,
+            schedule.jump_angles[0],
+        )
+        if representative_dt is not None
+        else None
+    )
+    metrics_summary = transpilation_summary(
+        one_step_metrics,
+        full_result,
+    )
+    plot_transpilation_metrics(metrics_summary, metrics_figure_path)
+    plot_transpiled_circuit_layout(
+        full_circuit,
+        options,
+        layout_figure_path,
+    )
+    if representative_dt is not None:
+        plot_one_step_circuit(
+            options.n_qubits,
+            representative_dt,
+            schedule.jump_angles[0],
+            circuit_figure_path,
+        )
+
+    extra_payload = {
+        "transpilation_summary": metrics_summary,
+        "transpiled_layout": {
+            "backend": options.backend,
+            "basis": "Z",
+            "saved_time": float(times[-1]),
+            "view": "virtual",
+            "figure": layout_figure_path.name,
+        },
+    }
+    if exact is not None:
+        extra_payload.update(
+            {
                 "exact_reference_observables": (
                     _array_families_payload(exact)
                 ),
@@ -1724,7 +1968,19 @@ def main(options):
                     ).tolist()
                 ),
             }
-        ),
+        )
+
+    combined_payload = save_results(
+        result_path,
+        options,
+        times,
+        schedule,
+        results,
+        metadata,
+        measured,
+        standard_errors,
+        grouped_counts,
+        extra_payload=extra_payload,
     )
     plot_results(
         np.asarray(combined_payload["times"], dtype=float),
@@ -1816,6 +2072,10 @@ def main(options):
     if job_ids:
         print(f"Provider job IDs: {', '.join(job_ids)}")
     print(f"Saved figure: {figure_path}")
+    print(f"Saved transpilation metrics: {metrics_figure_path}")
+    print(f"Saved transpiled layout: {layout_figure_path}")
+    if representative_dt is not None:
+        print(f"Saved one-step circuit: {circuit_figure_path}")
     print(f"Saved data: {result_path}")
     print(f"Saved checkpoint: {checkpoint_path}")
 

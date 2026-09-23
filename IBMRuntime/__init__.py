@@ -3,6 +3,7 @@
 from .backend import AER_METHODS, Aer, IBMHardware
 from .api import (
     compile_circuit_batch_sync,
+    draw_transpiled_circuit_layout_sync,
     run_async,
     run_sample_batch_sync,
     run_sync,
@@ -112,6 +113,7 @@ __all__ = (
     "controlled_xx_plus_yy",
     "cx",
     "draw_circuit",
+    "draw_transpiled_circuit_layout_sync",
     "empty",
     "estimates_dict",
     "exists",
