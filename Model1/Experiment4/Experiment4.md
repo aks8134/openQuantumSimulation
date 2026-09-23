@@ -256,17 +256,50 @@ classically manageable \(N\).
 
 For each backend and system size, the script maintains
 
-- one cumulative figure in `Model1/Experiment4/figures/`; and
+- one cumulative observable figure in `Model1/Experiment4/figures/`;
+- one pre/post-transpilation metrics figure;
+- one pre-transpilation circuit diagram for an isolated dynamic
+  Lie--Trotter substep;
+- one post-transpilation backend-layout figure for the complete final-time
+  Z-basis circuit; and
 - one cumulative JSON record in `Model1/Experiment4/results/`.
 
 The filenames contain the backend name and \(N\), for example
 `dynamic_lie_trotter_ibm_kingston_7.png` and
 `dynamic_lie_trotter_ibm_kingston_7.json`.
 
+The additional figures use the suffixes
+`_transpilation_metrics.png`, `_one_step_circuit.png`, and
+`_transpiled_layout.png`. The metrics figure has separate panels for one
+isolated dynamic Lie substep and the complete final-time Z-basis sampling
+circuit. Each panel compares operation count and circuit depth before and
+after transpilation. Operation count includes measurements, resets, and
+classically controlled operations, as required for the dynamic circuit; it
+is not restricted to unitary gates.
+
+The layout figure recompiles the complete final-time Z-basis circuit with
+the selected optimization level and transpiler seed, then displays the
+virtual-to-physical placement on the selected IBM backend using Qiskit's
+backend coupling-map visualization. Aer has no physical coupling map, so
+its layout figure explicitly shows the unconstrained identity placement
+instead of inventing a device topology. Layout generation only transpiles;
+it does not submit an additional QPU job.
+
+The isolated-step circuit and its metrics use the first positive internal
+substep of the latest run, including that substep's actual jump angle. The
+full-circuit panel uses the latest run's final saved time. Compilation uses
+the selected Aer method or IBM backend target but does not submit an
+additional hardware execution job. An initial-state-only `--times 0` run
+has no Trotter substep to draw, so only its full initial-state circuit is
+shown in the metrics figure.
+
 The JSON record contains the physical parameters, time grid, measurement
 settings, observable estimates, propagated shot-noise standard errors, raw
 counts, provider job IDs, and pre/post-transpilation operation counts and
-depths for every circuit. It contains no IBM credentials.
+depths for every circuit. The latest step/full comparison is also stored in
+`transpilation_summary`, while the layout figure's backend, basis, saved
+time, and view are stored in `transpiled_layout`. It contains no IBM
+credentials.
 
 Later runs with the same backend and $N$ update this archive instead of
 discarding earlier time points. A previously absent time is appended, the

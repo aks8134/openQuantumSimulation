@@ -531,6 +531,109 @@ def compile_circuit_batch_sync(
             )
 
 
+def draw_transpiled_circuit_layout_sync(
+    circuit: Circuit,
+    target: Target,
+    compiler: CompilerConfig = CompilerConfig(),
+    environment: RuntimeEnvironment = RuntimeEnvironment(),
+    *,
+    view: Literal["virtual", "physical"] = "virtual",
+):
+    """Compile a circuit and return its backend-layout Matplotlib figure."""
+    common_problems = (*target_errors(target), *compiler_errors(compiler))
+    problems = (
+        *common_problems,
+        *circuit_errors(circuit),
+        *(
+            ()
+            if view in ("virtual", "physical")
+            else ("layout view must be 'virtual' or 'physical'",)
+        ),
+    )
+    if problems:
+        return Err(ValidationFailure(problems))
+
+    match _resolve_backend(target, environment):
+        case Err(error):
+            return Err(error)
+        case Ok(backend):
+            pass
+    match _compile_circuits(backend, (circuit,), compiler):
+        case Err(error):
+            return Err(error)
+        case Ok((executable,)):
+            pass
+
+    def draw_layout():
+        coupling_map = getattr(backend.native, "coupling_map", None)
+        if coupling_map is not None:
+            from qiskit.visualization import plot_circuit_layout
+
+            return plot_circuit_layout(
+                executable.native,
+                backend.native,
+                view=view,
+            )
+
+        if backend.provider != "aer":
+            raise ValueError(
+                f"backend {backend.name} has no coupling map to plot"
+            )
+
+        # Aer has no physical coupling graph or calibration-defined qubit
+        # coordinates. Its unconstrained mapping is therefore represented
+        # explicitly instead of inventing a hardware topology.
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        count = circuit.qubit_count
+        angles = np.linspace(0.0, 2.0 * np.pi, count, endpoint=False)
+        x_values = np.cos(angles)
+        y_values = np.sin(angles)
+        figure, axis = plt.subplots(figsize=(7, 7))
+        axis.scatter(
+            x_values,
+            y_values,
+            s=1100,
+            color="black",
+            edgecolors="#648fff",
+            linewidths=3,
+            zorder=2,
+        )
+        def draw_qubit_label(index):
+            x_value = x_values[index]
+            y_value = y_values[index]
+            label = (
+                f"v{index}\u2192p{index}"
+                if view == "virtual"
+                else f"p{index}"
+            )
+            return axis.text(
+                x_value,
+                y_value,
+                label,
+                color="white",
+                ha="center",
+                va="center",
+                fontsize=11,
+                zorder=3,
+            )
+
+        map_tuple(draw_qubit_label, range(count))
+        axis.set_title(
+            "Aer transpiled layout\n"
+            "unconstrained connectivity; identity placement",
+        )
+        axis.set_aspect("equal")
+        axis.set_xlim(-1.35, 1.35)
+        axis.set_ylim(-1.35, 1.35)
+        axis.axis("off")
+        figure.tight_layout()
+        return figure
+
+    return _protected("compile", draw_layout)
+
+
 def _to_qiskit_observable(
     value: Observable,
     executable: _Executable,

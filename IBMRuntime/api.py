@@ -8,6 +8,7 @@ from .effects import sync as sync_effect
 from .execute import ExecutionPlan, Sample
 from .interpreters.qiskit import (
     compile_circuit_batch_sync as _compile_circuit_batch_sync,
+    draw_transpiled_circuit_layout_sync as _draw_transpiled_circuit_layout_sync,
     make_runtime,
     run_sample_batch_sync as _run_sample_batch_sync,
 )
@@ -32,6 +33,24 @@ def compile_circuit_batch_sync(
         target,
         compiler,
         environment,
+    )
+
+
+def draw_transpiled_circuit_layout_sync(
+    circuit: Circuit,
+    target: Target,
+    compiler: CompilerConfig = CompilerConfig(),
+    environment: RuntimeEnvironment = RuntimeEnvironment(),
+    *,
+    view="virtual",
+):
+    """Compile a circuit and draw its backend qubit placement."""
+    return _draw_transpiled_circuit_layout_sync(
+        circuit,
+        target,
+        compiler,
+        environment,
+        view=view,
     )
 
 

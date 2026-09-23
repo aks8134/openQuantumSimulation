@@ -16,6 +16,7 @@ from IBMRuntime import (
     SimulateDensityMatrices,
     counts_dict,
     compile_circuit_batch_sync,
+    draw_transpiled_circuit_layout_sync,
     empty,
     execution_plan,
     h,
@@ -161,6 +162,21 @@ class AerIntegrationTests(unittest.TestCase):
         self.assertTrue(
             all(item.compiled_depth > 0 for item in result.value)
         )
+
+    def test_aer_transpiled_layout_uses_unconstrained_identity_view(self):
+        result = draw_transpiled_circuit_layout_sync(
+            bell_circuit(),
+            Aer(),
+            view="virtual",
+        )
+
+        self.assertIsInstance(result, Ok)
+        self.assertEqual(len(result.value.axes), 1)
+        self.assertIn(
+            "identity placement",
+            result.value.axes[0].get_title(),
+        )
+        result.value.clear()
 
     def test_ibm_target_without_account_returns_error_data(self):
         result = run_sync(bell_plan(IBMHardware("unused-backend"), shots=1))
