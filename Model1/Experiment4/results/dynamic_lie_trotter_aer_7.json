@@ -24,7 +24,7 @@
       "basis": "Z",
       "compiled_depth": 2,
       "compiled_operation_count": 8,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 2,
       "original_operation_count": 8,
       "time": 0.0,
@@ -34,7 +34,7 @@
       "basis": "X",
       "compiled_depth": 2,
       "compiled_operation_count": 14,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 3,
       "original_operation_count": 15,
       "time": 0.0,
@@ -44,7 +44,7 @@
       "basis": "Y",
       "compiled_depth": 2,
       "compiled_operation_count": 14,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 4,
       "original_operation_count": 22,
       "time": 0.0,
@@ -54,7 +54,7 @@
       "basis": "XY",
       "compiled_depth": 2,
       "compiled_operation_count": 14,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 4,
       "original_operation_count": 18,
       "time": 0.0,
@@ -64,7 +64,7 @@
       "basis": "YX",
       "compiled_depth": 2,
       "compiled_operation_count": 14,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 3,
       "original_operation_count": 19,
       "time": 0.0,
@@ -74,7 +74,7 @@
       "basis": "Z",
       "compiled_depth": 7,
       "compiled_operation_count": 26,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 5,
       "original_operation_count": 19,
       "time": 1.0,
@@ -84,7 +84,7 @@
       "basis": "X",
       "compiled_depth": 8,
       "compiled_operation_count": 33,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 6,
       "original_operation_count": 26,
       "time": 1.0,
@@ -94,7 +94,7 @@
       "basis": "Y",
       "compiled_depth": 8,
       "compiled_operation_count": 33,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 7,
       "original_operation_count": 33,
       "time": 1.0,
@@ -104,7 +104,7 @@
       "basis": "XY",
       "compiled_depth": 8,
       "compiled_operation_count": 33,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 6,
       "original_operation_count": 29,
       "time": 1.0,
@@ -114,7 +114,7 @@
       "basis": "YX",
       "compiled_depth": 8,
       "compiled_operation_count": 33,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 7,
       "original_operation_count": 30,
       "time": 1.0,
@@ -124,7 +124,7 @@
       "basis": "Z",
       "compiled_depth": 12,
       "compiled_operation_count": 44,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 8,
       "original_operation_count": 30,
       "time": 2.0,
@@ -134,7 +134,7 @@
       "basis": "X",
       "compiled_depth": 13,
       "compiled_operation_count": 51,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 9,
       "original_operation_count": 37,
       "time": 2.0,
@@ -144,7 +144,7 @@
       "basis": "Y",
       "compiled_depth": 13,
       "compiled_operation_count": 51,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 10,
       "original_operation_count": 44,
       "time": 2.0,
@@ -154,7 +154,7 @@
       "basis": "XY",
       "compiled_depth": 13,
       "compiled_operation_count": 51,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 9,
       "original_operation_count": 40,
       "time": 2.0,
@@ -164,7 +164,7 @@
       "basis": "YX",
       "compiled_depth": 13,
       "compiled_operation_count": 51,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 10,
       "original_operation_count": 41,
       "time": 2.0,
@@ -174,7 +174,7 @@
       "basis": "Z",
       "compiled_depth": 16,
       "compiled_operation_count": 62,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 11,
       "original_operation_count": 41,
       "time": 3.0,
@@ -184,7 +184,7 @@
       "basis": "X",
       "compiled_depth": 17,
       "compiled_operation_count": 69,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 12,
       "original_operation_count": 48,
       "time": 3.0,
@@ -194,7 +194,7 @@
       "basis": "Y",
       "compiled_depth": 17,
       "compiled_operation_count": 69,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 13,
       "original_operation_count": 55,
       "time": 3.0,
@@ -204,7 +204,7 @@
       "basis": "XY",
       "compiled_depth": 17,
       "compiled_operation_count": 69,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 12,
       "original_operation_count": 51,
       "time": 3.0,
@@ -214,7 +214,7 @@
       "basis": "YX",
       "compiled_depth": 17,
       "compiled_operation_count": 69,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 13,
       "original_operation_count": 52,
       "time": 3.0,
@@ -224,7 +224,7 @@
       "basis": "Z",
       "compiled_depth": 20,
       "compiled_operation_count": 80,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 14,
       "original_operation_count": 52,
       "time": 4.0,
@@ -234,7 +234,7 @@
       "basis": "X",
       "compiled_depth": 21,
       "compiled_operation_count": 87,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 15,
       "original_operation_count": 59,
       "time": 4.0,
@@ -244,7 +244,7 @@
       "basis": "Y",
       "compiled_depth": 21,
       "compiled_operation_count": 87,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 16,
       "original_operation_count": 66,
       "time": 4.0,
@@ -254,7 +254,7 @@
       "basis": "XY",
       "compiled_depth": 21,
       "compiled_operation_count": 87,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 15,
       "original_operation_count": 62,
       "time": 4.0,
@@ -264,7 +264,7 @@
       "basis": "YX",
       "compiled_depth": 21,
       "compiled_operation_count": 87,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 16,
       "original_operation_count": 63,
       "time": 4.0,
@@ -274,7 +274,7 @@
       "basis": "Z",
       "compiled_depth": 24,
       "compiled_operation_count": 98,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 17,
       "original_operation_count": 63,
       "time": 5.0,
@@ -284,7 +284,7 @@
       "basis": "X",
       "compiled_depth": 25,
       "compiled_operation_count": 105,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 18,
       "original_operation_count": 70,
       "time": 5.0,
@@ -294,7 +294,7 @@
       "basis": "Y",
       "compiled_depth": 25,
       "compiled_operation_count": 105,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 19,
       "original_operation_count": 77,
       "time": 5.0,
@@ -304,7 +304,7 @@
       "basis": "XY",
       "compiled_depth": 25,
       "compiled_operation_count": 105,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 18,
       "original_operation_count": 73,
       "time": 5.0,
@@ -314,7 +314,7 @@
       "basis": "YX",
       "compiled_depth": 25,
       "compiled_operation_count": 105,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 19,
       "original_operation_count": 74,
       "time": 5.0,
@@ -324,7 +324,7 @@
       "basis": "Z",
       "compiled_depth": 28,
       "compiled_operation_count": 116,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 20,
       "original_operation_count": 74,
       "time": 6.0,
@@ -334,7 +334,7 @@
       "basis": "X",
       "compiled_depth": 29,
       "compiled_operation_count": 123,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 21,
       "original_operation_count": 81,
       "time": 6.0,
@@ -344,7 +344,7 @@
       "basis": "Y",
       "compiled_depth": 29,
       "compiled_operation_count": 123,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 22,
       "original_operation_count": 88,
       "time": 6.0,
@@ -354,7 +354,7 @@
       "basis": "XY",
       "compiled_depth": 29,
       "compiled_operation_count": 123,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 21,
       "original_operation_count": 84,
       "time": 6.0,
@@ -364,7 +364,7 @@
       "basis": "YX",
       "compiled_depth": 29,
       "compiled_operation_count": 123,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 22,
       "original_operation_count": 85,
       "time": 6.0,
@@ -374,7 +374,7 @@
       "basis": "Z",
       "compiled_depth": 32,
       "compiled_operation_count": 134,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 23,
       "original_operation_count": 85,
       "time": 7.0,
@@ -384,7 +384,7 @@
       "basis": "X",
       "compiled_depth": 33,
       "compiled_operation_count": 141,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 24,
       "original_operation_count": 92,
       "time": 7.0,
@@ -394,7 +394,7 @@
       "basis": "Y",
       "compiled_depth": 33,
       "compiled_operation_count": 141,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 25,
       "original_operation_count": 99,
       "time": 7.0,
@@ -404,7 +404,7 @@
       "basis": "XY",
       "compiled_depth": 33,
       "compiled_operation_count": 141,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 24,
       "original_operation_count": 95,
       "time": 7.0,
@@ -414,7 +414,7 @@
       "basis": "YX",
       "compiled_depth": 33,
       "compiled_operation_count": 141,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 25,
       "original_operation_count": 96,
       "time": 7.0,
@@ -424,7 +424,7 @@
       "basis": "Z",
       "compiled_depth": 36,
       "compiled_operation_count": 152,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 26,
       "original_operation_count": 96,
       "time": 8.0,
@@ -434,7 +434,7 @@
       "basis": "X",
       "compiled_depth": 37,
       "compiled_operation_count": 159,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 27,
       "original_operation_count": 103,
       "time": 8.0,
@@ -444,7 +444,7 @@
       "basis": "Y",
       "compiled_depth": 37,
       "compiled_operation_count": 159,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 28,
       "original_operation_count": 110,
       "time": 8.0,
@@ -454,7 +454,7 @@
       "basis": "XY",
       "compiled_depth": 37,
       "compiled_operation_count": 159,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 27,
       "original_operation_count": 106,
       "time": 8.0,
@@ -464,7 +464,7 @@
       "basis": "YX",
       "compiled_depth": 37,
       "compiled_operation_count": 159,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 28,
       "original_operation_count": 107,
       "time": 8.0,
@@ -474,7 +474,7 @@
       "basis": "Z",
       "compiled_depth": 40,
       "compiled_operation_count": 170,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 29,
       "original_operation_count": 107,
       "time": 9.0,
@@ -484,7 +484,7 @@
       "basis": "X",
       "compiled_depth": 41,
       "compiled_operation_count": 177,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 30,
       "original_operation_count": 114,
       "time": 9.0,
@@ -494,7 +494,7 @@
       "basis": "Y",
       "compiled_depth": 41,
       "compiled_operation_count": 177,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 31,
       "original_operation_count": 121,
       "time": 9.0,
@@ -504,7 +504,7 @@
       "basis": "XY",
       "compiled_depth": 41,
       "compiled_operation_count": 177,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 30,
       "original_operation_count": 117,
       "time": 9.0,
@@ -514,7 +514,7 @@
       "basis": "YX",
       "compiled_depth": 41,
       "compiled_operation_count": 177,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 31,
       "original_operation_count": 118,
       "time": 9.0,
@@ -524,7 +524,7 @@
       "basis": "Z",
       "compiled_depth": 44,
       "compiled_operation_count": 188,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 32,
       "original_operation_count": 118,
       "time": 10.0,
@@ -534,7 +534,7 @@
       "basis": "X",
       "compiled_depth": 45,
       "compiled_operation_count": 195,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 33,
       "original_operation_count": 125,
       "time": 10.0,
@@ -544,7 +544,7 @@
       "basis": "Y",
       "compiled_depth": 45,
       "compiled_operation_count": 195,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 34,
       "original_operation_count": 132,
       "time": 10.0,
@@ -554,7 +554,7 @@
       "basis": "XY",
       "compiled_depth": 45,
       "compiled_operation_count": 195,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 33,
       "original_operation_count": 128,
       "time": 10.0,
@@ -564,14 +564,14 @@
       "basis": "YX",
       "compiled_depth": 45,
       "compiled_operation_count": 195,
-      "job_id": "c1ae9c58-eeee-4636-9790-5dcc914e9bbb",
+      "job_id": "875557dd-731c-43fb-b071-35ff60f21e5d",
       "original_depth": 34,
       "original_operation_count": 129,
       "time": 10.0,
       "time_index": 10
     }
   ],
-  "completed_at_utc": "2026-09-23T09:28:46.227840+00:00",
+  "completed_at_utc": "2026-09-23T10:01:19.374748+00:00",
   "dt": 1.0,
   "evolution_schedule": {
     "includes_initial_time": true,
@@ -725,7 +725,7 @@
   },
   "experiment": "Model1/Experiment4 dynamic Lie-Trotter",
   "job_ids": [
-    "c1ae9c58-eeee-4636-9790-5dcc914e9bbb"
+    "875557dd-731c-43fb-b071-35ff60f21e5d"
   ],
   "jump_angle": 0.8944271909999159,
   "jump_exchange_probability": 0.18701718773461762,
@@ -7932,6 +7932,206 @@
       },
       "job_ids": [
         "c1ae9c58-eeee-4636-9790-5dcc914e9bbb"
+      ],
+      "times": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0
+      ],
+      "transpilation_summary": [
+        {
+          "label": "one dynamic Lie substep",
+          "post": {
+            "depth": 7,
+            "operation_count": 18
+          },
+          "pre": {
+            "depth": 5,
+            "operation_count": 11
+          }
+        },
+        {
+          "label": "complete final-time circuit (Z basis)",
+          "post": {
+            "depth": 44,
+            "operation_count": 188
+          },
+          "pre": {
+            "depth": 32,
+            "operation_count": 118
+          }
+        }
+      ],
+      "transpiled_layout": {
+        "backend": "aer",
+        "basis": "Z",
+        "figure": "dynamic_lie_trotter_aer_7_transpiled_layout.png",
+        "saved_time": 10.0,
+        "view": "virtual"
+      }
+    },
+    {
+      "completed_at_utc": "2026-09-23T10:01:19.374748+00:00",
+      "evolution_schedule": {
+        "includes_initial_time": true,
+        "intervals": [
+          {
+            "end_time": 1.0,
+            "start_time": 0.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 2.0,
+            "start_time": 1.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 3.0,
+            "start_time": 2.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 4.0,
+            "start_time": 3.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 5.0,
+            "start_time": 4.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 6.0,
+            "start_time": 5.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 7.0,
+            "start_time": 6.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 8.0,
+            "start_time": 7.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 9.0,
+            "start_time": 8.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          },
+          {
+            "end_time": 10.0,
+            "start_time": 9.0,
+            "substep_count": 1,
+            "substeps": [
+              {
+                "dt": 1.0,
+                "jump_angle": 0.8944271909999159,
+                "jump_exchange_probability": 0.18701718773461762,
+                "substep_index": 0,
+                "system_exchange_angle": 2.0
+              }
+            ]
+          }
+        ],
+        "requested_trotter_delta_t": null,
+        "uniform_jump_angle": 0.8944271909999159,
+        "uniform_jump_exchange_probability": 0.18701718773461762,
+        "uniform_substep_dt": 1.0,
+        "uniform_system_exchange_angle": 2.0
+      },
+      "job_ids": [
+        "875557dd-731c-43fb-b071-35ff60f21e5d"
       ],
       "times": [
         0.0,

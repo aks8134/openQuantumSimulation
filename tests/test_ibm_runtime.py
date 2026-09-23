@@ -168,14 +168,26 @@ class AerIntegrationTests(unittest.TestCase):
             bell_circuit(),
             Aer(),
             view="virtual",
+            logical_labels=("control", "target"),
         )
 
         self.assertIsInstance(result, Ok)
-        self.assertEqual(len(result.value.axes), 1)
+        self.assertEqual(len(result.value.axes), 2)
         self.assertIn(
             "identity placement",
             result.value.axes[0].get_title(),
         )
+        self.assertEqual(
+            result.value.axes[1].get_title(),
+            "Logical → physical mapping",
+        )
+        table_text = tuple(
+            cell.get_text().get_text()
+            for table in result.value.axes[1].tables
+            for cell in table.get_celld().values()
+        )
+        self.assertIn("control", table_text)
+        self.assertIn("target", table_text)
         result.value.clear()
 
     def test_ibm_target_without_account_returns_error_data(self):

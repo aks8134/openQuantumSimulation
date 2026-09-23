@@ -283,7 +283,11 @@ virtual-to-physical placement on the selected IBM backend using Qiskit's
 backend coupling-map visualization. Aer has no physical coupling map, so
 its layout figure explicitly shows the unconstrained identity placement
 instead of inventing a device topology. Layout generation only transpiles;
-it does not submit an additional QPU job.
+it does not submit an additional QPU job. A table beside the graph gives
+the exact mapping from every logical circuit qubit to its physical backend
+qubit. The table also identifies each logical qubit as a chain site, the
+low ancilla (a_L), or the high ancilla (a_H), avoiding reliance on the
+small labels drawn inside a large backend graph.
 
 The isolated-step circuit and its metrics use the first positive internal
 substep of the latest run, including that substep's actual jump angle. The

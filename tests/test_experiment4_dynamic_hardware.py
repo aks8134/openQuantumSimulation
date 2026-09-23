@@ -296,6 +296,7 @@ class Experiment4CircuitTests(unittest.TestCase):
 
     def test_layout_figure_compiles_without_sampler_submission(self):
         options = SimpleNamespace(
+            n_qubits=2,
             backend="aer",
             aer_method="automatic",
             account_file=experiment.DEFAULT_ACCOUNT_FILE,
