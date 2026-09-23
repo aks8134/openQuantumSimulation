@@ -334,7 +334,55 @@ class Experiment4CircuitTests(unittest.TestCase):
 
         self.assertTrue(output_exists)
         draw_layout.assert_called_once()
+        self.assertEqual(draw_layout.call_args.kwargs["view"], "physical")
+        self.assertEqual(
+            draw_layout.call_args.kwargs["logical_labels"],
+            (
+                "system site 1",
+                "system site 0",
+                "low ancilla a_L",
+                "high ancilla a_H",
+            ),
+        )
         sample_batch.assert_not_called()
+
+    def test_layout_only_mode_never_submits_or_writes_results(self):
+        with TemporaryDirectory() as directory:
+            options = experiment.parse_arguments(
+                (
+                    "--layout-only",
+                    "--n-qubits",
+                    "2",
+                    "--backend",
+                    "fake_fez",
+                    "--times",
+                    "0.2",
+                    "--trotter-delta-t",
+                    "0.1",
+                    "--output-directory",
+                    directory,
+                )
+            )
+            with (
+                patch.object(
+                    experiment,
+                    "plot_transpiled_circuit_layout",
+                ) as plot_layout,
+                patch.object(
+                    experiment,
+                    "execute_sample_circuits",
+                    side_effect=AssertionError("must not submit"),
+                ) as execute,
+            ):
+                experiment.main(options)
+
+            result_directory_exists = (
+                Path(directory) / "results"
+            ).exists()
+
+        plot_layout.assert_called_once()
+        execute.assert_not_called()
+        self.assertFalse(result_directory_exists)
 
     def test_hardware_memory_error_is_reported_without_retry(self):
         circuits = tuple(range(5))

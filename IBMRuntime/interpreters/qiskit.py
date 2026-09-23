@@ -7,6 +7,7 @@ from typing import Any, Literal, TypeVar
 
 from ..backend import (
     Aer,
+    FakeIBMBackend,
     IBMHardware,
     Target,
     validation_errors as target_errors,
@@ -57,7 +58,7 @@ from ..runtime import RuntimeEnvironment, RuntimeModule
 
 
 A = TypeVar("A")
-Provider = Literal["aer", "ibm"]
+Provider = Literal["aer", "fake", "ibm"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -153,6 +154,19 @@ def _resolve_backend(
                 return _ResolvedBackend(provider="ibm", name=backend.name, native=backend)
 
             return _protected("resolve_backend", resolve_ibm)
+
+        case FakeIBMBackend("fake_fez"):
+            def resolve_fake_fez() -> _ResolvedBackend:
+                from qiskit_ibm_runtime.fake_provider import FakeFez
+
+                backend = FakeFez()
+                return _ResolvedBackend(
+                    provider="fake",
+                    name=backend.name,
+                    native=backend,
+                )
+
+            return _protected("resolve_backend", resolve_fake_fez)
 
 
 def _to_qiskit_instruction(
@@ -395,7 +409,7 @@ def _compile_circuits(
                 f"backend {backend.name} has {backend.native.num_qubits} "
                 f"qubits but the batch requires {required_qubits}"
             )
-        if backend.provider == "ibm":
+        if backend.provider in ("fake", "ibm"):
             operations = concat_map(
                 lambda circuit: circuit.operations,
                 circuits,
@@ -654,13 +668,93 @@ def draw_transpiled_circuit_layout_sync(
 
         coupling_map = getattr(backend.native, "coupling_map", None)
         if coupling_map is not None:
-            from qiskit.visualization import plot_circuit_layout
+            import rustworkx as rx
+            from qiskit.visualization import plot_gate_map
 
+            active_physical = frozenset(physical_by_logical)
+            logical_by_physical = dict(
+                map(
+                    lambda indexed: (indexed[1], indexed[0]),
+                    enumerate(physical_by_logical),
+                )
+            )
+            physical_count = backend.native.num_qubits
+            active_color = "#000000"
+            inactive_color = "#648fff"
+            qubit_colors = map_tuple(
+                lambda physical: (
+                    active_color
+                    if physical in active_physical
+                    else inactive_color
+                ),
+                range(physical_count),
+            )
+            qubit_labels = map_tuple(
+                lambda physical: (
+                    str(physical)
+                    if physical in active_physical and view == "physical"
+                    else (
+                        str(logical_by_physical[physical])
+                        if physical in active_physical
+                        else ""
+                    )
+                ),
+                range(physical_count),
+            )
+            coupling_edges = tuple(coupling_map.get_edges())
+            line_colors = map_tuple(
+                lambda edge: (
+                    active_color
+                    if edge[0] in active_physical
+                    and edge[1] in active_physical
+                    else inactive_color
+                ),
+                coupling_edges,
+            )
+
+            # Qiskit only supplies fixed device coordinates for a small set
+            # of legacy device sizes.  In particular, FakeFez has 156 qubits;
+            # allowing Graphviz to infer its coordinates creates an enormous
+            # raster.  A seeded spring layout keeps unsupported backends
+            # deterministic and bounded while retaining their real coupling
+            # graph.
+            qiskit_coordinate_counts = frozenset(
+                (5, 7, 15, 16, 20, 27, 28, 53, 65, 127, 433)
+            )
+            positions = (
+                None
+                if physical_count in qiskit_coordinate_counts
+                else rx.spring_layout(
+                    coupling_map.graph.to_undirected(multigraph=False),
+                    seed=compiler.seed_transpiler,
+                    num_iter=150,
+                    scale=12.0,
+                )
+            )
+            coordinates = (
+                None
+                if positions is None
+                else map_tuple(
+                    lambda physical: tuple(
+                        map(float, positions[physical])
+                    ),
+                    range(physical_count),
+                )
+            )
             return add_mapping_table(
-                plot_circuit_layout(
-                    executable.native,
+                plot_gate_map(
                     backend.native,
-                    view=view,
+                    figsize=(10.0, 8.0),
+                    plot_directed=False,
+                    label_qubits=True,
+                    qubit_size=44,
+                    line_width=2,
+                    font_size=13,
+                    qubit_color=qubit_colors,
+                    qubit_labels=qubit_labels,
+                    line_color=line_colors,
+                    font_color="white",
+                    qubit_coordinates=coordinates,
                 )
             )
 
@@ -750,6 +844,10 @@ def _submit(
     workload: Workload,
 ) -> Result[_SubmittedJob, RuntimeFailure]:
     def submit_native() -> _SubmittedJob:
+        if backend.provider == "fake":
+            raise ValueError(
+                "fake IBM backends support offline compilation only"
+            )
         match workload:
             case Sample(shots, seed_simulator):
                 if backend.provider == "aer":
@@ -819,6 +917,10 @@ def _submit_sample_batch(
     workload: Sample,
 ) -> Result[_SubmittedSampleBatch, RuntimeFailure]:
     def submit_native() -> _SubmittedSampleBatch:
+        if backend.provider == "fake":
+            raise ValueError(
+                "fake IBM backends support offline compilation only"
+            )
         if backend.provider == "aer":
             from qiskit.primitives import BackendSamplerV2
 

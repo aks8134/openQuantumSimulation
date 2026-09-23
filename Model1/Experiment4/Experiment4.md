@@ -289,6 +289,31 @@ qubit. The table also identifies each logical qubit as a chain site, the
 low ancilla (a_L), or the high ancilla (a_H), avoiding reliance on the
 small labels drawn inside a large backend graph.
 
+The active black nodes on an IBM device graph are labeled with their
+physical backend-qubit numbers. Those numbers therefore match the
+`Physical` column of the table directly; the corresponding logical qubit
+and chain/ancilla role are read from the same row.
+
+To test the same 156-qubit Fez topology entirely offline, without IBM
+credentials, circuit execution, checkpoint creation, or changes to the
+cumulative result archive, use the installed `FakeFez` snapshot through
+the `fake_fez` backend name:
+
+```bash
+uv run python Model1/Experiment4/dynamic_lie_trotter.py \
+  --n-qubits 4 \
+  --backend fake_fez \
+  --times 1.4 \
+  --trotter-delta-t 0.2 \
+  --layout-only
+```
+
+`--layout-only` loads the local fake-backend snapshot, transpiles the final
+requested Z-basis circuit, and writes only the layout figure. It does not
+load an IBM account, instantiate a Sampler, access IBM services, or submit
+a hardware job. The `fake_fez` target is deliberately rejected unless
+`--layout-only` is present.
+
 The isolated-step circuit and its metrics use the first positive internal
 substep of the latest run, including that substep's actual jump angle. The
 full-circuit panel uses the latest run's final saved time. Compilation uses

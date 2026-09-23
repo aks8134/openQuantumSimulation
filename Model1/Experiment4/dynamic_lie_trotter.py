@@ -38,6 +38,7 @@ from IBMRuntime import (
     Circuit,
     CompilerConfig,
     Err,
+    FakeIBMBackend,
     IBMHardware,
     Ok,
     RuntimeEnvironment,
@@ -318,6 +319,8 @@ def _chunks(values, size):
 def _runtime_target(backend_name, aer_method, account_file):
     if backend_name.lower() == "aer":
         return Aer(method=aer_method), RuntimeEnvironment()
+    if backend_name.lower() == "fake_fez":
+        return FakeIBMBackend("fake_fez"), RuntimeEnvironment()
 
     match load_ibm_account(account_file):
         case Err(error):
@@ -921,7 +924,7 @@ def plot_transpiled_circuit_layout(circuit, options, output_path):
         target,
         compiler,
         environment,
-        view="virtual",
+        view="physical",
         logical_labels=logical_qubit_roles(options.n_qubits),
     ):
         case Err(error):
@@ -1795,6 +1798,16 @@ def save_results(
 
 
 def main(options):
+    if options.layout_only and options.metadata_only:
+        raise ValueError("--layout-only cannot be combined with --metadata-only")
+    if options.layout_only and options.resume:
+        raise ValueError("--layout-only cannot be combined with --resume")
+    if (
+        not options.metadata_only
+        and options.backend.lower() == "fake_fez"
+        and not options.layout_only
+    ):
+        raise ValueError("--backend fake_fez requires --layout-only")
     if options.metadata_only:
         backfill_metadata_only(options)
         return
@@ -1829,6 +1842,20 @@ def main(options):
         options.n_qubits,
         options.output_directory,
     )
+    if options.layout_only:
+        full_circuit = _representative_full_circuit(
+            circuits,
+            metadata,
+            len(times) - 1,
+        )
+        plot_transpiled_circuit_layout(
+            full_circuit,
+            options,
+            layout_figure_path,
+        )
+        print(f"Saved transpiled layout: {layout_figure_path}")
+        print("Sampler jobs submitted: 0 (layout-only mode)")
+        return
     existing_payload = validate_existing_result_compatibility(
         result_path,
         options,
@@ -1955,7 +1982,7 @@ def main(options):
             "backend": options.backend,
             "basis": "Z",
             "saved_time": float(times[-1]),
-            "view": "virtual",
+            "view": "physical",
             "figure": layout_figure_path.name,
         },
     }
@@ -2168,8 +2195,9 @@ def parse_arguments(arguments=None):
         "--backend",
         default=DEFAULT_BACKEND,
         help=(
-            "use 'aer' for local simulation or an IBM backend name such "
-            "as 'ibm_kingston' (default: aer)"
+            "use 'aer' for local simulation, 'fake_fez' for offline "
+            "--layout-only transpilation, or an IBM backend name such as "
+            "'ibm_kingston' (default: aer)"
         ),
     )
     parser.add_argument(
@@ -2281,6 +2309,14 @@ def parse_arguments(arguments=None):
         help=(
             "checkpoint JSON path (default: a *_checkpoint.json file "
             "beside the final result)"
+        ),
+    )
+    parser.add_argument(
+        "--layout-only",
+        action="store_true",
+        help=(
+            "transpile and draw only the final saved-time Z-basis backend "
+            "layout; never submit a Sampler job or alter results"
         ),
     )
     parser.add_argument(

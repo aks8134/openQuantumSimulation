@@ -27,17 +27,28 @@ class IBMHardware:
 
 
 @dataclass(frozen=True, slots=True)
+class FakeIBMBackend:
+    backend_name: str
+
+
+@dataclass(frozen=True, slots=True)
 class Aer:
     method: AerMethod = "automatic"
 
 
-Target: TypeAlias = IBMHardware | Aer
+Target: TypeAlias = IBMHardware | FakeIBMBackend | Aer
 
 
 def validation_errors(target: Target) -> tuple[str, ...]:
     match target:
         case IBMHardware(backend_name):
             return () if backend_name.strip() else ("an IBM backend name cannot be empty",)
+        case FakeIBMBackend(backend_name):
+            return (
+                ()
+                if backend_name == "fake_fez"
+                else (f"unsupported fake IBM backend: {backend_name}",)
+            )
         case Aer(method):
             return () if method in AER_METHODS else (f"unsupported Aer method: {method}",)
         case _:
