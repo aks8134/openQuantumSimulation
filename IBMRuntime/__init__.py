@@ -1,6 +1,6 @@
 """Immutable, OCaml-inspired functional wrapper for IBM Quantum and Aer."""
 
-from .backend import AER_METHODS, Aer, IBMHardware
+from .backend import AER_METHODS, Aer, FakeIBMBackend, IBMHardware
 from .api import (
     compile_circuit_batch_sync,
     draw_transpiled_circuit_layout_sync,
@@ -84,6 +84,7 @@ __all__ = (
     "ExecutionFailure",
     "ExecutionPlan",
     "ExpectationValue",
+    "FakeIBMBackend",
     "DensityMatrixResult",
     "H",
     "IBMAccount",

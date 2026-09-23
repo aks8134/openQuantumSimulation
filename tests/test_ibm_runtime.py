@@ -9,6 +9,7 @@ from IBMRuntime import (
     Err,
     Estimate,
     EstimateResult,
+    FakeIBMBackend,
     H,
     IBMHardware,
     Ok,
@@ -186,6 +187,27 @@ class AerIntegrationTests(unittest.TestCase):
             for table in result.value.axes[1].tables
             for cell in table.get_celld().values()
         )
+        self.assertIn("control", table_text)
+        self.assertIn("target", table_text)
+        result.value.clear()
+
+    def test_fake_fez_layout_transpiles_without_credentials(self):
+        result = draw_transpiled_circuit_layout_sync(
+            bell_circuit(),
+            FakeIBMBackend("fake_fez"),
+            view="physical",
+            logical_labels=("control", "target"),
+        )
+
+        self.assertIsInstance(result, Ok)
+        self.assertEqual(len(result.value.axes), 2)
+        table_text = tuple(
+            cell.get_text().get_text()
+            for table in result.value.axes[1].tables
+            for cell in table.get_celld().values()
+        )
+        self.assertIn("Logical", table_text)
+        self.assertIn("Physical", table_text)
         self.assertIn("control", table_text)
         self.assertIn("target", table_text)
         result.value.clear()
