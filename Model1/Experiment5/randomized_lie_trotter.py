@@ -10,7 +10,8 @@ sample one of the two simple generators at every internal substep,
 
 Their uniform mean is the target generator.  The selected jump is therefore
 scaled by sqrt(2), giving an XXPlusYY angle 2 sqrt(2 gamma dt).  A trajectory
-uses one resettable ancilla and contains no measurement-based feed-forward.
+uses two boundary-local ancilla wires, resets only the selected one, and
+contains no measurement-based feed-forward.
 
 ``--shots`` is the total shot budget for one saved-time/measurement-basis
 pair.  It is divided evenly among ``--trajectories`` independently sampled
@@ -80,6 +81,8 @@ DEFAULT_SEED_TRANSPILER = hardware_tools.DEFAULT_SEED_TRANSPILER
 DEFAULT_AER_BATCH_SIZE = 300
 DEFAULT_HARDWARE_BATCH_SIZE = 5
 CHECKPOINT_SCHEMA_VERSION = 1
+CIRCUIT_LAYOUT_VERSION = 2
+ANCILLA_STRATEGY = "two boundary-local resettable ancillas"
 
 J = chain_tools.J
 h_field = chain_tools.h
@@ -166,11 +169,16 @@ class ObservableUncertainties:
 
 
 def system_qubits_by_site(number_of_qubits):
-    return chain_tools.system_qubits_by_site(number_of_qubits)
+    # Logical wire order is a_R, s_{N-1}, ..., s_0, a_L.  Consequently,
+    # both boundary jumps are nearest-neighbour gates before transpilation.
+    return tuple(
+        number_of_qubits - site for site in range(number_of_qubits)
+    )
 
 
-def ancilla_qubit(number_of_qubits):
-    return number_of_qubits
+def boundary_ancilla_qubits(number_of_qubits):
+    """Return ancillas indexed by LEFT_BOUNDARY and RIGHT_BOUNDARY."""
+    return (number_of_qubits + 1, 0)
 
 
 def _single_interval_substeps(interval, trotter_delta_t):
@@ -294,11 +302,12 @@ def _randomized_substep(
     dt,
     boundary,
     system_qubits,
-    ancilla,
+    boundary_ancillas,
 ):
     if boundary not in (LEFT_BOUNDARY, RIGHT_BOUNDARY):
         raise ValueError("boundary must be LEFT_BOUNDARY or RIGHT_BOUNDARY")
     selected_site = 0 if boundary == LEFT_BOUNDARY else number_of_qubits - 1
+    selected_ancilla = boundary_ancillas[boundary]
     jump_angle = 2.0 * np.sqrt(2.0 * gamma * dt)
     return pipe(
         _system_factor(circuit, number_of_qubits, dt, system_qubits),
@@ -306,10 +315,10 @@ def _randomized_substep(
             jump_angle,
             0.0,
             system_qubits[selected_site],
-            ancilla,
+            selected_ancilla,
             label=f"K_{BOUNDARY_NAMES[boundary]}",
         ),
-        reset(ancilla),
+        reset(selected_ancilla),
     )
 
 
@@ -319,7 +328,7 @@ def _trajectory_evolution_circuits(
     trajectory_index,
 ):
     system_qubits = system_qubits_by_site(number_of_qubits)
-    ancilla = ancilla_qubit(number_of_qubits)
+    boundary_ancillas = boundary_ancilla_qubits(number_of_qubits)
     choices = schedule.boundary_choices[trajectory_index]
     offsets = np.cumsum(
         (0, *map(len, schedule.interval_substep_dts)),
@@ -327,7 +336,7 @@ def _trajectory_evolution_circuits(
     )
     initial = pipe(
         empty(
-            number_of_qubits + 1,
+            number_of_qubits + 2,
             0,
             name=(
                 f"randomized_lie_N{number_of_qubits}_"
@@ -350,7 +359,7 @@ def _trajectory_evolution_circuits(
                 substeps[local_index],
                 choices[start + local_index],
                 system_qubits,
-                ancilla,
+                boundary_ancillas,
             ),
             current,
             range(len(substeps)),
@@ -468,7 +477,7 @@ def build_one_step_circuit(number_of_qubits, dt, boundary):
         raise ValueError("dt must be finite and positive")
     return _randomized_substep(
         empty(
-            number_of_qubits + 1,
+            number_of_qubits + 2,
             0,
             name=(
                 f"one_randomized_lie_{BOUNDARY_NAMES[boundary]}_"
@@ -479,7 +488,7 @@ def build_one_step_circuit(number_of_qubits, dt, boundary):
         dt,
         boundary,
         system_qubits_by_site(number_of_qubits),
-        ancilla_qubit(number_of_qubits),
+        boundary_ancilla_qubits(number_of_qubits),
     )
 
 
@@ -939,13 +948,14 @@ def plot_one_step_circuits(number_of_qubits, dt, left_path, right_path):
 
 
 def logical_qubit_roles(number_of_qubits):
-    """Describe Experiment 5's little-endian system and ancilla wires."""
+    """Describe the boundary-bracketed logical wire order."""
     return (
+        "right boundary ancilla a_R",
         *tuple(
             f"system site {number_of_qubits - 1 - qubit}"
             for qubit in range(number_of_qubits)
         ),
-        "boundary ancilla a",
+        "left boundary ancilla a_L",
     )
 
 
@@ -1190,6 +1200,9 @@ def _checkpoint_configuration(options, times, metadata):
     return {
         "backend": options.backend.lower(),
         "number_of_system_qubits": options.n_qubits,
+        "number_of_circuit_qubits": options.n_qubits + 2,
+        "circuit_layout_version": CIRCUIT_LAYOUT_VERSION,
+        "ancilla_strategy": ANCILLA_STRATEGY,
         "number_of_trajectories": options.trajectories,
         "total_shots_per_time_basis": options.shots,
         "shots_per_trajectory_circuit": shots_per_trajectory(
@@ -1345,6 +1358,9 @@ def _result_compatibility_signature(payload):
         "experiment": payload.get("experiment"),
         "backend": str(payload.get("backend", "")).lower(),
         "number_of_system_qubits": payload.get("number_of_system_qubits"),
+        "number_of_circuit_qubits": payload.get("number_of_circuit_qubits"),
+        "circuit_layout_version": payload.get("circuit_layout_version"),
+        "ancilla_strategy": payload.get("ancilla_strategy"),
         "number_of_trajectories": payload.get("number_of_trajectories"),
         "total_shots_per_time_basis": payload.get(
             "total_shots_per_time_basis"
@@ -1365,6 +1381,9 @@ def _prospective_compatibility_signature(options, schedule):
         "experiment": "Model1/Experiment5 randomized Lie-Trotter",
         "backend": options.backend.lower(),
         "number_of_system_qubits": options.n_qubits,
+        "number_of_circuit_qubits": options.n_qubits + 2,
+        "circuit_layout_version": CIRCUIT_LAYOUT_VERSION,
+        "ancilla_strategy": ANCILLA_STRATEGY,
         "number_of_trajectories": options.trajectories,
         "total_shots_per_time_basis": options.shots,
         "measurement_bases": MEASUREMENT_BASES,
@@ -1507,6 +1526,8 @@ def _run_history_record(payload):
         "completed_at_utc": payload.get("completed_at_utc"),
         "times": payload.get("times", ()),
         "job_ids": payload.get("job_ids", ()),
+        "circuit_layout_version": payload.get("circuit_layout_version"),
+        "ancilla_strategy": payload.get("ancilla_strategy"),
         "evolution_schedule": payload.get("evolution_schedule"),
         "transpilation_summary": payload.get("transpilation_summary", ()),
     }
@@ -1639,7 +1660,14 @@ def save_results(
         "method": "uniform randomized single-boundary dilation",
         "backend": options.backend,
         "number_of_system_qubits": options.n_qubits,
-        "number_of_circuit_qubits": options.n_qubits + 1,
+        "number_of_circuit_qubits": options.n_qubits + 2,
+        "circuit_layout_version": CIRCUIT_LAYOUT_VERSION,
+        "ancilla_strategy": ANCILLA_STRATEGY,
+        "system_qubits_by_site": system_qubits_by_site(options.n_qubits),
+        "boundary_ancilla_qubits": {
+            "L": boundary_ancilla_qubits(options.n_qubits)[LEFT_BOUNDARY],
+            "R": boundary_ancilla_qubits(options.n_qubits)[RIGHT_BOUNDARY],
+        },
         "number_of_trajectories": options.trajectories,
         "total_shots_per_time_basis": options.shots,
         "shots_per_trajectory_circuit": shots_per_trajectory(
@@ -1786,6 +1814,13 @@ def _metadata_file_specification(payload):
             "number_of_qubits": configuration.get(
                 "number_of_system_qubits"
             ),
+            "number_of_circuit_qubits": configuration.get(
+                "number_of_circuit_qubits"
+            ),
+            "circuit_layout_version": configuration.get(
+                "circuit_layout_version"
+            ),
+            "ancilla_strategy": configuration.get("ancilla_strategy"),
             "trajectories": configuration.get("number_of_trajectories"),
             "seed_trajectories": configuration.get("seed_trajectories"),
             "times": configuration.get("times"),
@@ -1808,6 +1843,13 @@ def _metadata_file_specification(payload):
             "kind": "result",
             "backend": payload.get("backend"),
             "number_of_qubits": payload.get("number_of_system_qubits"),
+            "number_of_circuit_qubits": payload.get(
+                "number_of_circuit_qubits"
+            ),
+            "circuit_layout_version": payload.get(
+                "circuit_layout_version"
+            ),
+            "ancilla_strategy": payload.get("ancilla_strategy"),
             "trajectories": payload.get("number_of_trajectories"),
             "seed_trajectories": payload.get("seed_trajectories"),
             "times": payload.get("times"),
@@ -1841,6 +1883,19 @@ def backfill_metadata_only(options):
             f"could not read metadata file {metadata_path}: {error}"
         ) from error
     specification = _metadata_file_specification(payload)
+    expected_circuit_qubits = int(specification["number_of_qubits"]) + 2
+    if (
+        specification["number_of_circuit_qubits"]
+        != expected_circuit_qubits
+        or specification["circuit_layout_version"]
+        != CIRCUIT_LAYOUT_VERSION
+        or specification["ancilla_strategy"] != ANCILLA_STRATEGY
+    ):
+        raise ValueError(
+            "metadata file uses the legacy one-ancilla Experiment 5 "
+            "layout and cannot be backfilled with the current "
+            "two-boundary-ancilla circuits"
+        )
     if specification["kind"] == "result" and "archive" in payload:
         circuit_values = []
         metadata_values = []
@@ -2295,7 +2350,7 @@ def main(options):
         )
     )
     print(f"Backend: {options.backend}")
-    print(f"System/circuit qubits: {options.n_qubits}/{options.n_qubits + 1}")
+    print(f"System/circuit qubits: {options.n_qubits}/{options.n_qubits + 2}")
     print(f"Randomized trajectories R: {options.trajectories}")
     print(f"Trajectory seed: {options.seed_trajectories}")
     print(

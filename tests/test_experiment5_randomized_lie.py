@@ -64,6 +64,9 @@ def result_payload(times, marker, job_id):
         "experiment": "Model1/Experiment5 randomized Lie-Trotter",
         "backend": "aer",
         "number_of_system_qubits": 2,
+        "number_of_circuit_qubits": 4,
+        "circuit_layout_version": experiment.CIRCUIT_LAYOUT_VERSION,
+        "ancilla_strategy": experiment.ANCILLA_STRATEGY,
         "number_of_trajectories": 1,
         "total_shots_per_time_basis": 100,
         "measurement_bases": list(experiment.MEASUREMENT_BASES),
@@ -199,9 +202,10 @@ class Experiment5RandomizedLieTests(unittest.TestCase):
         self.assertEqual(
             draw_layout.call_args.kwargs["logical_labels"],
             (
+                "right boundary ancilla a_R",
                 "system site 1",
                 "system site 0",
-                "boundary ancilla a",
+                "left boundary ancilla a_L",
             ),
         )
 
@@ -306,7 +310,7 @@ class Experiment5RandomizedLieTests(unittest.TestCase):
         )
         self.assertFalse(schedule.includes_initial_time)
 
-    def test_randomized_circuits_use_one_ancilla_and_no_feed_forward(self):
+    def test_randomized_circuits_use_boundary_local_ancillas(self):
         times = np.asarray((0.0, 0.1, 0.3))
         circuits, metadata, schedule = experiment.build_sample_circuits(
             times,
@@ -317,8 +321,19 @@ class Experiment5RandomizedLieTests(unittest.TestCase):
         )
 
         self.assertEqual(len(circuits), 3 * 3 * 5)
-        self.assertEqual(circuits[0].qubit_count, 5)
+        self.assertEqual(circuits[0].qubit_count, 6)
         self.assertEqual(circuits[0].bit_count, 4)
+        self.assertEqual(
+            experiment.logical_qubit_roles(4),
+            (
+                "right boundary ancilla a_R",
+                "system site 3",
+                "system site 2",
+                "system site 1",
+                "system site 0",
+                "left boundary ancilla a_L",
+            ),
+        )
         self.assertEqual(len(schedule.substep_dts), 3)
         self.assertEqual(len(schedule.boundary_choices), 3)
         self.assertTrue(
@@ -337,6 +352,18 @@ class Experiment5RandomizedLieTests(unittest.TestCase):
             sum(isinstance(operation, Reset) for operation in final_z.operations),
             3,
         )
+        expected_reset_qubits = tuple(
+            experiment.boundary_ancilla_qubits(4)[boundary]
+            for boundary in schedule.boundary_choices[0]
+        )
+        self.assertEqual(
+            tuple(
+                operation.qubit
+                for operation in final_z.operations
+                if isinstance(operation, Reset)
+            ),
+            expected_reset_qubits,
+        )
         measurements = tuple(
             operation
             for operation in final_z.operations
@@ -344,6 +371,47 @@ class Experiment5RandomizedLieTests(unittest.TestCase):
         )
         self.assertEqual(len(measurements), 4)
         self.assertEqual(tuple(value.bit for value in measurements), (0, 1, 2, 3))
+
+    def test_each_jump_is_local_to_and_resets_only_its_boundary_ancilla(self):
+        number_of_qubits = 4
+        system_qubits = experiment.system_qubits_by_site(number_of_qubits)
+        ancillas = experiment.boundary_ancilla_qubits(number_of_qubits)
+
+        for boundary in (
+            experiment.LEFT_BOUNDARY,
+            experiment.RIGHT_BOUNDARY,
+        ):
+            circuit = experiment.build_one_step_circuit(
+                number_of_qubits,
+                0.2,
+                boundary,
+            )
+            jump = next(
+                operation
+                for operation in circuit.operations
+                if isinstance(operation, XXPlusYY)
+                and operation.label in ("K_L", "K_R")
+            )
+            selected_site = (
+                0
+                if boundary == experiment.LEFT_BOUNDARY
+                else number_of_qubits - 1
+            )
+
+            self.assertEqual(circuit.qubit_count, number_of_qubits + 2)
+            self.assertEqual(
+                (jump.first, jump.second),
+                (system_qubits[selected_site], ancillas[boundary]),
+            )
+            self.assertEqual(abs(jump.first - jump.second), 1)
+            self.assertEqual(
+                tuple(
+                    operation.qubit
+                    for operation in circuit.operations
+                    if isinstance(operation, Reset)
+                ),
+                (ancillas[boundary],),
+            )
 
     def test_jump_choices_and_sqrt_two_scaling_match_schedule(self):
         times = np.asarray((0.0, 0.7))
@@ -371,6 +439,21 @@ class Experiment5RandomizedLieTests(unittest.TestCase):
                 experiment.BOUNDARY_NAMES[value]
                 for value in schedule.boundary_choices[0]
             ),
+        )
+        self.assertEqual(
+            tuple(operation.second for operation in jump_operations),
+            tuple(
+                experiment.boundary_ancilla_qubits(2)[boundary]
+                for boundary in schedule.boundary_choices[0]
+            ),
+        )
+        self.assertEqual(
+            experiment.system_qubits_by_site(2),
+            (2, 1),
+        )
+        self.assertEqual(
+            experiment.boundary_ancilla_qubits(2),
+            (3, 0),
         )
         np.testing.assert_allclose(
             tuple(operation.angle for operation in jump_operations),
