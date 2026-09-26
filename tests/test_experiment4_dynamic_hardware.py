@@ -482,6 +482,61 @@ class Experiment4CircuitTests(unittest.TestCase):
         self.assertEqual(len(results), 5)
         self.assertEqual(prefixes, [2, 4, 5])
 
+    def test_execution_transform_is_applied_one_batch_at_a_time(self):
+        circuits = tuple(range(5))
+        options = SimpleNamespace(
+            backend="aer",
+            aer_method="automatic",
+            account_file=experiment.DEFAULT_ACCOUNT_FILE,
+            optimization_level=1,
+            seed_transpiler=11,
+            shots=128,
+            seed_simulator=17,
+            batch_size=2,
+        )
+        transformed_batches = []
+        executed_batches = []
+
+        def transform(batch):
+            transformed_batches.append(batch)
+            return tuple(f"explicit-{value}" for value in batch)
+
+        def simulated_execution(circuit_batch, *_):
+            executed_batches.append(circuit_batch)
+            return Ok(tuple(sample_result({"0": 128}) for _ in circuit_batch))
+
+        with (
+            patch.object(
+                experiment,
+                "_runtime_target",
+                return_value=(object(), object()),
+            ),
+            patch.object(
+                experiment,
+                "run_sample_batch_sync",
+                side_effect=simulated_execution,
+            ),
+        ):
+            results = experiment.execute_sample_circuits(
+                circuits,
+                options,
+                circuit_batch_transform=transform,
+            )
+
+        self.assertEqual(len(results), 5)
+        self.assertEqual(
+            transformed_batches,
+            [(0, 1), (2, 3), (4,)],
+        )
+        self.assertEqual(
+            executed_batches,
+            [
+                ("explicit-0", "explicit-1"),
+                ("explicit-2", "explicit-3"),
+                ("explicit-4",),
+            ],
+        )
+
     def test_checkpoint_round_trip_validates_and_restores_results(self):
         times = np.asarray((0.0, 0.2))
         _, metadata, schedule = (

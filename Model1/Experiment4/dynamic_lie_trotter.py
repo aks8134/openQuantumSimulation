@@ -349,6 +349,7 @@ def execute_sample_circuits(
     circuits,
     options,
     on_batch_complete=None,
+    circuit_batch_transform=None,
 ):
     """Execute circuit chunks and preserve their original order."""
     target, environment = _runtime_target(
@@ -373,12 +374,21 @@ def execute_sample_circuits(
     collected = ()
 
     for batch_index, circuit_batch in enumerate(circuit_batches, start=1):
+        executable_batch = (
+            circuit_batch
+            if circuit_batch_transform is None
+            else circuit_batch_transform(circuit_batch)
+        )
+        if len(executable_batch) != len(circuit_batch):
+            raise ValueError(
+                "circuit_batch_transform must preserve the batch length"
+            )
         print(
             f"Executing batch {batch_index}/{len(circuit_batches)} "
             f"with {len(circuit_batch)} circuits on {options.backend}"
         )
         match run_sample_batch_sync(
-            circuit_batch,
+            executable_batch,
             target,
             compiler,
             workload,
@@ -398,6 +408,7 @@ def execute_sample_circuits(
                         f"{message}. Re-run with a smaller --batch-size."
                     )
                 raise RuntimeError(message)
+        del executable_batch
 
     return collected
 

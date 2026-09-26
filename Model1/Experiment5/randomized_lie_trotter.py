@@ -22,6 +22,7 @@ saved times and in all five measurement bases.
 import argparse
 from dataclasses import dataclass
 from datetime import datetime, timezone
+import gc
 from io import BytesIO
 import json
 from math import pi, sqrt
@@ -492,6 +493,22 @@ def build_one_step_circuit(number_of_qubits, dt, boundary):
     )
 
 
+def prepare_circuit_for_compilation(circuit):
+    """Lower one logical circuit at the compiler boundary.
+
+    Experiment 5 uses its logical operations directly, so the default is the
+    identity. Experiment 7 replaces this hook with explicit RZ/RX/RZZ
+    synthesis while keeping compact XXPlusYY circuits for diagrams and
+    long-lived in-memory storage.
+    """
+
+    return circuit
+
+
+def prepare_circuit_batch_for_compilation(circuits):
+    return tuple(map(prepare_circuit_for_compilation, circuits))
+
+
 def _classical_bit(bitstring, bit):
     compact = bitstring.replace(" ", "").replace("_", "")
     if bit >= len(compact):
@@ -819,9 +836,15 @@ def _metrics_pair(metrics):
 
 def compile_one_step_metrics(options, representative_dt):
     """Compile left and right one-step circuits without executing them."""
-    circuits = tuple(
-        build_one_step_circuit(options.n_qubits, representative_dt, boundary)
-        for boundary in (LEFT_BOUNDARY, RIGHT_BOUNDARY)
+    circuits = prepare_circuit_batch_for_compilation(
+        tuple(
+            build_one_step_circuit(
+                options.n_qubits,
+                representative_dt,
+                boundary,
+            )
+            for boundary in (LEFT_BOUNDARY, RIGHT_BOUNDARY)
+        )
     )
     target, environment = hardware_tools._runtime_target(
         options.backend,
@@ -983,8 +1006,9 @@ def plot_transpiled_circuit_layout(
     output_path,
     *,
     one_step_circuits=None,
+    include_circuit_panels=True,
 ):
-    """Plot placement, mapping, and both randomized one-step choices."""
+    """Plot placement/mapping and optionally both one-step choices."""
     target, environment = hardware_tools._runtime_target(
         options.backend,
         options.aer_method,
@@ -994,8 +1018,13 @@ def plot_transpiled_circuit_layout(
         optimization_level=options.optimization_level,
         seed_transpiler=options.seed_transpiler,
     )
+    layout_circuit = (
+        circuit
+        if options.backend.lower() == "aer"
+        else prepare_circuit_for_compilation(circuit)
+    )
     match draw_transpiled_circuit_layout_sync(
-        circuit,
+        layout_circuit,
         target,
         compiler,
         environment,
@@ -1007,46 +1036,47 @@ def plot_transpiled_circuit_layout(
         case Ok(figure):
             pass
 
-    width, height = figure.get_size_inches()
-    figure.set_size_inches(
-        max(float(width), 16.0),
-        max(float(height) + 6.5, 13.5),
-    )
-    if figure.axes:
-        figure.axes[0].set_position((0.025, 0.52, 0.63, 0.42))
-    if len(figure.axes) > 1:
-        figure.axes[1].set_position((0.69, 0.55, 0.285, 0.36))
+    if include_circuit_panels:
+        width, height = figure.get_size_inches()
+        figure.set_size_inches(
+            max(float(width), 16.0),
+            max(float(height) + 6.5, 13.5),
+        )
+        if figure.axes:
+            figure.axes[0].set_position((0.025, 0.52, 0.63, 0.42))
+        if len(figure.axes) > 1:
+            figure.axes[1].set_position((0.69, 0.55, 0.285, 0.36))
 
-    if one_step_circuits is None:
-        circuit_axis = figure.add_axes((0.025, 0.035, 0.95, 0.40))
-        circuit_axis.text(
-            0.5,
-            0.5,
-            "No positive-time Trotter substep is present in this run.",
-            ha="center",
-            va="center",
-            fontsize=12,
-            transform=circuit_axis.transAxes,
-        )
-        circuit_axis.axis("off")
-        circuit_axis.set_title(
-            "Randomized one-step circuits before transpilation",
-            fontsize=13,
-            pad=10,
-        )
-    else:
-        left_axis = figure.add_axes((0.025, 0.035, 0.46, 0.40))
-        right_axis = figure.add_axes((0.515, 0.035, 0.46, 0.40))
-        _draw_circuit_image(
-            left_axis,
-            one_step_circuits[LEFT_BOUNDARY],
-            "One randomized left-boundary substep before transpilation",
-        )
-        _draw_circuit_image(
-            right_axis,
-            one_step_circuits[RIGHT_BOUNDARY],
-            "One randomized right-boundary substep before transpilation",
-        )
+        if one_step_circuits is None:
+            circuit_axis = figure.add_axes((0.025, 0.035, 0.95, 0.40))
+            circuit_axis.text(
+                0.5,
+                0.5,
+                "No positive-time Trotter substep is present in this run.",
+                ha="center",
+                va="center",
+                fontsize=12,
+                transform=circuit_axis.transAxes,
+            )
+            circuit_axis.axis("off")
+            circuit_axis.set_title(
+                "Randomized one-step circuits before transpilation",
+                fontsize=13,
+                pad=10,
+            )
+        else:
+            left_axis = figure.add_axes((0.025, 0.035, 0.46, 0.40))
+            right_axis = figure.add_axes((0.515, 0.035, 0.46, 0.40))
+            _draw_circuit_image(
+                left_axis,
+                one_step_circuits[LEFT_BOUNDARY],
+                "One randomized left-boundary substep before transpilation",
+            )
+            _draw_circuit_image(
+                right_axis,
+                one_step_circuits[RIGHT_BOUNDARY],
+                "One randomized right-boundary substep before transpilation",
+            )
 
     title = (
         f"Final-time trajectory-0 Z-basis qubit layout on "
@@ -1787,6 +1817,7 @@ def execute_sample_circuits(circuits, options, on_batch_complete=None):
         circuits,
         _execution_options(options),
         on_batch_complete=on_batch_complete,
+        circuit_batch_transform=prepare_circuit_batch_for_compilation,
     )
 
 
@@ -2005,7 +2036,9 @@ def backfill_metadata_only(options):
         f"{specification['backend']}; no Sampler job will be submitted"
     )
     match compile_circuit_batch_sync(
-        circuits[: len(records)],
+        prepare_circuit_batch_for_compilation(
+            circuits[: len(records)]
+        ),
         target,
         compiler,
         environment,
@@ -2073,6 +2106,11 @@ def backfill_metadata_only(options):
 
 
 def main(options):
+    circuit_plots_enabled = not getattr(
+        options,
+        "no_circuit_plots",
+        False,
+    )
     if options.layout_only and options.metadata_only:
         raise ValueError("--layout-only cannot be combined with --metadata-only")
     if options.layout_only and options.resume:
@@ -2128,7 +2166,7 @@ def main(options):
             )
             for boundary in (LEFT_BOUNDARY, RIGHT_BOUNDARY)
         )
-        if representative_dt is not None
+        if representative_dt is not None and circuit_plots_enabled
         else None
     )
     if options.layout_only:
@@ -2142,6 +2180,7 @@ def main(options):
             options,
             paths["layout_figure"],
             one_step_circuits=one_step_circuits,
+            include_circuit_panels=circuit_plots_enabled,
         )
         print(f"Saved transpiled layout: {paths['layout_figure']}")
         print("Sampler jobs submitted: 0 (layout-only mode)")
@@ -2223,11 +2262,11 @@ def main(options):
         len(times),
         options.trajectories,
     )
-    exact = None
-    if options.classical_reference:
-        print("Calculating exact Lindblad reference")
-        exact = calculate_exact_reference(times, options.n_qubits)
 
+    # Only one logical circuit is required after sampling.  In particular,
+    # the layout and one-step figures must not keep the complete time x
+    # trajectory x basis circuit batch alive while Qiskit creates additional
+    # compiled and rasterized representations.
     full_result = _representative_full_result(
         results,
         metadata,
@@ -2238,6 +2277,20 @@ def main(options):
         metadata,
         len(times) - 1,
     )
+    del remaining_circuits
+    del checkpoint_new_results
+    del circuits
+    gc.collect()
+    print(
+        "Released the full sampled-circuit batch; retained only the "
+        "representative final circuit"
+    )
+
+    exact = None
+    if options.classical_reference:
+        print("Calculating exact Lindblad reference")
+        exact = calculate_exact_reference(times, options.n_qubits)
+
     one_step_metrics = (
         compile_one_step_metrics(options, representative_dt)
         if representative_dt is not None
@@ -2247,23 +2300,11 @@ def main(options):
         one_step_metrics,
         full_result,
     )
-    plot_transpilation_metrics(
-        metrics_summary,
-        paths["metrics_figure"],
-    )
-    plot_transpiled_circuit_layout(
-        full_circuit,
-        options,
-        paths["layout_figure"],
-        one_step_circuits=one_step_circuits,
-    )
-    if representative_dt is not None:
-        plot_one_step_circuits(
-            options.n_qubits,
-            representative_dt,
-            paths["left_circuit_figure"],
-            paths["right_circuit_figure"],
-        )
+
+    # Persist all sampled observables before any potentially memory-intensive
+    # figure rendering.  If plotting is interrupted, the completed simulation
+    # is still available as the normal result JSON rather than only as a raw
+    # checkpoint.
     combined_payload = save_results(
         paths["result"],
         options,
@@ -2283,11 +2324,15 @@ def main(options):
                 "trajectory_index": 0,
                 "saved_time": float(times[-1]),
                 "view": "physical",
+                "generated": True,
                 "figure": paths["layout_figure"].name,
+                "circuit_panels_included": circuit_plots_enabled,
                 "includes_left_and_right_one_step_circuits": (
-                    one_step_circuits is not None
+                    circuit_plots_enabled
+                    and one_step_circuits is not None
                 ),
             },
+            "figure_generation_status": "pending",
             **(
                 {}
                 if exact is None
@@ -2305,6 +2350,33 @@ def main(options):
             ),
         },
     )
+    print(f"Saved data before figure generation: {paths['result']}")
+
+    plot_transpilation_metrics(
+        metrics_summary,
+        paths["metrics_figure"],
+    )
+    plot_transpiled_circuit_layout(
+        full_circuit,
+        options,
+        paths["layout_figure"],
+        one_step_circuits=one_step_circuits,
+        include_circuit_panels=circuit_plots_enabled,
+    )
+    if circuit_plots_enabled:
+        if representative_dt is not None:
+            plot_one_step_circuits(
+                options.n_qubits,
+                representative_dt,
+                paths["left_circuit_figure"],
+                paths["right_circuit_figure"],
+            )
+    else:
+        print(
+            "Saved transpiled layout without embedded circuit panels; "
+            "skipped separate one-step circuit figures "
+            "(--no-circuit-plots)"
+        )
     combined_uncertainties = ObservableUncertainties(
         shot=_family_arrays(
             combined_payload["standard_errors"]["shot"]
@@ -2332,6 +2404,8 @@ def main(options):
             else None
         ),
     )
+    combined_payload["figure_generation_status"] = "complete"
+    _atomic_write_json(paths["result"], combined_payload)
     save_checkpoint(
         checkpoint_path,
         options,
@@ -2384,7 +2458,7 @@ def main(options):
         "layout_figure",
         "result",
     ]
-    if representative_dt is not None:
+    if circuit_plots_enabled and representative_dt is not None:
         generated_path_names.extend(
             ("left_circuit_figure", "right_circuit_figure")
         )
@@ -2416,12 +2490,22 @@ def positive_float(value):
     return parsed
 
 
-def parse_arguments(arguments=None):
+def parse_arguments(
+    arguments=None,
+    *,
+    default_trajectories=DEFAULT_TRAJECTORIES,
+    default_trotter_delta_t=None,
+    default_t_final=T_FINAL,
+    default_time_points=NUMBER_OF_TIME_POINTS,
+    description=None,
+    configure_parser=None,
+):
     parser = argparse.ArgumentParser(
-        description=(
+        description=description
+        or (
             "Run the randomized single-boundary Lie dilation on Aer or "
             "an IBM backend. Non-aer backends submit real QPU work."
-        )
+        ),
     )
     parser.add_argument(
         "--n-qubits",
@@ -2448,10 +2532,10 @@ def parse_arguments(arguments=None):
         "--trajectories",
         "-R",
         type=positive_integer,
-        default=DEFAULT_TRAJECTORIES,
+        default=default_trajectories,
         help=(
             "independent randomized boundary-choice paths "
-            f"(default: {DEFAULT_TRAJECTORIES})"
+            f"(default: {default_trajectories})"
         ),
     )
     parser.add_argument(
@@ -2472,12 +2556,12 @@ def parse_arguments(arguments=None):
     parser.add_argument(
         "--t-final",
         type=positive_float,
-        default=T_FINAL,
+        default=default_t_final,
     )
     parser.add_argument(
         "--time-points",
         type=at_least_two,
-        default=NUMBER_OF_TIME_POINTS,
+        default=default_time_points,
     )
     parser.add_argument(
         "--times",
@@ -2493,7 +2577,7 @@ def parse_arguments(arguments=None):
     parser.add_argument(
         "--trotter-delta-t",
         type=positive_float,
-        default=None,
+        default=default_trotter_delta_t,
         help=(
             "maximum internal substep; a shorter final remainder lands "
             "exactly on each saved time"
@@ -2566,6 +2650,14 @@ def parse_arguments(arguments=None):
         ),
     )
     parser.add_argument(
+        "--no-circuit-plots",
+        action="store_true",
+        help=(
+            "skip embedded and separate circuit diagrams while retaining "
+            "the topology/mapping layout, observables, and metrics figures"
+        ),
+    )
+    parser.add_argument(
         "--metadata-only",
         action="store_true",
         help=(
@@ -2582,6 +2674,8 @@ def parse_arguments(arguments=None):
         "--overwrite-metadata",
         action="store_true",
     )
+    if configure_parser is not None:
+        configure_parser(parser)
     return parser.parse_args(arguments)
 
 

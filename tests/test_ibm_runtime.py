@@ -1,5 +1,6 @@
 import unittest
 from dataclasses import FrozenInstanceError
+from unittest.mock import patch
 
 from IBMRuntime import (
     Aer,
@@ -34,6 +35,7 @@ from IBMRuntime import (
     x,
 )
 from examples.bell_pair import bell_circuit, bell_plan
+from IBMRuntime.interpreters import qiskit as qiskit_interpreter
 
 
 class CircuitTests(unittest.TestCase):
@@ -165,14 +167,22 @@ class AerIntegrationTests(unittest.TestCase):
         )
 
     def test_aer_transpiled_layout_uses_unconstrained_identity_view(self):
-        result = draw_transpiled_circuit_layout_sync(
-            bell_circuit(),
-            Aer(),
-            view="virtual",
-            logical_labels=("control", "target"),
-        )
+        with patch.object(
+            qiskit_interpreter,
+            "_compile_circuits",
+            side_effect=AssertionError(
+                "Aer identity layout must not transpile the circuit"
+            ),
+        ) as compile_circuits:
+            result = draw_transpiled_circuit_layout_sync(
+                bell_circuit(),
+                Aer(),
+                view="virtual",
+                logical_labels=("control", "target"),
+            )
 
         self.assertIsInstance(result, Ok)
+        compile_circuits.assert_not_called()
         self.assertEqual(len(result.value.axes), 2)
         self.assertIn(
             "identity placement",

@@ -42,6 +42,19 @@ class RZ:
 
 
 @dataclass(frozen=True, slots=True)
+class RX:
+    angle: float
+    qubit: int
+
+
+@dataclass(frozen=True, slots=True)
+class RZZ:
+    angle: float
+    first: int
+    second: int
+
+
+@dataclass(frozen=True, slots=True)
 class MultiControlledRZ:
     angle: float
     controls: tuple[int, ...]
@@ -109,6 +122,8 @@ Operation: TypeAlias = (
     | CX
     | Measure
     | RZ
+    | RX
+    | RZZ
     | MultiControlledRZ
     | XXPlusYY
     | ControlledXXPlusYY
@@ -159,6 +174,17 @@ def measure(qubit: int, bit: int) -> CircuitTransform:
 
 def rz(angle: float, qubit: int) -> CircuitTransform:
     return lambda circuit: append(circuit, RZ(float(angle), qubit))
+
+
+def rx(angle: float, qubit: int) -> CircuitTransform:
+    return lambda circuit: append(circuit, RX(float(angle), qubit))
+
+
+def rzz(angle: float, first: int, second: int) -> CircuitTransform:
+    return lambda circuit: append(
+        circuit,
+        RZZ(float(angle), first, second),
+    )
 
 
 def multi_controlled_rz(
@@ -324,7 +350,7 @@ def _operation_errors(
                     f"{prefix} refers to invalid classical bit {bit}",
                 ),
             )
-        case RZ(angle, qubit):
+        case RZ(angle, qubit) | RX(angle, qubit):
             return (
                 *issue_if(
                     not isfinite(angle),
@@ -333,6 +359,25 @@ def _operation_errors(
                 *issue_if(
                     not 0 <= qubit < circuit.qubit_count,
                     f"{prefix} refers to invalid qubit {qubit}",
+                ),
+            )
+        case RZZ(angle, first, second):
+            return (
+                *issue_if(
+                    not isfinite(angle),
+                    f"{prefix} has a non-finite rotation angle",
+                ),
+                *issue_if(
+                    not 0 <= first < circuit.qubit_count,
+                    f"{prefix} refers to invalid first qubit {first}",
+                ),
+                *issue_if(
+                    not 0 <= second < circuit.qubit_count,
+                    f"{prefix} refers to invalid second qubit {second}",
+                ),
+                *issue_if(
+                    first == second,
+                    f"{prefix} uses the same qubit twice",
                 ),
             )
         case MultiControlledRZ(

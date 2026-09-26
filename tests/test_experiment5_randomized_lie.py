@@ -8,6 +8,7 @@ import numpy as np
 
 from IBMRuntime import (
     ClassicallyControlledXXPlusYY,
+    CompilationMetrics,
     Measure,
     Ok,
     Reset,
@@ -120,6 +121,226 @@ def result_payload(times, marker, job_id):
 
 
 class Experiment5RandomizedLieTests(unittest.TestCase):
+    def test_no_circuit_plots_keeps_results_and_metrics(self):
+        with TemporaryDirectory() as directory:
+            options = experiment.parse_arguments(
+                (
+                    "--n-qubits",
+                    "2",
+                    "--trajectories",
+                    "1",
+                    "--shots",
+                    "100",
+                    "--times",
+                    "0.1",
+                    "--trotter-delta-t",
+                    "0.1",
+                    "--no-circuit-plots",
+                    "--output-directory",
+                    directory,
+                )
+            )
+            result_path = experiment.output_paths(
+                options.backend,
+                options.n_qubits,
+                options.trajectories,
+                options.output_directory,
+            )["result"]
+            metric = CompilationMetrics(
+                original_gate_count=3,
+                original_depth=2,
+                compiled_gate_count=5,
+                compiled_depth=4,
+            )
+
+            def execute(circuits, _options, on_batch_complete=None):
+                results = tuple(
+                    sample_result({"00": 100}) for _ in circuits
+                )
+                if on_batch_complete is not None:
+                    on_batch_complete(results)
+                return results
+
+            with (
+                patch.object(
+                    experiment,
+                    "execute_sample_circuits",
+                    side_effect=execute,
+                ),
+                patch.object(
+                    experiment,
+                    "compile_one_step_metrics",
+                    return_value=(metric, metric),
+                ),
+                patch.object(
+                    experiment,
+                    "build_one_step_circuit",
+                    side_effect=AssertionError(
+                        "circuit figures must not be constructed"
+                    ),
+                ) as build_step,
+                patch.object(
+                    experiment,
+                    "plot_transpilation_metrics",
+                ) as plot_metrics,
+                patch.object(
+                    experiment,
+                    "plot_transpiled_circuit_layout",
+                ) as plot_layout,
+                patch.object(
+                    experiment,
+                    "plot_one_step_circuits",
+                ) as plot_steps,
+                patch.object(experiment, "plot_results") as plot_results,
+            ):
+                experiment.main(options)
+
+            payload = experiment._load_result_payload(result_path)
+
+        self.assertTrue(options.no_circuit_plots)
+        build_step.assert_not_called()
+        plot_layout.assert_called_once()
+        self.assertFalse(
+            plot_layout.call_args.kwargs["include_circuit_panels"]
+        )
+        self.assertIsNone(
+            plot_layout.call_args.kwargs["one_step_circuits"]
+        )
+        plot_steps.assert_not_called()
+        plot_metrics.assert_called_once()
+        plot_results.assert_called_once()
+        self.assertTrue(payload["transpiled_layout"]["generated"])
+        self.assertIsNotNone(payload["transpiled_layout"]["figure"])
+        self.assertFalse(
+            payload["transpiled_layout"]["circuit_panels_included"]
+        )
+        self.assertEqual(payload["figure_generation_status"], "complete")
+
+    def test_layout_only_can_omit_embedded_circuit_panels(self):
+        options = experiment.parse_arguments(
+            (
+                "--layout-only",
+                "--no-circuit-plots",
+                "--n-qubits",
+                "2",
+                "--trajectories",
+                "1",
+                "--shots",
+                "100",
+                "--times",
+                "0.1",
+                "--trotter-delta-t",
+                "0.1",
+            )
+        )
+
+        with (
+            patch.object(
+                experiment,
+                "build_one_step_circuit",
+                side_effect=AssertionError(
+                    "embedded circuits must not be constructed"
+                ),
+            ) as build_step,
+            patch.object(
+                experiment,
+                "plot_transpiled_circuit_layout",
+            ) as plot_layout,
+            patch.object(
+                experiment,
+                "execute_sample_circuits",
+                side_effect=AssertionError("must not sample"),
+            ) as execute,
+        ):
+            experiment.main(options)
+
+        build_step.assert_not_called()
+        execute.assert_not_called()
+        plot_layout.assert_called_once()
+        self.assertFalse(
+            plot_layout.call_args.kwargs["include_circuit_panels"]
+        )
+        self.assertIsNone(
+            plot_layout.call_args.kwargs["one_step_circuits"]
+        )
+
+    def test_results_are_saved_and_circuit_batch_released_before_plots(self):
+        with TemporaryDirectory() as directory:
+            options = experiment.parse_arguments(
+                (
+                    "--n-qubits",
+                    "2",
+                    "--trajectories",
+                    "1",
+                    "--shots",
+                    "100",
+                    "--times",
+                    "0",
+                    "--output-directory",
+                    directory,
+                )
+            )
+            result_path = experiment.output_paths(
+                options.backend,
+                options.n_qubits,
+                options.trajectories,
+                options.output_directory,
+            )["result"]
+            events = []
+
+            def execute(circuits, _options, on_batch_complete=None):
+                results = tuple(
+                    sample_result({"00": 100}) for _ in circuits
+                )
+                if on_batch_complete is not None:
+                    on_batch_complete(results)
+                return results
+
+            def assert_saved_before_plot(*_args, **_kwargs):
+                self.assertTrue(result_path.exists())
+                payload = experiment._load_result_payload(result_path)
+                self.assertEqual(
+                    payload["figure_generation_status"],
+                    "pending",
+                )
+                self.assertIn("collect", events)
+                events.append("plot")
+
+            with (
+                patch.object(
+                    experiment,
+                    "execute_sample_circuits",
+                    side_effect=execute,
+                ),
+                patch.object(
+                    experiment.gc,
+                    "collect",
+                    side_effect=lambda: events.append("collect"),
+                ),
+                patch.object(
+                    experiment,
+                    "plot_transpilation_metrics",
+                    side_effect=assert_saved_before_plot,
+                ),
+                patch.object(
+                    experiment,
+                    "plot_transpiled_circuit_layout",
+                    side_effect=assert_saved_before_plot,
+                ),
+                patch.object(
+                    experiment,
+                    "plot_results",
+                    side_effect=assert_saved_before_plot,
+                ),
+            ):
+                experiment.main(options)
+
+            payload = experiment._load_result_payload(result_path)
+
+        self.assertEqual(events[0], "collect")
+        self.assertEqual(events.count("plot"), 3)
+        self.assertEqual(payload["figure_generation_status"], "complete")
+
     def test_optimization_level_accepts_hyphen_and_underscore_spellings(self):
         hyphenated = experiment.parse_arguments(
             ("--optimization-level", "3")

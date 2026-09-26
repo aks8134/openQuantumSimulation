@@ -15,7 +15,9 @@ from ..backend import (
 from ..circuit import (
     CX,
     H,
+    RX,
     RZ,
+    RZZ,
     X,
     Circuit,
     ClassicallyControlledXXPlusYY,
@@ -179,7 +181,15 @@ def _to_qiskit_instruction(
         Measure as QiskitMeasure,
         Reset as QiskitReset,
     )
-    from qiskit.circuit.library import CXGate, HGate, RZGate, XGate, XXPlusYYGate
+    from qiskit.circuit.library import (
+        CXGate,
+        HGate,
+        RXGate,
+        RZGate,
+        RZZGate,
+        XGate,
+        XXPlusYYGate,
+    )
 
     match operation:
         case H(qubit):
@@ -200,6 +210,14 @@ def _to_qiskit_instruction(
             )
         case RZ(angle, qubit):
             return CircuitInstruction(RZGate(angle), (native_qubits[qubit],), ())
+        case RX(angle, qubit):
+            return CircuitInstruction(RXGate(angle), (native_qubits[qubit],), ())
+        case RZZ(angle, first, second):
+            return CircuitInstruction(
+                RZZGate(angle),
+                (native_qubits[first], native_qubits[second]),
+                (),
+            )
         case MultiControlledRZ(
             angle,
             controls,
@@ -554,7 +572,7 @@ def draw_transpiled_circuit_layout_sync(
     view: Literal["virtual", "physical"] = "virtual",
     logical_labels: tuple[str, ...] | None = None,
 ):
-    """Compile a circuit and return its backend-layout Matplotlib figure."""
+    """Return its backend-layout figure, compiling when placement requires it."""
     common_problems = (*target_errors(target), *compiler_errors(compiler))
     problems = (
         *common_problems,
@@ -581,14 +599,22 @@ def draw_transpiled_circuit_layout_sync(
             return Err(error)
         case Ok(backend):
             pass
-    match _compile_circuits(backend, (circuit,), compiler):
-        case Err(error):
-            return Err(error)
-        case Ok((executable,)):
-            pass
+    # Aer has unconstrained connectivity and therefore a known identity
+    # placement.  Compiling a potentially very large circuit cannot add any
+    # layout information and needlessly raises the peak memory required just
+    # to draw the topology/mapping figure.
+    executable = None
+    if backend.provider != "aer":
+        match _compile_circuits(backend, (circuit,), compiler):
+            case Err(error):
+                return Err(error)
+            case Ok((compiled_executable,)):
+                executable = compiled_executable
 
     def draw_layout():
-        layout = executable.native.layout
+        layout = (
+            None if executable is None else executable.native.layout
+        )
         physical_by_logical = (
             tuple(range(circuit.qubit_count))
             if layout is None
