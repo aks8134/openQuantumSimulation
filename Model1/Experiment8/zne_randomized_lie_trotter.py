@@ -4,6 +4,7 @@ The Experiment 7 circuit is explicitly lowered to RZ/RX/RZZ and transpiled
 once.  Each transpiled circuit is then expanded into fixed-layout local-folded
 ISA variants and submitted without a second optimizing transpilation.  Virtual
 RZ operations, resets, measurements, delays, and barriers are never folded.
+Passing ``--no-zne`` instead submits only the unfurled scale-one circuits.
 """
 
 from __future__ import annotations
@@ -119,6 +120,12 @@ def _safe_scale_name(value):
     return str(value).replace(".", "p").replace("-", "m")
 
 
+def _zne_enabled(options):
+    return not getattr(options, "no_zne", False) and len(
+        options.zne_scale_factors
+    ) > 1
+
+
 def _validated_scale_factors(values):
     factors = tuple(map(float, values))
     if len(factors) < 2:
@@ -144,6 +151,8 @@ def _zne_inference(options):
 
 
 def _zne_plan(options):
+    if not _zne_enabled(options):
+        raise ValueError("a ZNE inference plan is unavailable in --no-zne mode")
     return zne_plan(
         tuple(options.zne_scale_factors),
         repetitions=1,
@@ -160,7 +169,7 @@ def shots_per_variant(options):
     if options.shots % denominator:
         raise ValueError(
             "--shots must be divisible by --trajectories * "
-            "--fold-repetitions so each ZNE circuit gets equal shots"
+            "--fold-repetitions so each submitted circuit gets equal shots"
         )
     value = options.shots // denominator
     if value < 1:
@@ -453,10 +462,16 @@ def execute_zne_circuits(
             batch_diagnostics.extend(item[1] for item in transformed)
             return tuple(item[0] for item in transformed)
 
+        if _zne_enabled(options):
+            description = (
+                f"{len(indexed_batch)} base circuits -> "
+                f"{len(indexed_batch) * variants_per_base} folded variants"
+            )
+        else:
+            description = f"{len(indexed_batch)} unfurled circuits"
         print(
-            f"Executing ZNE batch {batch_index}/{len(batches)}: "
-            f"{len(indexed_batch)} base circuits -> "
-            f"{len(indexed_batch) * variants_per_base} folded variants "
+            f"Executing {'ZNE' if _zne_enabled(options) else 'baseline'} "
+            f"batch {batch_index}/{len(batches)}: {description} "
             f"on {options.backend}"
         )
         match run_sample_variants_batch_sync(
@@ -682,9 +697,15 @@ def calculate_zne_observables(results, metadata, options, time_count):
     scale_folding = tuple(item[2] for item in summaries)
     scale_trajectory = tuple(item[3] for item in summaries)
     baseline_trajectory_values = tuple(item[4][:, :, 0, :] for item in summaries)
-    plan = _zne_plan(options)
-    weights = _zne_weights(plan)
-    measured = tuple(_extrapolate_family(plan, values) for values in scale_values)
+    if _zne_enabled(options):
+        plan = _zne_plan(options)
+        weights = _zne_weights(plan)
+        measured = tuple(
+            _extrapolate_family(plan, values) for values in scale_values
+        )
+    else:
+        weights = np.asarray((1.0,))
+        measured = tuple(values[..., 0] for values in scale_values)
 
     def propagate(errors):
         return tuple(
@@ -730,14 +751,21 @@ def calculate_zne_observables(results, metadata, options, time_count):
 
 
 def output_paths(options):
-    factors = "_".join(map(_safe_scale_name, options.zne_scale_factors))
-    stem = (
-        f"zne_explicit_randomized_lie_trotter_"
-        f"{experiment5._safe_name(options.backend)}_"
-        f"N{options.n_qubits}_R{options.trajectories}_"
-        f"F{options.fold_repetitions}_B3_"
-        f"{options.zne_inference}_S{factors}"
-    )
+    if _zne_enabled(options):
+        factors = "_".join(map(_safe_scale_name, options.zne_scale_factors))
+        stem = (
+            f"zne_explicit_randomized_lie_trotter_"
+            f"{experiment5._safe_name(options.backend)}_"
+            f"N{options.n_qubits}_R{options.trajectories}_"
+            f"F{options.fold_repetitions}_B3_"
+            f"{options.zne_inference}_S{factors}"
+        )
+    else:
+        stem = (
+            f"no_zne_explicit_randomized_lie_trotter_"
+            f"{experiment5._safe_name(options.backend)}_"
+            f"N{options.n_qubits}_R{options.trajectories}_B3"
+        )
     directory = (
         Path(__file__).resolve().parent
         if options.output_directory is None
@@ -764,9 +792,15 @@ def _metadata_payload(item):
 
 
 def _folding_payload(options):
+    enabled = _zne_enabled(options)
     return {
         "version": FOLDING_VERSION,
-        "method": "post-transpilation local unitary folding",
+        "enabled": enabled,
+        "method": (
+            "post-transpilation local unitary folding"
+            if enabled
+            else "disabled; unfurled scale-one circuits"
+        ),
         "scale_factors": list(options.zne_scale_factors),
         "fold_repetitions": options.fold_repetitions,
         "seed_folding": options.seed_folding,
@@ -804,11 +838,15 @@ def _checkpoint_configuration(options, times, metadata):
         "aer_method": options.aer_method,
         "trotter_delta_t": options.trotter_delta_t,
         "zne": {
+            "enabled": _zne_enabled(options),
             "scale_factors": list(options.zne_scale_factors),
-            "inference": options.zne_inference,
+            "inference": (
+                options.zne_inference if _zne_enabled(options) else None
+            ),
             "polynomial_order": (
                 options.zne_polynomial_order
-                if options.zne_inference == "polynomial"
+                if _zne_enabled(options)
+                and options.zne_inference == "polynomial"
                 else None
             ),
         },
@@ -1027,6 +1065,7 @@ def _compatibility_signature(payload):
     schedule = payload.get("evolution_schedule", {})
     zne = payload.get("zne", {})
     folding = payload.get("folding", {})
+    scale_factors = tuple(zne.get("scale_factors", ()))
     return {
         "experiment": payload.get("experiment"),
         "backend": str(payload.get("backend", "")).lower(),
@@ -1045,7 +1084,8 @@ def _compatibility_signature(payload):
         "seed_trajectories": payload.get("seed_trajectories"),
         "aer_method": payload.get("aer_method"),
         "trotter_delta_t": schedule.get("requested_trotter_delta_t"),
-        "scale_factors": tuple(zne.get("scale_factors", ())),
+        "zne_enabled": zne.get("enabled", len(scale_factors) > 1),
+        "scale_factors": scale_factors,
         "zne_inference": zne.get("inference"),
         "polynomial_order": zne.get("polynomial_order"),
         "seed_folding": folding.get("seed_folding"),
@@ -1071,11 +1111,15 @@ def _prospective_signature(options):
         "seed_trajectories": options.seed_trajectories,
         "aer_method": options.aer_method,
         "trotter_delta_t": options.trotter_delta_t,
+        "zne_enabled": _zne_enabled(options),
         "scale_factors": tuple(options.zne_scale_factors),
-        "zne_inference": options.zne_inference,
+        "zne_inference": (
+            options.zne_inference if _zne_enabled(options) else None
+        ),
         "polynomial_order": (
             options.zne_polynomial_order
-            if options.zne_inference == "polynomial"
+            if _zne_enabled(options)
+            and options.zne_inference == "polynomial"
             else None
         ),
         "seed_folding": options.seed_folding,
@@ -1156,7 +1200,15 @@ def save_results(
     )
     payload = {
         "experiment": EXPERIMENT_NAME,
-        "method": METHOD_NAME,
+        "method": (
+            METHOD_NAME
+            if _zne_enabled(options)
+            else (
+                "Experiment 7 randomized single-boundary dilation without "
+                "zero-noise extrapolation and with three-basis "
+                "excitation-symmetry reconstruction"
+            )
+        ),
         "backend": options.backend,
         "number_of_system_qubits": options.n_qubits,
         "number_of_circuit_qubits": options.n_qubits + 2,
@@ -1219,15 +1271,19 @@ def save_results(
         "aer_method": options.aer_method,
         "job_ids": job_ids,
         "zne": {
+            "enabled": _zne_enabled(options),
             "scale_factors": list(options.zne_scale_factors),
-            "inference": options.zne_inference,
+            "inference": (
+                options.zne_inference if _zne_enabled(options) else None
+            ),
             "polynomial_order": (
                 options.zne_polynomial_order
-                if options.zne_inference == "polynomial"
+                if _zne_enabled(options)
+                and options.zne_inference == "polynomial"
                 else None
             ),
             "extrapolation_weights": list(analysis["weights"]),
-            "noise_zero_point": 0.0,
+            "noise_zero_point": 0.0 if _zne_enabled(options) else None,
         },
         "folding": _folding_payload(options),
         "exchange_decomposition": experiment7.decomposition_payload(
@@ -1329,6 +1385,7 @@ def plot_results(
     uncertainties,
     output_path,
     exact=None,
+    zne_enabled=True,
 ):
     exact_values = (None, None, None) if exact is None else exact
     figure, axes = plt.subplots(2, 2, figsize=(16, 11), sharex=True)
@@ -1370,16 +1427,22 @@ def plot_results(
         label="max total s.e.",
         linewidth=2,
     )
-    diagnostic.set_title("ZNE uncertainty decomposition")
+    diagnostic.set_title(
+        "ZNE uncertainty decomposition"
+        if zne_enabled
+        else "Baseline uncertainty decomposition"
+    )
     diagnostic.set_xlabel("Time")
     diagnostic.set_ylabel("Standard error")
     diagnostic.grid(alpha=0.25)
     diagnostic.legend(fontsize="small")
-    figure.suptitle(
+    title = (
         f"Experiment 8 physical local-folding ZNE on {backend} "
-        f"(R={trajectories}, F={fold_repetitions})",
-        fontsize=15,
+        f"(R={trajectories}, F={fold_repetitions})"
+        if zne_enabled
+        else f"Experiment 8 unfurled baseline on {backend} (R={trajectories})"
     )
+    figure.suptitle(title, fontsize=15)
     figure.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output_path, dpi=300, bbox_inches="tight")
@@ -1450,7 +1513,7 @@ def plot_zne_scaling(
     plt.close(figure)
 
 
-def plot_transpilation_metrics(summary, output_path):
+def plot_transpilation_metrics(summary, output_path, *, zne_enabled=True):
     factors = np.asarray(
         [value["requested_scale_factor"] for value in summary],
         dtype=float,
@@ -1493,7 +1556,7 @@ def plot_transpilation_metrics(summary, output_path):
             positions + width,
             folded,
             width,
-            label="post-fold ISA",
+            label="post-fold ISA" if zne_enabled else "submitted ISA",
         )
         axis.bar_label(first, fmt="%.0f", padding=2)
         axis.bar_label(second, fmt="%.0f", padding=2)
@@ -1505,7 +1568,11 @@ def plot_transpilation_metrics(summary, output_path):
         axis.grid(axis="y", alpha=0.25)
         axis.legend()
     figure.suptitle(
-        "Experiment 8: fixed-layout post-transpilation folding metrics",
+        (
+            "Experiment 8: fixed-layout post-transpilation folding metrics"
+            if zne_enabled
+            else "Experiment 8: unfurled baseline transpilation metrics"
+        ),
         fontsize=14,
     )
     figure.tight_layout()
@@ -1537,12 +1604,16 @@ def _print_summary(options, schedule, payload, results, paths, checkpoint_path):
     print(f"Backend: {options.backend}")
     print(f"System/circuit qubits: {options.n_qubits}/{options.n_qubits + 2}")
     print(f"Randomized trajectories R: {options.trajectories}")
-    print(f"Fold realizations F: {options.fold_repetitions}")
     print(f"Measurement bases: {list(MEASUREMENT_BASES)}")
-    print(f"ZNE scale factors: {list(options.zne_scale_factors)}")
-    print(f"ZNE inference: {options.zne_inference}")
-    print(f"Extrapolation weights: {payload['zne']['extrapolation_weights']}")
-    print(f"Shots per folded variant: {shots_per_variant(options)}")
+    if _zne_enabled(options):
+        print(f"Fold realizations F: {options.fold_repetitions}")
+        print(f"ZNE scale factors: {list(options.zne_scale_factors)}")
+        print(f"ZNE inference: {options.zne_inference}")
+        print(f"Extrapolation weights: {payload['zne']['extrapolation_weights']}")
+        print(f"Shots per folded variant: {shots_per_variant(options)}")
+    else:
+        print("ZNE: disabled (unfurled scale-one baseline)")
+        print(f"Shots per trajectory circuit: {shots_per_variant(options)}")
     print(f"Archive saved times: {payload['times']}")
     print(f"Total Trotter substeps: {len(schedule.substep_dts)}")
     print(
@@ -1557,13 +1628,11 @@ def _print_summary(options, schedule, payload, results, paths, checkpoint_path):
     )
     if job_ids:
         print(f"Provider job IDs: {', '.join(job_ids)}")
-    for name in (
-        "results_figure",
-        "scaling_figure",
-        "metrics_figure",
-        "layout_figure",
-        "result",
-    ):
+    artifact_names = ["results_figure"]
+    if _zne_enabled(options):
+        artifact_names.append("scaling_figure")
+    artifact_names.extend(("metrics_figure", "layout_figure", "result"))
+    for name in artifact_names:
         print(f"Saved {name.replace('_', ' ')}: {paths[name]}")
     print(f"Saved checkpoint: {checkpoint_path}")
 
@@ -1581,7 +1650,8 @@ def main(options):
     ):
         raise ValueError("--backend fake_fez requires --layout-only")
     shots_per_variant(options)
-    _zne_plan(options)
+    if _zne_enabled(options):
+        _zne_plan(options)
     experiment7.install_experiment7_implementation()
 
     optimized_reference = options.optimized_classical_reference
@@ -1615,20 +1685,33 @@ def main(options):
         )
         metadata = expand_metadata(base_metadata, options)
         variants_per_base = _variant_count_per_base(options)
-        print(
-            f"Built {len(base_circuits)} Experiment 7 base circuits; "
-            f"post-transpilation folding will produce {len(metadata)} variants "
-            f"({len(options.zne_scale_factors)} scales x "
-            f"{options.fold_repetitions} folds per base)"
-        )
+        if _zne_enabled(options):
+            print(
+                f"Built {len(base_circuits)} Experiment 7 base circuits; "
+                f"post-transpilation folding will produce {len(metadata)} "
+                f"variants ({len(options.zne_scale_factors)} scales x "
+                f"{options.fold_repetitions} folds per base)"
+            )
+        else:
+            print(
+                f"Built {len(base_circuits)} unfurled Experiment 7 circuits "
+                "for the no-ZNE baseline"
+            )
         print(
             "Three-basis reconstruction: "
             f"{', '.join(MEASUREMENT_BASES)}"
         )
-        print(
-            f"Shot allocation per scale/time/basis: {options.shots} total = "
-            f"{shots_per_variant(options)} per trajectory/fold circuit"
-        )
+        if _zne_enabled(options):
+            print(
+                f"Shot allocation per scale/time/basis: {options.shots} "
+                f"total = {shots_per_variant(options)} per "
+                "trajectory/fold circuit"
+            )
+        else:
+            print(
+                f"Shot allocation per time/basis: {options.shots} total = "
+                f"{shots_per_variant(options)} per trajectory circuit"
+            )
         paths = output_paths(options)
         representative_dt = schedule.substep_dts[0] if schedule.substep_dts else None
         circuit_plots_enabled = not options.no_circuit_plots
@@ -1732,7 +1815,9 @@ def main(options):
         results = (*completed_results, *new_results)
         diagnostics = (*completed_diagnostics, *new_diagnostics)
         if len(results) != len(metadata):
-            raise RuntimeError("ZNE execution returned an incomplete result set")
+            raise RuntimeError(
+                "Experiment 8 execution returned an incomplete result set"
+            )
         analysis = calculate_zne_observables(
             results,
             metadata,
@@ -1766,7 +1851,11 @@ def main(options):
         )
         print(f"Saved data before figure generation: {paths['result']}")
         summary = combined_payload["transpilation_summary"]
-        plot_transpilation_metrics(summary, paths["metrics_figure"])
+        plot_transpilation_metrics(
+            summary,
+            paths["metrics_figure"],
+            zne_enabled=_zne_enabled(options),
+        )
         experiment5.plot_transpiled_circuit_layout(
             full_circuit,
             options,
@@ -1809,15 +1898,17 @@ def main(options):
             combined_uncertainties,
             paths["results_figure"],
             combined_exact,
+            zne_enabled=_zne_enabled(options),
         )
-        plot_zne_scaling(
-            tuple(options.zne_scale_factors),
-            _family_arrays(combined_payload["scale_observables"]),
-            combined_measured,
-            combined_times,
-            combined_payload["zne"]["extrapolation_weights"],
-            paths["scaling_figure"],
-        )
+        if _zne_enabled(options):
+            plot_zne_scaling(
+                tuple(options.zne_scale_factors),
+                _family_arrays(combined_payload["scale_observables"]),
+                combined_measured,
+                combined_times,
+                combined_payload["zne"]["extrapolation_weights"],
+                paths["scaling_figure"],
+            )
         combined_payload["figure_generation_status"] = "complete"
         experiment5._atomic_write_json(paths["result"], combined_payload)
         save_checkpoint(
@@ -1853,6 +1944,14 @@ def parse_arguments(arguments=None):
             help=(
                 "use Experiment 7's exact vacuum-plus-single-excitation "
                 "reference"
+            ),
+        )
+        parser.add_argument(
+            "--no-zne",
+            action="store_true",
+            help=(
+                "submit only the unfurled scale-one circuits; disable local "
+                "folding and zero-noise extrapolation"
             ),
         )
         parser.add_argument(
@@ -1899,12 +1998,21 @@ def parse_arguments(arguments=None):
         ),
         configure_parser=configure_parser,
     )
-    options.zne_scale_factors = _validated_scale_factors(
-        options.zne_scale_factors
-    )
+    if options.no_zne:
+        if options.fold_repetitions != 1:
+            raise ValueError(
+                "--no-zne requires --fold-repetitions 1 because no fold "
+                "realizations are generated"
+            )
+        options.zne_scale_factors = (1.0,)
+    else:
+        options.zne_scale_factors = _validated_scale_factors(
+            options.zne_scale_factors
+        )
     if options.seed_folding < 0:
         raise ValueError("--seed-folding must be non-negative")
-    _zne_plan(options)
+    if _zne_enabled(options):
+        _zne_plan(options)
     if options.classical_reference and options.optimized_classical_reference:
         raise ValueError(
             "choose either --classical-reference or "

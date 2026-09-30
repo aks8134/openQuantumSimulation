@@ -84,6 +84,44 @@ class Experiment8ConfigurationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must be divisible"):
             experiment8.shots_per_variant(options)
 
+    def test_no_zne_uses_one_unfurled_variant_and_all_scale_one_shots(self):
+        options = experiment8.parse_arguments(
+            (
+                "--no-zne",
+                "--trajectories",
+                "4",
+                "--shots",
+                "80",
+            )
+        )
+        base_metadata = tuple(
+            (0, 0, basis) for basis in experiment8.MEASUREMENT_BASES
+        )
+        metadata = experiment8.expand_metadata(base_metadata, options)
+
+        self.assertTrue(options.no_zne)
+        self.assertEqual(options.zne_scale_factors, (1.0,))
+        self.assertEqual(options.fold_repetitions, 1)
+        self.assertEqual(experiment8._variant_count_per_base(options), 1)
+        self.assertEqual(experiment8.shots_per_variant(options), 20)
+        self.assertEqual(len(metadata), len(base_metadata))
+        self.assertTrue(all(item.scale_factor == 1.0 for item in metadata))
+        self.assertIn("no_zne_", experiment8.output_paths(options)["result"].name)
+        configuration = experiment8._checkpoint_configuration(
+            options,
+            np.asarray((0.0,)),
+            metadata,
+        )
+        self.assertFalse(configuration["zne"]["enabled"])
+        self.assertIsNone(configuration["zne"]["inference"])
+        self.assertFalse(configuration["folding"]["enabled"])
+
+    def test_no_zne_rejects_multiple_fold_repetitions(self):
+        with self.assertRaisesRegex(ValueError, "requires --fold-repetitions 1"):
+            experiment8.parse_arguments(
+                ("--no-zne", "--fold-repetitions", "2")
+            )
+
     def test_checkpoint_configuration_survives_json_round_trip(self):
         options = experiment8.parse_arguments(
             (
@@ -212,6 +250,42 @@ class ZNEObservableTests(unittest.TestCase):
         np.testing.assert_allclose(correlations, 0.0)
         np.testing.assert_allclose(flows, 0.0)
         np.testing.assert_allclose(analysis["weights"], (1.5, -0.5))
+
+    def test_no_zne_returns_scale_one_observables_without_extrapolation(self):
+        options = SimpleNamespace(
+            no_zne=True,
+            n_qubits=2,
+            trajectories=1,
+            fold_repetitions=1,
+            zne_scale_factors=(1.0,),
+            seed_folding=31,
+        )
+        base_metadata = tuple(
+            (0, 0, basis) for basis in experiment8.MEASUREMENT_BASES
+        )
+        metadata = experiment8.expand_metadata(base_metadata, options)
+        uniform = {"00": 25, "01": 25, "10": 25, "11": 25}
+        counts_by_basis = {
+            "Z": {"01": 50, "10": 50},
+            "X": uniform,
+            "XY": uniform,
+        }
+        results = tuple(
+            sample_result(counts_by_basis[item.basis]) for item in metadata
+        )
+
+        analysis = experiment8.calculate_zne_observables(
+            results,
+            metadata,
+            options,
+            time_count=1,
+        )
+
+        populations, correlations, flows = analysis["measured"]
+        np.testing.assert_allclose(populations, 0.5)
+        np.testing.assert_allclose(correlations, 0.0)
+        np.testing.assert_allclose(flows, 0.0)
+        np.testing.assert_allclose(analysis["weights"], (1.0,))
 
     def test_alternating_basis_reconstructs_even_and_odd_flow_signs(self):
         options = SimpleNamespace(

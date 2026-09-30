@@ -233,6 +233,14 @@ fold scales, eligible/excluded gate counts, all uncertainty arrays, provider
 job IDs, and figure-generation status. Data are saved before figure generation
 so a plotting failure does not discard completed hardware results.
 
+For a matched three-basis baseline without mitigation, pass `--no-zne`.
+This submits exactly one unfurled scale-one circuit per time, trajectory, and
+measurement basis. The requested shots are divided only over the randomized
+trajectories, no folding or extrapolation is performed, and the result is
+written under a separate `no_zne_...` filename. The ordinary observable,
+transpilation-metric, and layout figures are retained; only the inapplicable
+ZNE scaling figure is omitted.
+
 ## Example commands
 
 Small local Aer validation:
@@ -258,6 +266,21 @@ is the maximum number of already-folded circuits in one provider job and must
 be at least
 $N_{\lambda}F$, because all variants of one compiled base circuit remain in
 the same batch.
+
+Matched IBM-hardware baseline without ZNE:
+
+```bash
+uv run python Model1/Experiment8/zne_randomized_lie_trotter.py \
+  --n-qubits 7 \
+  --backend ibm_phoenix \
+  --trajectories 4 \
+  --shots 8192 \
+  --times 0 0.2 0.4 0.6 0.8 1.0 \
+  --trotter-delta-t 0.1 \
+  --optimization-level 3 \
+  --optimized-classical-reference \
+  --no-zne
+```
 
 PowerShell line continuation uses the backtick:
 
@@ -299,6 +322,7 @@ test is therefore an IBM-hardware run, or a future explicitly noisy Aer target.
 | `--zne-inference` | `linear`, `richardson`, or `polynomial`. |
 | `--zne-polynomial-order D` | Degree for polynomial inference. |
 | `--seed-folding SEED` | Reproducible random local-fold selection. |
+| `--no-zne` | Submit only unfurled scale-one circuits; disable folding and extrapolation. |
 | `--batch-size B` | Maximum submitted folded circuits per provider job. |
 | `--classical-reference` | Full exact Lindblad calculation for manageable $N$. |
 | `--optimized-classical-reference` | Exact $N+1$ invariant-subspace reference. |
