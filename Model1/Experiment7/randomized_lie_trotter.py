@@ -276,6 +276,8 @@ def build_sample_circuits(
     trajectories=DEFAULT_TRAJECTORIES,
     seed_trajectories=DEFAULT_SEED_TRAJECTORIES,
     trotter_delta_t=DEFAULT_TROTTER_DELTA_T,
+    *,
+    measurement_bases=None,
 ):
     """Build compact logical circuits; lowering occurs per compiler batch."""
 
@@ -285,6 +287,7 @@ def build_sample_circuits(
         trajectories,
         seed_trajectories,
         trotter_delta_t,
+        measurement_bases=measurement_bases,
     )
 
 

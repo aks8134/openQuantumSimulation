@@ -5,6 +5,7 @@ from unittest.mock import patch
 from IBMRuntime import (
     Aer,
     Circuit,
+    CompilerConfig,
     CompilationMetrics,
     DensityMatrixResult,
     Err,
@@ -15,6 +16,7 @@ from IBMRuntime import (
     IBMHardware,
     Ok,
     Sample,
+    RuntimeEnvironment,
     SimulateDensityMatrices,
     counts_dict,
     compile_circuit_batch_sync,
@@ -28,6 +30,7 @@ from IBMRuntime import (
     pipe,
     run_async,
     run_sample_batch_sync,
+    run_sample_variants_batch_sync,
     run_sync,
     save_density_matrix,
     snapshots_dict,
@@ -147,6 +150,29 @@ class AerIntegrationTests(unittest.TestCase):
             all(sum(counts_dict(item).values()) == 64 for item in result.value)
         )
         self.assertEqual(result.value[0].job_id, result.value[1].job_id)
+
+    def test_native_variants_compile_each_source_once_then_expand(self):
+        transform_calls = []
+
+        def duplicate(native, target):
+            transform_calls.append((native.name, target.num_qubits))
+            return native, native.copy()
+
+        result = run_sample_variants_batch_sync(
+            (bell_circuit(), bell_circuit()),
+            Aer(),
+            CompilerConfig(optimization_level=1, seed_transpiler=3),
+            Sample(shots=32, seed_simulator=5),
+            RuntimeEnvironment(),
+            duplicate,
+        )
+
+        self.assertIsInstance(result, Ok)
+        self.assertEqual(len(result.value), 4)
+        self.assertEqual(len(transform_calls), 2)
+        self.assertTrue(
+            all(sum(counts_dict(item).values()) == 32 for item in result.value)
+        )
 
     def test_compile_batch_returns_metrics_without_sampling(self):
         result = compile_circuit_batch_sync(

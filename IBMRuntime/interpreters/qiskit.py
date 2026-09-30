@@ -61,6 +61,7 @@ from ..runtime import RuntimeEnvironment, RuntimeModule
 
 A = TypeVar("A")
 Provider = Literal["aer", "fake", "ibm"]
+NativeVariantTransform = Callable[[Any, Any], tuple[Any, ...]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -1179,6 +1180,97 @@ def run_sample_batch_sync(
             pass
 
     match _submit_sample_batch(backend, executables, workload):
+        case Err(error):
+            return Err(error)
+        case Ok(job):
+            return _collect_sample_batch(job)
+
+
+def run_sample_variants_batch_sync(
+    circuits: tuple[Circuit, ...],
+    target: Target,
+    compiler: CompilerConfig,
+    workload: Sample,
+    environment: RuntimeEnvironment,
+    transform: NativeVariantTransform,
+) -> Result[tuple[SampleResult, ...], RuntimeFailure]:
+    """Compile each source once, expand native variants, and sample them.
+
+    ``transform`` receives one transpiled Qiskit circuit and the resolved
+    backend target. It must return one or more ISA circuits in execution
+    order. Returned circuits are submitted directly and are not transpiled a
+    second time, which is required for noise-scaling transformations whose
+    inserted inverse pairs must not be optimized away.
+    """
+
+    if not circuits:
+        return Err(ValidationFailure(("a sample variant batch cannot be empty",)))
+
+    def circuit_problems(indexed_circuit):
+        index, circuit = indexed_circuit
+        result = validate(
+            ExecutionPlan(
+                circuit=circuit,
+                target=target,
+                compiler=compiler,
+                workload=workload,
+            )
+        )
+        return (
+            map_tuple(
+                lambda problem: f"circuit {index}: {problem}",
+                result.error.problems,
+            )
+            if isinstance(result, Err)
+            else ()
+        )
+
+    problems = concat_map(circuit_problems, enumerate(circuits))
+    if problems:
+        return Err(ValidationFailure(problems))
+
+    match _resolve_backend(target, environment):
+        case Err(error):
+            return Err(error)
+        case Ok(backend):
+            pass
+
+    match _compile_circuits(backend, circuits, compiler):
+        case Err(error):
+            return Err(error)
+        case Ok(executables):
+            pass
+
+    def expand_native() -> tuple[_Executable, ...]:
+        backend_target = backend.native.target
+
+        def expand(executable: _Executable) -> tuple[_Executable, ...]:
+            variants = tuple(transform(executable.native, backend_target))
+            if not variants:
+                raise ValueError(
+                    "native variant transform must return at least one circuit"
+                )
+            return map_tuple(
+                lambda native: _Executable(
+                    logical_qubit_count=executable.logical_qubit_count,
+                    original_gate_count=executable.original_gate_count,
+                    original_depth=executable.original_depth,
+                    compiled_gate_count=int(native.size()),
+                    compiled_depth=int(native.depth()),
+                    native=native,
+                ),
+                variants,
+            )
+
+        return concat_map(expand, executables)
+
+    match _protected("compile", expand_native):
+        case Err(error):
+            return Err(error)
+        case Ok(variants):
+            pass
+
+    match _submit_sample_batch(backend, variants, workload):
         case Err(error):
             return Err(error)
         case Ok(job):

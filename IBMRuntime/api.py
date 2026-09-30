@@ -11,6 +11,7 @@ from .interpreters.qiskit import (
     draw_transpiled_circuit_layout_sync as _draw_transpiled_circuit_layout_sync,
     make_runtime,
     run_sample_batch_sync as _run_sample_batch_sync,
+    run_sample_variants_batch_sync as _run_sample_variants_batch_sync,
 )
 from .runtime import RuntimeEnvironment
 from .workflow import make_workflow
@@ -85,4 +86,24 @@ def run_sample_batch_sync(
         compiler,
         workload,
         environment,
+    )
+
+
+def run_sample_variants_batch_sync(
+    circuits: tuple[Circuit, ...],
+    target: Target,
+    compiler: CompilerConfig,
+    workload: Sample,
+    environment: RuntimeEnvironment,
+    transform,
+):
+    """Compile each source once and sample post-compile ISA variants."""
+
+    return _run_sample_variants_batch_sync(
+        circuits,
+        target,
+        compiler,
+        workload,
+        environment,
+        transform,
     )

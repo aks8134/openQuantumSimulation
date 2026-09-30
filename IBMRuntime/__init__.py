@@ -6,6 +6,7 @@ from .api import (
     draw_transpiled_circuit_layout_sync,
     run_async,
     run_sample_batch_sync,
+    run_sample_variants_batch_sync,
     run_sync,
 )
 from .circuit import (
@@ -139,6 +140,7 @@ __all__ = (
     "pipe",
     "run_async",
     "run_sample_batch_sync",
+    "run_sample_variants_batch_sync",
     "run_sync",
     "reset",
     "rx",

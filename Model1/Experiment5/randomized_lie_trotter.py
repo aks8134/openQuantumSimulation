@@ -413,11 +413,29 @@ def build_sample_circuits(
     trajectories=DEFAULT_TRAJECTORIES,
     seed_trajectories=DEFAULT_SEED_TRAJECTORIES,
     trotter_delta_t=None,
+    *,
+    measurement_bases=None,
 ):
     """Build time-major, trajectory-major, basis-major sample circuits."""
     if number_of_qubits < 2:
         raise ValueError("number_of_qubits must be at least two")
     requested_times = _validated_time_grid(times)
+    selected_bases = (
+        MEASUREMENT_BASES
+        if measurement_bases is None
+        else tuple(measurement_bases)
+    )
+    if not selected_bases:
+        raise ValueError("measurement_bases cannot be empty")
+    unsupported_bases = tuple(
+        basis for basis in selected_bases if basis not in MEASUREMENT_BASES
+    )
+    if unsupported_bases:
+        raise ValueError(
+            f"unsupported measurement bases: {unsupported_bases}"
+        )
+    if len(set(selected_bases)) != len(selected_bases):
+        raise ValueError("measurement_bases cannot contain duplicates")
     single_positive_target = (
         requested_times.size == 1 and requested_times[0] > 0.0
     )
@@ -461,7 +479,7 @@ def build_sample_circuits(
             saved_circuit_indices
         )
         for trajectory_index in range(trajectories)
-        for basis in MEASUREMENT_BASES
+        for basis in selected_bases
     )
     return (
         tuple(entry[3] for entry in entries),
