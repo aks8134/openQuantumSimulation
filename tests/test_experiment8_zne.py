@@ -154,6 +154,53 @@ class Experiment8ConfigurationTests(unittest.TestCase):
 
         self.assertEqual(json.loads(json.dumps(configuration)), configuration)
 
+    def test_fold_specs_can_select_only_one_missing_scale(self):
+        options = experiment8.parse_arguments(
+            (
+                "--zne-scale-factors",
+                "1",
+                "1.25",
+                "1.5",
+                "--fold-repetitions",
+                "2",
+            )
+        )
+
+        specs = experiment8.fold_specs(options, base_index=3, scale_indices=(1,))
+
+        self.assertEqual(len(specs), 2)
+        self.assertEqual({item.scale_index for item in specs}, {1})
+        self.assertEqual({item.scale_factor for item in specs}, {1.25})
+        self.assertEqual({item.repetition for item in specs}, {0, 1})
+
+    def test_reused_and_executed_variants_are_restored_to_target_order(self):
+        metadata = (
+            experiment8.VariantMetadata(0, 0, 0, "Z", 0, 1.0, 0, 11),
+            experiment8.VariantMetadata(0, 0, 0, "Z", 1, 1.25, 0, 12),
+            experiment8.VariantMetadata(0, 0, 0, "Z", 2, 1.5, 0, 13),
+        )
+        reused = {
+            0: ("result-1", "diagnostic-1"),
+            2: ("result-1.5", "diagnostic-1.5"),
+        }
+
+        results, diagnostics = experiment8.combine_reused_and_executed_variants(
+            metadata,
+            reused,
+            (metadata[1],),
+            ("result-1.25",),
+            ("diagnostic-1.25",),
+        )
+
+        self.assertEqual(
+            results,
+            ("result-1", "result-1.25", "result-1.5"),
+        )
+        self.assertEqual(
+            diagnostics,
+            ("diagnostic-1", "diagnostic-1.25", "diagnostic-1.5"),
+        )
+
 
 class PhysicalLocalFoldingTests(unittest.TestCase):
     def setUp(self):

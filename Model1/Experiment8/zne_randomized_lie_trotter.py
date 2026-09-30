@@ -10,7 +10,7 @@ Passing ``--no-zne`` instead submits only the unfurled scale-one circuits.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 import gc
 import json
@@ -179,7 +179,10 @@ def shots_per_variant(options):
     return value
 
 
-def fold_specs(options, base_index):
+def fold_specs(options, base_index, scale_indices=None):
+    selected = (
+        None if scale_indices is None else frozenset(map(int, scale_indices))
+    )
     return tuple(
         FoldSpec(
             scale_index=scale_index,
@@ -196,6 +199,7 @@ def fold_specs(options, base_index):
             ),
         )
         for scale_index, scale_factor in enumerate(options.zne_scale_factors)
+        if selected is None or scale_index in selected
         for repetition in range(options.fold_repetitions)
     )
 
@@ -408,6 +412,7 @@ def execute_zne_circuits(
     options,
     *,
     base_index_offset=0,
+    scale_indices=None,
     on_batch_complete=None,
 ):
     target, environment = experiment5.hardware_tools._runtime_target(
@@ -423,7 +428,16 @@ def execute_zne_circuits(
         shots=shots_per_variant(options),
         seed_simulator=options.seed_simulator,
     )
-    variants_per_base = _variant_count_per_base(options)
+    selected_scale_indices = (
+        tuple(range(len(options.zne_scale_factors)))
+        if scale_indices is None
+        else tuple(map(int, scale_indices))
+    )
+    if not selected_scale_indices:
+        raise ValueError("at least one scale index must be executed")
+    variants_per_base = (
+        len(selected_scale_indices) * options.fold_repetitions
+    )
     submitted_batch_size = options.batch_size or (
         experiment5.DEFAULT_AER_BATCH_SIZE
         if options.backend.lower() == "aer"
@@ -457,7 +471,11 @@ def execute_zne_circuits(
                     spec,
                     base_index,
                 )
-                for spec in fold_specs(options, base_index)
+                for spec in fold_specs(
+                    options,
+                    base_index,
+                    selected_scale_indices,
+                )
             )
             batch_diagnostics.extend(item[1] for item in transformed)
             return tuple(item[0] for item in transformed)
@@ -837,6 +855,11 @@ def _checkpoint_configuration(options, times, metadata):
         "seed_trajectories": options.seed_trajectories,
         "aer_method": options.aer_method,
         "trotter_delta_t": options.trotter_delta_t,
+        "reuse_zne_result": (
+            None
+            if getattr(options, "reuse_zne_result", None) is None
+            else str(Path(options.reuse_zne_result).resolve())
+        ),
         "zne": {
             "enabled": _zne_enabled(options),
             "scale_factors": list(options.zne_scale_factors),
@@ -897,6 +920,259 @@ def _diagnostic_from_record(record):
         tuple(item) for item in values["excluded_unitary_gate_counts"]
     )
     return FoldDiagnostic(**values)
+
+
+def _matching_scale_index(scales, value):
+    matches = tuple(
+        index
+        for index, scale in enumerate(scales)
+        if np.isclose(float(scale), float(value), rtol=0.0, atol=1e-12)
+    )
+    if len(matches) > 1:
+        raise ValueError(f"ambiguous matching noise scale for {value}")
+    return None if not matches else matches[0]
+
+
+def _scale_reuse_signature(payload):
+    schedule = payload.get("evolution_schedule", {})
+    folding = payload.get("folding", {})
+    return {
+        "backend": str(payload.get("backend", "")).lower(),
+        "number_of_system_qubits": payload.get("number_of_system_qubits"),
+        "number_of_circuit_qubits": payload.get("number_of_circuit_qubits"),
+        "number_of_trajectories": payload.get("number_of_trajectories"),
+        "fold_repetitions": payload.get("fold_repetitions"),
+        "shots": payload.get("total_shots_per_time_basis_per_scale"),
+        "measurement_bases": tuple(payload.get("measurement_bases", ())),
+        "measurement_scheme_version": payload.get(
+            "measurement_scheme_version"
+        ),
+        "optimization_level": payload.get("optimization_level"),
+        "seed_transpiler": payload.get("seed_transpiler"),
+        "seed_simulator": payload.get("seed_simulator"),
+        "seed_trajectories": payload.get("seed_trajectories"),
+        "seed_folding": folding.get("seed_folding"),
+        "folding_version": folding.get("version"),
+        "aer_method": payload.get("aer_method"),
+        "trotter_delta_t": schedule.get("requested_trotter_delta_t"),
+        "has_exact_reference": "exact_reference_observables" in payload,
+    }
+
+
+def _prospective_scale_reuse_signature(options):
+    return {
+        "backend": options.backend.lower(),
+        "number_of_system_qubits": options.n_qubits,
+        "number_of_circuit_qubits": options.n_qubits + 2,
+        "number_of_trajectories": options.trajectories,
+        "fold_repetitions": options.fold_repetitions,
+        "shots": options.shots,
+        "measurement_bases": MEASUREMENT_BASES,
+        "measurement_scheme_version": MEASUREMENT_SCHEME_VERSION,
+        "optimization_level": options.optimization_level,
+        "seed_transpiler": options.seed_transpiler,
+        "seed_simulator": options.seed_simulator,
+        "seed_trajectories": options.seed_trajectories,
+        "seed_folding": options.seed_folding,
+        "folding_version": FOLDING_VERSION,
+        "aer_method": options.aer_method,
+        "trotter_delta_t": options.trotter_delta_t,
+        "has_exact_reference": options.classical_reference,
+    }
+
+
+def load_reused_scale_variants(
+    path,
+    options,
+    times,
+    schedule,
+    metadata,
+):
+    """Load matching raw scale variants and identify scales still to execute."""
+    path = Path(path)
+    source = experiment5._load_result_payload(path)
+    existing = _scale_reuse_signature(source)
+    requested = _prospective_scale_reuse_signature(options)
+    mismatches = tuple(
+        key for key, value in requested.items() if existing.get(key) != value
+    )
+    if mismatches:
+        raise ValueError(
+            "reused Experiment 8 result is incompatible in: "
+            f"{', '.join(mismatches)}; no circuits were submitted"
+        )
+    if list(map(float, source.get("times", ()))) != list(map(float, times)):
+        raise ValueError(
+            "reused Experiment 8 result must contain exactly the requested "
+            "saved times; no circuits were submitted"
+        )
+    requested_schedule = json.loads(
+        json.dumps(experiment5._schedule_payload(times, schedule))
+    )
+    if source.get("evolution_schedule") != requested_schedule:
+        raise ValueError(
+            "reused Experiment 8 result has a different evolution schedule; "
+            "no circuits were submitted"
+        )
+
+    source_scales = tuple(
+        map(float, source.get("zne", {}).get("scale_factors", ()))
+    )
+    reused_scale_indices = tuple(
+        index
+        for index, scale in enumerate(options.zne_scale_factors)
+        if _matching_scale_index(source_scales, scale) is not None
+    )
+    missing_scale_indices = tuple(
+        index
+        for index in range(len(options.zne_scale_factors))
+        if index not in reused_scale_indices
+    )
+    if not reused_scale_indices:
+        raise ValueError(
+            "reused result contains none of the requested ZNE scales; "
+            "no circuits were submitted"
+        )
+    if not missing_scale_indices:
+        raise ValueError(
+            "reused result already contains every requested ZNE scale; "
+            "no circuits were submitted"
+        )
+
+    raw_records = source.get("raw_counts")
+    circuit_records = source.get("circuit_metadata")
+    if not isinstance(raw_records, list) or not isinstance(
+        circuit_records,
+        list,
+    ) or len(raw_records) != len(circuit_records):
+        raise ValueError("reused result has incomplete raw circuit records")
+
+    source_records = {}
+    for raw, circuit in zip(raw_records, circuit_records, strict=True):
+        scale = float(raw["scale_factor"])
+        key = (
+            int(raw["time_index"]),
+            int(raw["trajectory_index"]),
+            str(raw["basis"]),
+            scale,
+            int(raw["fold_repetition"]),
+        )
+        if key in source_records:
+            raise ValueError(f"reused result contains duplicate variant {key}")
+        source_records[key] = (raw, circuit)
+
+    adjusted_metadata = []
+    reused = {}
+    for index, item in enumerate(metadata):
+        source_scale_index = _matching_scale_index(
+            source_scales,
+            item.scale_factor,
+        )
+        if source_scale_index is None:
+            adjusted_metadata.append(item)
+            continue
+        source_scale = source_scales[source_scale_index]
+        key = (
+            item.time_index,
+            item.trajectory_index,
+            item.basis,
+            source_scale,
+            item.fold_repetition,
+        )
+        if key not in source_records:
+            raise ValueError(f"reused result is missing raw variant {key}")
+        raw, circuit = source_records[key]
+        if int(raw["base_index"]) != item.base_index:
+            raise ValueError(
+                "reused result base-circuit ordering does not match the "
+                "requested run"
+            )
+        adjusted_item = replace(item, fold_seed=int(raw["fold_seed"]))
+        adjusted_metadata.append(adjusted_item)
+        result = SampleResult(
+            counts=tuple(
+                sorted(
+                    (str(bitstring), int(count))
+                    for bitstring, count in raw["counts"].items()
+                )
+            ),
+            shots=sum(map(int, raw["counts"].values())),
+            backend_name=str(source["backend"]),
+            job_id=(
+                None
+                if circuit.get("job_id") is None
+                else str(circuit["job_id"])
+            ),
+            original_gate_count=int(circuit["original_operation_count"]),
+            original_depth=int(circuit["original_depth"]),
+            compiled_gate_count=int(circuit["compiled_operation_count"]),
+            compiled_depth=int(circuit["compiled_depth"]),
+        )
+        diagnostic = replace(
+            _diagnostic_from_record(circuit),
+            base_index=item.base_index,
+            scale_index=item.scale_index,
+            scale_factor=item.scale_factor,
+            fold_repetition=item.fold_repetition,
+            fold_seed=adjusted_item.fold_seed,
+        )
+        reused[index] = (result, diagnostic)
+
+    expected_reused = (
+        len(times)
+        * options.trajectories
+        * len(MEASUREMENT_BASES)
+        * options.fold_repetitions
+        * len(reused_scale_indices)
+    )
+    if len(reused) != expected_reused:
+        raise ValueError(
+            f"expected {expected_reused} reusable variants but found "
+            f"{len(reused)}"
+        )
+    return {
+        "source": source,
+        "source_path": path,
+        "metadata": tuple(adjusted_metadata),
+        "reused": reused,
+        "reused_scale_indices": reused_scale_indices,
+        "missing_scale_indices": missing_scale_indices,
+    }
+
+
+def combine_reused_and_executed_variants(
+    metadata,
+    reused,
+    executed_metadata,
+    executed_results,
+    executed_diagnostics,
+):
+    if len(executed_metadata) != len(executed_results) or len(
+        executed_results
+    ) != len(executed_diagnostics):
+        raise ValueError("executed scale-augmentation records are incomplete")
+    executed = {
+        item: (result, diagnostic)
+        for item, result, diagnostic in zip(
+            executed_metadata,
+            executed_results,
+            executed_diagnostics,
+            strict=True,
+        )
+    }
+    if len(executed) != len(executed_metadata):
+        raise ValueError("executed scale-augmentation metadata are not unique")
+    combined_results = []
+    combined_diagnostics = []
+    for index, item in enumerate(metadata):
+        value = reused.get(index, executed.get(item))
+        if value is None:
+            raise ValueError(f"no result is available for target variant {item}")
+        combined_results.append(value[0])
+        combined_diagnostics.append(value[1])
+    if len(reused) + len(executed) != len(metadata):
+        raise ValueError("reused and executed variants do not partition the run")
+    return tuple(combined_results), tuple(combined_diagnostics)
 
 
 def save_checkpoint(
@@ -1337,6 +1613,16 @@ def save_results(
         },
         "figure_generation_status": "pending",
     }
+    if getattr(options, "reuse_zne_result", None) is not None:
+        payload["scale_augmentation"] = {
+            "source_result": str(Path(options.reuse_zne_result).resolve()),
+            "reused_scale_factors": list(options.reused_scale_factors),
+            "executed_scale_factors": list(options.executed_scale_factors),
+            "caveat": (
+                "reused and newly executed scales may sample different "
+                "hardware calibration windows"
+            ),
+        }
     if exact is not None:
         payload["exact_reference_observables"] = _family_payload(exact)
         payload["aggregate_observable_error_vs_exact"] = (
@@ -1644,6 +1930,10 @@ def main(options):
         raise ValueError("--metadata-file is not supported by Experiment 8")
     if options.layout_only and options.resume:
         raise ValueError("--layout-only cannot be combined with --resume")
+    if options.layout_only and options.reuse_zne_result is not None:
+        raise ValueError(
+            "--layout-only cannot be combined with --reuse-zne-result"
+        )
     if (
         options.backend.lower() == "fake_fez"
         and not options.layout_only
@@ -1684,13 +1974,53 @@ def main(options):
             measurement_bases=MEASUREMENT_BASES,
         )
         metadata = expand_metadata(base_metadata, options)
-        variants_per_base = _variant_count_per_base(options)
+        reuse = None
+        if options.reuse_zne_result is not None:
+            reuse = load_reused_scale_variants(
+                options.reuse_zne_result,
+                options,
+                times,
+                schedule,
+                metadata,
+            )
+            metadata = reuse["metadata"]
+            execution_scale_indices = reuse["missing_scale_indices"]
+            options.reused_scale_factors = tuple(
+                options.zne_scale_factors[index]
+                for index in reuse["reused_scale_indices"]
+            )
+            options.executed_scale_factors = tuple(
+                options.zne_scale_factors[index]
+                for index in execution_scale_indices
+            )
+            print(
+                "Reusing raw variants at scales "
+                f"{list(options.reused_scale_factors)} from "
+                f"{reuse['source_path']}"
+            )
+            print(
+                "Only missing scales will be submitted: "
+                f"{list(options.executed_scale_factors)}"
+            )
+        else:
+            execution_scale_indices = tuple(
+                range(len(options.zne_scale_factors))
+            )
+        execution_metadata = tuple(
+            item
+            for item in metadata
+            if item.scale_index in execution_scale_indices
+        )
+        variants_per_base = (
+            len(execution_scale_indices) * options.fold_repetitions
+        )
         if _zne_enabled(options):
             print(
                 f"Built {len(base_circuits)} Experiment 7 base circuits; "
-                f"post-transpilation folding will produce {len(metadata)} "
-                f"variants ({len(options.zne_scale_factors)} scales x "
-                f"{options.fold_repetitions} folds per base)"
+                f"the target analysis contains {len(metadata)} variants "
+                f"({len(options.zne_scale_factors)} scales x "
+                f"{options.fold_repetitions} folds per base), of which "
+                f"{len(execution_metadata)} will be executed"
             )
         else:
             print(
@@ -1760,15 +2090,16 @@ def main(options):
                 checkpoint_path,
                 options,
                 times,
-                metadata,
+                execution_metadata,
             )
             if len(completed_results) % variants_per_base:
                 raise ValueError(
                     "checkpoint stops inside a base circuit's ZNE variant group"
                 )
             print(
-                f"Resuming {len(completed_results)}/{len(metadata)} folded "
-                f"variants from {checkpoint_path}"
+                f"Resuming {len(completed_results)}/"
+                f"{len(execution_metadata)} submitted variants from "
+                f"{checkpoint_path}"
             )
         else:
             completed_results, completed_diagnostics = (), ()
@@ -1778,7 +2109,7 @@ def main(options):
                 times,
                 schedule,
                 (),
-                metadata,
+                execution_metadata,
                 (),
             )
             print(f"Checkpoint: {checkpoint_path}")
@@ -1794,11 +2125,12 @@ def main(options):
                 times,
                 schedule,
                 all_results,
-                metadata,
+                execution_metadata,
                 all_diagnostics,
             )
             print(
-                f"Checkpointed {len(all_results)}/{len(metadata)} variants: "
+                f"Checkpointed {len(all_results)}/"
+                f"{len(execution_metadata)} submitted variants: "
                 f"{checkpoint_path}"
             )
 
@@ -1808,15 +2140,27 @@ def main(options):
                 remaining_base_circuits,
                 options,
                 base_index_offset=completed_base_count,
+                scale_indices=execution_scale_indices,
                 on_batch_complete=checkpoint_new,
             )
         else:
             new_results, new_diagnostics = (), ()
-        results = (*completed_results, *new_results)
-        diagnostics = (*completed_diagnostics, *new_diagnostics)
-        if len(results) != len(metadata):
+        executed_results = (*completed_results, *new_results)
+        executed_diagnostics = (*completed_diagnostics, *new_diagnostics)
+        if len(executed_results) != len(execution_metadata):
             raise RuntimeError(
                 "Experiment 8 execution returned an incomplete result set"
+            )
+        if reuse is None:
+            results = executed_results
+            diagnostics = executed_diagnostics
+        else:
+            results, diagnostics = combine_reused_and_executed_variants(
+                metadata,
+                reuse["reused"],
+                execution_metadata,
+                executed_results,
+                executed_diagnostics,
             )
         analysis = calculate_zne_observables(
             results,
@@ -1916,9 +2260,9 @@ def main(options):
             options,
             times,
             schedule,
-            results,
-            metadata,
-            diagnostics,
+            executed_results,
+            execution_metadata,
+            executed_diagnostics,
             status="complete",
         )
         _print_summary(
@@ -1952,6 +2296,14 @@ def parse_arguments(arguments=None):
             help=(
                 "submit only the unfurled scale-one circuits; disable local "
                 "folding and zero-noise extrapolation"
+            ),
+        )
+        parser.add_argument(
+            "--reuse-zne-result",
+            type=Path,
+            help=(
+                "reuse matching raw scales from an existing Experiment 8 "
+                "result and submit only requested scales absent from it"
             ),
         )
         parser.add_argument(
@@ -1999,6 +2351,8 @@ def parse_arguments(arguments=None):
         configure_parser=configure_parser,
     )
     if options.no_zne:
+        if options.reuse_zne_result is not None:
+            raise ValueError("--no-zne cannot be combined with --reuse-zne-result")
         if options.fold_repetitions != 1:
             raise ValueError(
                 "--no-zne requires --fold-repetitions 1 because no fold "
@@ -2011,6 +2365,10 @@ def parse_arguments(arguments=None):
         )
     if options.seed_folding < 0:
         raise ValueError("--seed-folding must be non-negative")
+    if options.reuse_zne_result is not None and not options.reuse_zne_result.is_file():
+        raise ValueError(
+            f"--reuse-zne-result does not exist: {options.reuse_zne_result}"
+        )
     if _zne_enabled(options):
         _zne_plan(options)
     if options.classical_reference and options.optimized_classical_reference:

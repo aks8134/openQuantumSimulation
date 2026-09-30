@@ -282,6 +282,32 @@ uv run python Model1/Experiment8/zne_randomized_lie_trotter.py \
   --no-zne
 ```
 
+To reuse compatible raw scales from an existing result and submit only scales
+that are absent from it, pass `--reuse-zne-result`. For example, the following
+target set reuses the existing scales 1 and 1.5 and executes only scale 1.25:
+
+```powershell
+uv run python .\Model1\Experiment8\zne_randomized_lie_trotter.py `
+  --n-qubits 15 `
+  --backend ibm_phoenix `
+  --trajectories 4 `
+  --fold-repetitions 2 `
+  --shots 8192 `
+  --times 0 0.2 0.4 0.6 0.8 1.0 `
+  --trotter-delta-t 0.1 `
+  --zne-scale-factors 1 1.25 1.5 `
+  --zne-inference linear `
+  --optimization-level 3 `
+  --optimized-classical-reference `
+  --reuse-zne-result .\Model1\Experiment8\results\zne_explicit_randomized_lie_trotter_ibm_phoenix_N15_R4_F2_B3_linear_S1p0_1p5_2p0.json
+```
+
+The source archive is never modified. The combined result has a distinct
+`S1p0_1p25_1p5` filename and records which scales were reused and executed.
+All physics, timing, shot, seed, folding, compiler, measurement, and reference
+settings must match. Because reused and new scales may be collected under
+different hardware calibrations, the output records that timing caveat.
+
 PowerShell line continuation uses the backtick:
 
 ```powershell
@@ -323,6 +349,7 @@ test is therefore an IBM-hardware run, or a future explicitly noisy Aer target.
 | `--zne-polynomial-order D` | Degree for polynomial inference. |
 | `--seed-folding SEED` | Reproducible random local-fold selection. |
 | `--no-zne` | Submit only unfurled scale-one circuits; disable folding and extrapolation. |
+| `--reuse-zne-result PATH` | Reuse compatible raw scales and submit only requested scales missing from this archive. |
 | `--batch-size B` | Maximum submitted folded circuits per provider job. |
 | `--classical-reference` | Full exact Lindblad calculation for manageable $N$. |
 | `--optimized-classical-reference` | Exact $N+1$ invariant-subspace reference. |
