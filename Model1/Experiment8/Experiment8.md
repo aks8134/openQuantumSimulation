@@ -1,4 +1,4 @@
-# Experiment 8: physical local-folding ZNE for Experiment 7
+# Experiment 8: native-qem local-folding ZNE for Experiment 7
 
 ## Purpose
 
@@ -7,14 +7,34 @@ randomized Lie--Trotter circuits from Experiment 7. It keeps the same physical
 model, randomized single-boundary strategy, two resettable boundary-local
 ancillas, explicit `RZ`/`RX`/`RZZ` synthesis, observables, time scheduling, and
 classical-reference options. The only new approximation layer is
-post-transpilation local unitary folding.
+post-transpilation local unitary folding performed by the repository's native
+[`qem`](../../qem/README.md) library.
 
 The executable is
 [`zne_randomized_lie_trotter.py`](zne_randomized_lie_trotter.py).
-It uses the repository's immutable `mitiq_qem` ZNE plan and inference layer.
-The folding transform itself lives in Experiment 8 because it must run after
-backend transpilation and must distinguish virtual from physical native gates;
-a normal pre-transpilation Mitiq fold would not provide that guarantee.
+It uses `qem.fold` and `qem.extrapolate` for folding and extrapolation. Experiment
+8 contains only experiment orchestration, diagnostics, uncertainty propagation,
+and provider execution; it does not implement a separate folding or fitting
+algorithm.
+
+Run in the main `.venv`. No Mitiq, Cirq, worker, QASM conversion, or second
+environment is used by this experiment:
+
+```bash
+source .venv/bin/activate
+python Model1/Experiment8/zne_randomized_lie_trotter.py --help
+```
+
+The main environment owns backend discovery, transpilation, mitigation,
+execution and output. New output names begin with `qem_`; historical archives
+are unchanged. Folding version 3 prevents reuse or resume of incompatible
+older folding results, including explicitly supplied legacy checkpoints.
+
+`--no-layout` skips only the transpiled layout/mapping figure, including its
+embedded circuit panels and extra transpilation. Other plots remain enabled;
+use `--no-circuit-plots` separately to suppress standalone circuit diagrams.
+It is incompatible with `--layout-only` and does not affect checkpoint or
+result compatibility. Existing layout images are not deleted.
 
 ## Where folding is applied
 
@@ -25,10 +45,14 @@ backend-native circuit
 C_{\mathrm{ISA}}=\mathcal{T}(C).
 \]
 
-Experiment 8 transpiles each base circuit exactly once. It then constructs all
-noise-scaled variants directly from $C_{\mathrm{ISA}}$. There is no second
-optimizing transpilation after folding, because such a pass could cancel the
-inserted inverse pairs.
+Experiment 8 first performs the requested optimizing transpilation. `qem`
+constructs every noise-scaled variant directly from $C_{\mathrm{ISA}}$, keeping
+its gate representation, registers and layout. No post-fold lowering or
+optimization is performed. Scale one is the exact unmodified compiled circuit.
+Unsupported inverses fail target validation instead of being silently expanded
+by a compiler. The explicit exception is `SX`: if the target lacks `SXdg`, the
+exact identity $SX^\dagger=SX^3$ supplies its inverse. This adds extra physical
+pulses, which are included in the realized counts below.
 
 For an eligible native gate $G$, one local fold is
 
@@ -46,33 +70,30 @@ inserts $m$ folds, the realized gate-count scale is
                           =1+\frac{2m}{L}.
 \]
 
-For a requested scale $\lambda$, every eligible gate first receives
-
-\[
-k=\left\lfloor\frac{\lambda-1}{2}\right\rfloor
-\]
-
-complete folds. A seeded random subset receives one additional fold to realize
-the remaining fractional scale as closely as the discrete gate count allows.
-The requested and realized scales are both stored in the result JSON.
+For a requested scale $\lambda$, fold locations and the discrete approximation
+to that scale are selected by `qem.select_folds`: full fold rounds followed by
+the seeded randomized prefix closest to the remaining gate-count budget. The
+requested and realized physical gate-count scales are both stored in the
+result JSON. The $1+2m/L$ formula assumes each inverse is a single gate;
+native multi-pulse inverses can increase the realized scale. Fitting continues
+to use requested scales. Gate-count scales are quantized noise proxies, not
+calibrated physical noise strengths; inspect their diagnostics when interpreting
+ZNE, especially for short circuits or SX-heavy native decompositions.
 
 ### Physical-gate policy
 
-The folding transform is deliberately backend aware:
+The native adapter applies the following boundary policy:
 
 - `RZ`, `P`, `U1`, and `Phase` are treated as virtual frame changes and are
   not folded.
-- A nonvirtual unitary ISA gate is eligible only if its inverse is supported on
-  the same physical qubits by the backend target.
-- On IBM targets that provide `SX` but not `SXdg`, the inverse is emitted as
-  `RZ(pi) SX RZ(pi)`: one physical `SX` pulse surrounded by virtual frame
-  changes. This keeps the folded circuit native without under-scaling `SX`.
+- Other unitary gates are folded directly with their inverse in native Qiskit
+  representation, using seeded random local selection.
 - `reset`, `measure`, `barrier`, `delay`, and classical `store` operations are
   never folded.
 - Folding is local to each gate. It therefore never moves an inverse through a
   reset or crosses a reset boundary.
-- The transpiled layout and routing are retained by copying the compiled
-  circuit and inserting inverse pairs in place.
+- Physical wire indices and the compiler's layout are retained without
+  invoking another lowering or optimization pass.
 
 This realizes the agreed physical interpretation: `RZ` is virtual, whereas
 physical single- and two-qubit pulses such as `RX` and `RZZ` contribute to the
@@ -172,7 +193,7 @@ $N_{\lambda}S$, and the total over all three bases is
 
 Let $E(\lambda_j)$ be the observable averaged over the randomized dilation
 trajectories and independent fold realizations at noise scale $\lambda_j$.
-Experiment 8 fits
+`qem.extrapolate` fits
 
 \[
 E(\lambda)=a_0+a_1\lambda+\cdots+a_d\lambda^d
@@ -192,7 +213,9 @@ The available inference choices are:
 - `polynomial`: user-selected degree `--zne-polynomial-order`, which must be
   smaller than $N_{\lambda}$.
 
-The result file records the extrapolation weights $w_j$, so every estimate
+`qem.extrapolate` computes the intercept weights from the polynomial design
+matrix using NumPy least squares, without clipping the estimates. The result
+file records these weights $w_j$, so every estimate
 can also be written as
 
 \[
@@ -246,7 +269,7 @@ ZNE scaling figure is omitted.
 Small local Aer validation:
 
 ```bash
-uv run python Model1/Experiment8/zne_randomized_lie_trotter.py \
+python Model1/Experiment8/zne_randomized_lie_trotter.py \
   --n-qubits 4 \
   --backend aer \
   --trajectories 4 \
@@ -270,7 +293,7 @@ the same batch.
 Matched IBM-hardware baseline without ZNE:
 
 ```bash
-uv run python Model1/Experiment8/zne_randomized_lie_trotter.py \
+python Model1/Experiment8/zne_randomized_lie_trotter.py \
   --n-qubits 7 \
   --backend ibm_phoenix \
   --trajectories 4 \
@@ -287,7 +310,7 @@ that are absent from it, pass `--reuse-zne-result`. For example, the following
 target set reuses the existing scales 1 and 1.5 and executes only scale 1.25:
 
 ```powershell
-uv run python .\Model1\Experiment8\zne_randomized_lie_trotter.py `
+python .\Model1\Experiment8\zne_randomized_lie_trotter.py `
   --n-qubits 15 `
   --backend ibm_phoenix `
   --trajectories 4 `
@@ -311,7 +334,7 @@ different hardware calibrations, the output records that timing caveat.
 PowerShell line continuation uses the backtick:
 
 ```powershell
-uv run python .\Model1\Experiment8\zne_randomized_lie_trotter.py `
+python .\Model1\Experiment8\zne_randomized_lie_trotter.py `
   --n-qubits 4 `
   --backend aer `
   --trajectories 4 `

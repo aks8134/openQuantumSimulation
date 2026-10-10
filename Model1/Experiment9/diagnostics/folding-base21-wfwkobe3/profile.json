@@ -1,0 +1,488 @@
+{
+  "checkpoint": "/storage/home/aks8134/OpenQuantumSystem/Model1/Experiment9/results/mitiq_zne_randomized_lie_trotter_aer_N10_R4_F1_B3_pauli_off_dd_off_readout_off_linear_S1p0_1p5_2p0_checkpoint.json",
+  "base_index": 21,
+  "scale": 2.0,
+  "fold_seed": 8675374,
+  "time": 0.2,
+  "trajectory_index": 3,
+  "basis": "Z",
+  "python": "/storage/home/aks8134/OpenQuantumSystem/.venv-mitiq/bin/python",
+  "versions": {
+    "qiskit": "2.5.2",
+    "qiskit-aer": "0.17.2",
+    "mitiq": "1.1.0",
+    "cirq-core": "1.6.1"
+  },
+  "stages": [
+    {
+      "name": "imports (not folding time)",
+      "wall_seconds": 280.89597246516496,
+      "cpu_seconds": 3.8681111900000005
+    },
+    {
+      "name": "explicit Experiment 7 circuit",
+      "wall_seconds": 0.30335718113929033,
+      "cpu_seconds": 0.008072381999999934,
+      "representation": "qiskit",
+      "operations": 293,
+      "depth": 34,
+      "qubits": 12,
+      "counts": {
+        "measure": 10,
+        "reset": 2,
+        "rx": 120,
+        "rz": 120,
+        "rzz": 40,
+        "x": 1
+      }
+    },
+    {
+      "name": "baseline optimizing compilation",
+      "wall_seconds": 54.00214211177081,
+      "cpu_seconds": 0.8223289529999995,
+      "representation": "qiskit",
+      "operations": 137,
+      "depth": 18,
+      "qubits": 12,
+      "counts": {
+        "crx": 4,
+        "cry": 2,
+        "measure": 10,
+        "reset": 2,
+        "rx": 8,
+        "rxx": 4,
+        "ryy": 4,
+        "rzx": 6,
+        "rzz": 18,
+        "u2": 50,
+        "u3": 28,
+        "unitary": 1
+      }
+    },
+    {
+      "name": "conversion-only control (scale 1)",
+      "wall_seconds": 10.595473594032228,
+      "cpu_seconds": 0.2534924629999997,
+      "representation": "qiskit",
+      "operations": 560,
+      "depth": 96,
+      "qubits": 12,
+      "counts": {
+        "cx": 104,
+        "h": 12,
+        "measure": 10,
+        "reset": 2,
+        "rx": 34,
+        "ry": 50,
+        "rz": 62,
+        "s": 26,
+        "sx": 34,
+        "sxdg": 34,
+        "u3": 192
+      }
+    },
+    {
+      "name": "lower conversion-only control",
+      "wall_seconds": 0.2955124769359827,
+      "cpu_seconds": 0.005549144999999811,
+      "representation": "qiskit",
+      "operations": 560,
+      "depth": 96,
+      "qubits": 30,
+      "counts": {
+        "cx": 104,
+        "h": 12,
+        "measure": 10,
+        "reset": 2,
+        "rx": 34,
+        "ry": 50,
+        "rz": 62,
+        "s": 26,
+        "sx": 34,
+        "sxdg": 34,
+        "u3": 192
+      }
+    },
+    {
+      "name": "upstream scale-2 folding before lowering",
+      "wall_seconds": 9.099795830436051,
+      "cpu_seconds": 0.3739513490000004,
+      "representation": "qiskit",
+      "operations": 1553,
+      "depth": 269,
+      "qubits": 12,
+      "counts": {
+        "cx": 274,
+        "h": 18,
+        "measure": 10,
+        "reset": 2,
+        "rx": 96,
+        "ry": 216,
+        "rz": 224,
+        "s": 76,
+        "sx": 100,
+        "sxdg": 100,
+        "u3": 437
+      }
+    },
+    {
+      "name": "target lowering after folding",
+      "wall_seconds": 0.27712400257587433,
+      "cpu_seconds": 0.00816972899999957,
+      "representation": "qiskit",
+      "operations": 1553,
+      "depth": 269,
+      "qubits": 30,
+      "counts": {
+        "cx": 274,
+        "h": 18,
+        "measure": 10,
+        "reset": 2,
+        "rx": 96,
+        "ry": 216,
+        "rz": 224,
+        "s": 76,
+        "sx": 100,
+        "sxdg": 100,
+        "u3": 437
+      }
+    }
+  ],
+  "conversions": [
+    {
+      "stage": "conversion-only control (scale 1)",
+      "direction": "from_qiskit",
+      "wall_seconds": 1.5003610644489527,
+      "cpu_seconds": 0.042506118999999565,
+      "before": {
+        "representation": "qiskit",
+        "operations": 119,
+        "depth": 17,
+        "qubits": 12,
+        "counts": {
+          "crx": 4,
+          "cry": 2,
+          "id": 1,
+          "rx": 8,
+          "rxx": 4,
+          "ryy": 4,
+          "rzx": 4,
+          "rzz": 18,
+          "u2": 48,
+          "u3": 25,
+          "unitary": 1
+        }
+      },
+      "after": {
+        "representation": "cirq",
+        "operations": 119,
+        "moments": 17,
+        "qubits": 12,
+        "counts": {
+          "CircuitOperation": 9,
+          "ControlledGate": 6,
+          "IdentityGate": 1,
+          "QasmUGate": 73,
+          "Rx": 8,
+          "XXPowGate": 4,
+          "ZZPowGate": 18
+        }
+      }
+    },
+    {
+      "stage": "conversion-only control (scale 1)",
+      "direction": "to_qiskit",
+      "wall_seconds": 4.396052408032119,
+      "cpu_seconds": 0.09148932100000007,
+      "before": {
+        "representation": "cirq",
+        "operations": 119,
+        "moments": 17,
+        "qubits": 12,
+        "counts": {
+          "CircuitOperation": 9,
+          "ControlledGate": 6,
+          "IdentityGate": 1,
+          "QasmUGate": 73,
+          "Rx": 8,
+          "XXPowGate": 4,
+          "ZZPowGate": 18
+        }
+      },
+      "after": {
+        "representation": "qiskit",
+        "operations": 534,
+        "depth": 95,
+        "qubits": 12,
+        "counts": {
+          "cx": 100,
+          "h": 8,
+          "id": 1,
+          "rx": 34,
+          "ry": 50,
+          "rz": 60,
+          "s": 26,
+          "sx": 34,
+          "sxdg": 34,
+          "u3": 187
+        }
+      }
+    },
+    {
+      "stage": "conversion-only control (scale 1)",
+      "direction": "from_qiskit",
+      "wall_seconds": 0.2003977783024311,
+      "cpu_seconds": 0.012179536000000546,
+      "before": {
+        "representation": "qiskit",
+        "operations": 17,
+        "depth": 5,
+        "qubits": 12,
+        "counts": {
+          "id": 10,
+          "rzx": 2,
+          "u2": 2,
+          "u3": 3
+        }
+      },
+      "after": {
+        "representation": "cirq",
+        "operations": 17,
+        "moments": 5,
+        "qubits": 12,
+        "counts": {
+          "CircuitOperation": 2,
+          "IdentityGate": 10,
+          "QasmUGate": 5
+        }
+      }
+    },
+    {
+      "stage": "conversion-only control (scale 1)",
+      "direction": "to_qiskit",
+      "wall_seconds": 0.19798043463379145,
+      "cpu_seconds": 0.003888704000000409,
+      "before": {
+        "representation": "cirq",
+        "operations": 17,
+        "moments": 5,
+        "qubits": 12,
+        "counts": {
+          "CircuitOperation": 2,
+          "IdentityGate": 10,
+          "QasmUGate": 5
+        }
+      },
+      "after": {
+        "representation": "qiskit",
+        "operations": 25,
+        "depth": 13,
+        "qubits": 12,
+        "counts": {
+          "cx": 4,
+          "h": 4,
+          "id": 10,
+          "rz": 2,
+          "u3": 5
+        }
+      }
+    },
+    {
+      "stage": "upstream scale-2 folding before lowering",
+      "direction": "from_qiskit",
+      "wall_seconds": 1.3980942768976092,
+      "cpu_seconds": 0.04157882300000004,
+      "before": {
+        "representation": "qiskit",
+        "operations": 119,
+        "depth": 17,
+        "qubits": 12,
+        "counts": {
+          "crx": 4,
+          "cry": 2,
+          "id": 1,
+          "rx": 8,
+          "rxx": 4,
+          "ryy": 4,
+          "rzx": 4,
+          "rzz": 18,
+          "u2": 48,
+          "u3": 25,
+          "unitary": 1
+        }
+      },
+      "after": {
+        "representation": "cirq",
+        "operations": 119,
+        "moments": 17,
+        "qubits": 12,
+        "counts": {
+          "CircuitOperation": 9,
+          "ControlledGate": 6,
+          "IdentityGate": 1,
+          "QasmUGate": 73,
+          "Rx": 8,
+          "XXPowGate": 4,
+          "ZZPowGate": 18
+        }
+      }
+    },
+    {
+      "stage": "upstream scale-2 folding before lowering",
+      "direction": "to_qiskit",
+      "wall_seconds": 5.104983834549785,
+      "cpu_seconds": 0.22574169499999996,
+      "before": {
+        "representation": "cirq",
+        "operations": 239,
+        "moments": 43,
+        "qubits": 12,
+        "counts": {
+          "CircuitOperation": 23,
+          "ControlledGate": 12,
+          "IdentityGate": 1,
+          "QasmUGate": 105,
+          "Rx": 14,
+          "XXPowGate": 10,
+          "ZZPowGate": 42,
+          "_InverseCompositeGate": 32
+        }
+      },
+      "after": {
+        "representation": "qiskit",
+        "operations": 1479,
+        "depth": 268,
+        "qubits": 12,
+        "counts": {
+          "cx": 262,
+          "h": 12,
+          "id": 1,
+          "rx": 92,
+          "ry": 204,
+          "rz": 216,
+          "s": 74,
+          "sx": 98,
+          "sxdg": 98,
+          "u3": 422
+        }
+      }
+    },
+    {
+      "stage": "upstream scale-2 folding before lowering",
+      "direction": "from_qiskit",
+      "wall_seconds": 0.2037658654153347,
+      "cpu_seconds": 0.014454190000000366,
+      "before": {
+        "representation": "qiskit",
+        "operations": 17,
+        "depth": 5,
+        "qubits": 12,
+        "counts": {
+          "id": 10,
+          "rzx": 2,
+          "u2": 2,
+          "u3": 3
+        }
+      },
+      "after": {
+        "representation": "cirq",
+        "operations": 17,
+        "moments": 5,
+        "qubits": 12,
+        "counts": {
+          "CircuitOperation": 2,
+          "IdentityGate": 10,
+          "QasmUGate": 5
+        }
+      }
+    },
+    {
+      "stage": "upstream scale-2 folding before lowering",
+      "direction": "to_qiskit",
+      "wall_seconds": 0.19769599474966526,
+      "cpu_seconds": 0.009720972999999411,
+      "before": {
+        "representation": "cirq",
+        "operations": 33,
+        "moments": 11,
+        "qubits": 12,
+        "counts": {
+          "CircuitOperation": 4,
+          "IdentityGate": 20,
+          "QasmUGate": 7,
+          "_InverseCompositeGate": 2
+        }
+      },
+      "after": {
+        "representation": "qiskit",
+        "operations": 83,
+        "depth": 50,
+        "qubits": 12,
+        "counts": {
+          "cx": 12,
+          "h": 6,
+          "id": 20,
+          "rx": 4,
+          "ry": 12,
+          "rz": 8,
+          "s": 2,
+          "sx": 2,
+          "sxdg": 2,
+          "u3": 15
+        }
+      }
+    }
+  ],
+  "jobs_submitted": 0,
+  "shots_executed": 0,
+  "checkpoint_baseline": {
+    "operations": 138,
+    "depth": 18,
+    "eligible_gate_counts": [
+      [
+        "cp",
+        6
+      ],
+      [
+        "crx",
+        8
+      ],
+      [
+        "rx",
+        8
+      ],
+      [
+        "rxx",
+        2
+      ],
+      [
+        "rzz",
+        22
+      ],
+      [
+        "u2",
+        57
+      ],
+      [
+        "u3",
+        22
+      ],
+      [
+        "unitary",
+        1
+      ]
+    ]
+  },
+  "baseline_matches_checkpoint": false,
+  "warnings": [
+    "Recompiled baseline differs from the checkpoint (saved: 138 operations, depth 18; current: 137 operations, depth 18). Continuing to profile conversion, folding, and lowering using the current baseline; this is not an exact reproduction of the saved decomposition."
+  ],
+  "folded_matches_checkpoint": false,
+  "unsupported_operation_names_before_lowering": [],
+  "operation_deltas": {
+    "conversion_only": 423,
+    "conversion_only_lowering": 0,
+    "folded_vs_conversion_only": 993,
+    "final_lowering": 0
+  }
+}

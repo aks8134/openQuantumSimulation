@@ -1,9 +1,9 @@
-"""Experiment 8: three-basis physical local-folding ZNE for Experiment 7.
+"""Experiment 8: native-qem local-folding ZNE for Experiment 7.
 
 The Experiment 7 circuit is explicitly lowered to RZ/RX/RZZ and transpiled
-once.  Each transpiled circuit is then expanded into fixed-layout local-folded
-ISA variants and submitted without a second optimizing transpilation.  Virtual
-RZ operations, resets, measurements, delays, and barriers are never folded.
+once. Each transpiled circuit is then folded by :mod:`qem` without conversion
+or further lowering. Native gates and physical layout are retained. Virtual RZ operations, resets,
+measurements, delays, and barriers are never folded.
 Passing ``--no-zne`` instead submits only the unfurled scale-one circuits.
 """
 
@@ -14,7 +14,6 @@ from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 import gc
 import json
-from math import floor, pi
 from pathlib import Path
 from types import SimpleNamespace
 import sys
@@ -42,16 +41,16 @@ from IBMRuntime import (
 )
 from Model1.Experiment5 import randomized_lie_trotter as experiment5
 from Model1.Experiment7 import randomized_lie_trotter as experiment7
-from mitiq_qem import combine_zne, inference, zne_plan
+import qem
 
 
 EXPERIMENT_NAME = "Model1/Experiment8 ZNE randomized Lie-Trotter"
 METHOD_NAME = (
     "Experiment 7 randomized single-boundary dilation with post-transpilation "
-    "physical local-folding zero-noise extrapolation and three-basis "
+    "native-qem local-folding zero-noise extrapolation and three-basis "
     "excitation-symmetry reconstruction"
 )
-FOLDING_VERSION = 1
+FOLDING_VERSION = 3
 MEASUREMENT_SCHEME_VERSION = 1
 MEASUREMENT_BASES = ("Z", "X", "XY")
 DEFAULT_SCALE_FACTORS = (1.0, 1.5, 2.0)
@@ -140,24 +139,24 @@ def _validated_scale_factors(values):
 
 
 def _zne_inference(options):
-    return inference(
-        options.zne_inference,
-        order=(
-            options.zne_polynomial_order
-            if options.zne_inference == "polynomial"
-            else None
-        ),
-    )
+    return options.zne_inference
 
 
 def _zne_plan(options):
     if not _zne_enabled(options):
         raise ValueError("a ZNE inference plan is unavailable in --no-zne mode")
-    return zne_plan(
+    return qem.ZNEPlan(
         tuple(options.zne_scale_factors),
-        repetitions=1,
         inference=_zne_inference(options),
+        degree=options.zne_polynomial_order,
     )
+
+
+def _qem_value(result):
+    """Unwrap qem results without confusing them with IBMRuntime results."""
+    if isinstance(result, qem.Err):
+        raise RuntimeError(f"{result.error.technique}: {result.error.message}")
+    return result.value
 
 
 def _variant_count_per_base(options):
@@ -230,148 +229,58 @@ def _target_properties(target, name, qargs):
         return None
 
 
-def _is_zero_duration(target, operation, qargs):
-    properties = _target_properties(target, operation.name, qargs)
-    duration = None if properties is None else properties.duration
-    return duration is not None and np.isclose(float(duration), 0.0)
-
-
-def _target_supports(target, operation_name, qargs):
-    supported_names = frozenset(getattr(target, "operation_names", ()))
-    if supported_names and operation_name not in supported_names:
-        return False
-    instruction_supported = getattr(target, "instruction_supported", None)
-    if instruction_supported is None:
-        return True
-    try:
-        return bool(
-            instruction_supported(
-                operation_name=operation_name,
-                qargs=qargs,
-            )
-        )
-    except (KeyError, TypeError, ValueError):
-        return False
-
-
-def _inverse_sequence_if_foldable(circuit, item, target):
+def _physical_gate_names(circuit):
     from qiskit.circuit import Gate
-    from qiskit.circuit.library import RZGate
 
-    operation = item.operation
-    name = operation.name.lower()
-    qargs = tuple(circuit.find_bit(bit).index for bit in item.qubits)
-    if (
-        not isinstance(operation, Gate)
-        or name in NONFOLDABLE_NAMES
-        or name in VIRTUAL_GATE_NAMES
-        or _is_zero_duration(target, operation, qargs)
-    ):
-        return None
-    try:
-        inverse = operation.inverse()
-    except Exception:
-        return None
-    if _target_supports(target, inverse.name, qargs):
-        return (inverse,)
-    if (
-        name == "sx"
-        and _target_supports(target, "sx", qargs)
-        and _target_supports(target, "rz", qargs)
-    ):
-        # IBM targets generally expose SX but not SXdg. Conjugating SX by
-        # virtual pi Z rotations implements SXdg up to a global phase, so the
-        # inverse retains one physical pulse and remains backend-native.
-        return (RZGate(pi), operation, RZGate(pi))
-    return None
-
-
-def _fold_counts(scale_factor, gate_count, seed):
-    if gate_count == 0:
-        if np.isclose(scale_factor, 1.0):
-            return np.zeros(0, dtype=int)
-        raise ValueError("cannot noise-scale a circuit with no physical gates")
-    complete_folds = int(floor((scale_factor - 1.0) / 2.0 + 1e-12))
-    base_scale = 2 * complete_folds + 1
-    residual_fraction = max(
-        0.0,
-        min(1.0, (scale_factor - base_scale) / 2.0),
-    )
-    residual_count = int(round(residual_fraction * gate_count))
-    counts = np.full(gate_count, complete_folds, dtype=int)
-    if residual_count:
-        selected = np.random.default_rng(seed).choice(
-            gate_count,
-            size=residual_count,
-            replace=False,
-        )
-        counts[selected] += 1
-    return counts
-
-
-def fold_native_circuit(circuit, target, spec, base_index=0):
-    """Locally fold nonvirtual physical gates in a transpiled ISA circuit."""
-
-    foldable = tuple(
-        (index, _inverse_sequence_if_foldable(circuit, item, target))
-        for index, item in enumerate(circuit.data)
-    )
-    eligible = tuple(
-        (index, inverse_sequence)
-        for index, inverse_sequence in foldable
-        if inverse_sequence is not None
-    )
-    per_gate_folds = _fold_counts(
-        spec.scale_factor,
-        len(eligible),
-        spec.seed,
-    )
-    folds_by_instruction = {
-        instruction_index: int(per_gate_folds[position])
-        for position, (instruction_index, _) in enumerate(eligible)
-    }
-    inverse_sequence_by_instruction = dict(eligible)
-
-    folded = circuit.copy_empty_like()
-    folded.global_phase = circuit.global_phase
-    for instruction_index, item in enumerate(circuit.data):
-        qargs = tuple(
-            folded.qubits[circuit.find_bit(bit).index] for bit in item.qubits
-        )
-        cargs = tuple(
-            folded.clbits[circuit.find_bit(bit).index] for bit in item.clbits
-        )
-        folded.append(item.operation, qargs, cargs)
-        for _ in range(folds_by_instruction.get(instruction_index, 0)):
-            for inverse_operation in inverse_sequence_by_instruction[
-                instruction_index
-            ]:
-                folded.append(inverse_operation, qargs, cargs)
-            folded.append(item.operation, qargs, cargs)
-
-    eligible_names = Counter(
-        circuit.data[index].operation.name for index, _ in eligible
-    )
-    excluded_names = Counter(
+    return tuple(
         item.operation.name
-        for index, item in enumerate(circuit.data)
-        if (
-            getattr(item.operation, "name", "") not in NONFOLDABLE_NAMES
-            and getattr(item.operation, "name", "") not in VIRTUAL_GATE_NAMES
-            and foldable[index][1] is None
-        )
+        for item in circuit.data
+        if isinstance(item.operation, Gate)
+        and item.operation.name.lower() not in VIRTUAL_GATE_NAMES
+        and item.operation.name.lower() not in NONFOLDABLE_NAMES
     )
-    folded_occurrences = int(np.sum(per_gate_folds))
-    inserted_physical = 2 * folded_occurrences
-    inserted = sum(
-        folds_by_instruction[instruction_index]
-        * (len(inverse_sequence) + 1)
-        for instruction_index, inverse_sequence in eligible
-    )
+
+
+def fold_native_circuit(
+    circuit,
+    target,
+    spec,
+    base_index=0,
+    *,
+    seed_transpiler=0,
+):
+    """Fold native gates in place; never convert or re-transpile the result."""
+
+    # Scale one is the exact once-transpiled baseline, including its layout.
+    folded_occurrences = 0
+    if np.isclose(spec.scale_factor, 1.0):
+        folded = circuit
+    else:
+        def native_inverse(gate):
+            inverse = gate.inverse()
+            # SX^dagger = SX^3 exactly. IBM targets commonly offer SX but
+            # not SXdg. This explicit extra pulse is counted in diagnostics;
+            # other unsupported inverses fail instead of being silently lowered.
+            if gate.name == "sx" and target is not None and "sxdg" not in target.operation_names:
+                return (gate, gate, gate)
+            return (inverse,)
+
+        value = _qem_value(qem.fold(
+            circuit,
+            qem.FoldPlan(spec.scale_factor, seed=spec.seed,
+                         excluded_names=tuple(sorted(VIRTUAL_GATE_NAMES))),
+            target=target,
+            inverse_factory=native_inverse,
+        ))
+        folded = value.circuit
+        folded_occurrences = sum(count for _, count in value.selected_instructions)
+    eligible_names = Counter(_physical_gate_names(circuit))
+    folded_physical = len(_physical_gate_names(folded))
+    base_physical = sum(eligible_names.values())
+    inserted_physical = max(0, folded_physical - base_physical)
+    inserted = max(0, int(folded.size()) - int(circuit.size()))
     actual_scale = (
-        (len(eligible) + inserted_physical) / len(eligible)
-        if eligible
-        else 1.0
+        folded_physical / base_physical if base_physical else 1.0
     )
     diagnostic = FoldDiagnostic(
         base_index=base_index,
@@ -383,14 +292,14 @@ def fold_native_circuit(circuit, target, spec, base_index=0):
         base_depth=int(circuit.depth()),
         folded_operation_count=int(folded.size()),
         folded_depth=int(folded.depth()),
-        eligible_physical_gate_count=len(eligible),
+        eligible_physical_gate_count=base_physical,
         folded_gate_occurrences=folded_occurrences,
         inserted_operation_count=inserted,
         inserted_physical_gate_count=inserted_physical,
-        inserted_virtual_gate_count=inserted - inserted_physical,
+        inserted_virtual_gate_count=max(0, inserted - inserted_physical),
         actual_physical_scale_factor=float(actual_scale),
         eligible_gate_counts=tuple(sorted(eligible_names.items())),
-        excluded_unitary_gate_counts=tuple(sorted(excluded_names.items())),
+        excluded_unitary_gate_counts=(),
         virtual_rz_count=sum(
             item.operation.name.lower() in VIRTUAL_GATE_NAMES
             for item in circuit.data
@@ -470,6 +379,7 @@ def execute_zne_circuits(
                     backend_target,
                     spec,
                     base_index,
+                    seed_transpiler=options.seed_transpiler,
                 )
                 for spec in fold_specs(
                     options,
@@ -668,25 +578,18 @@ def _scale_summary(values, shot_variances, trajectories, repetitions):
 
 
 def _zne_weights(plan):
-    factors = np.asarray(plan.scale_factors, dtype=float)
-    degree = (
-        1
-        if plan.inference.method == "linear"
-        else len(factors) - 1
-        if plan.inference.method == "richardson"
-        else int(plan.inference.order)
-    )
-    design = np.vander(factors, degree + 1, increasing=True)
-    return np.linalg.pinv(design)[0]
+    return np.asarray(_qem_value(qem.extrapolate(
+        plan, (0.0,) * len(plan.scale_factors),
+    )).weights, dtype=float)
 
 
 def _extrapolate_family(plan, scale_values):
     output = np.empty(scale_values.shape[:-1], dtype=float)
     for index in np.ndindex(output.shape):
-        output[index] = combine_zne(
+        output[index] = _qem_value(qem.extrapolate(
             plan,
             tuple(map(float, scale_values[index])),
-        ).estimate
+        )).estimate
     return output
 
 
@@ -772,7 +675,7 @@ def output_paths(options):
     if _zne_enabled(options):
         factors = "_".join(map(_safe_scale_name, options.zne_scale_factors))
         stem = (
-            f"zne_explicit_randomized_lie_trotter_"
+            f"qem_zne_explicit_randomized_lie_trotter_"
             f"{experiment5._safe_name(options.backend)}_"
             f"N{options.n_qubits}_R{options.trajectories}_"
             f"F{options.fold_repetitions}_B3_"
@@ -780,7 +683,7 @@ def output_paths(options):
         )
     else:
         stem = (
-            f"no_zne_explicit_randomized_lie_trotter_"
+            f"qem_no_zne_explicit_randomized_lie_trotter_"
             f"{experiment5._safe_name(options.backend)}_"
             f"N{options.n_qubits}_R{options.trajectories}_B3"
         )
@@ -815,7 +718,7 @@ def _folding_payload(options):
         "version": FOLDING_VERSION,
         "enabled": enabled,
         "method": (
-            "post-transpilation local unitary folding"
+            "qem native Qiskit random local unitary folding"
             if enabled
             else "disabled; unfurled scale-one circuits"
         ),
@@ -825,12 +728,14 @@ def _folding_payload(options):
         "virtual_gate_names_not_folded": sorted(VIRTUAL_GATE_NAMES),
         "nonunitary_operations_not_folded": sorted(NONFOLDABLE_NAMES),
         "physical_gate_selection": (
-            "unitary transpiled ISA instructions with nonzero or unknown "
-            "duration and a target-supported inverse"
+            "seeded equal-weight physical-gate selection; virtual gates excluded"
         ),
         "reset_boundary_policy": "folding never crosses reset operations",
         "retranspiled_after_folding": False,
-        "layout_preserved": True,
+        "post_folding_transpilation_optimization_level": None,
+        "layout_preserved": "native circuit wires and layout retained by qem",
+        "native_inverse_policy": "Gate.inverse; SX^3 if target lacks SXdg; otherwise reject unsupported inverses",
+        "scale_policy": "requested scales used for fitting; recorded gate-count scales are quantized noise proxies, not calibrated noise",
     }
 
 
@@ -1604,12 +1509,13 @@ def save_results(
         ),
         "raw_counts": raw_counts,
         "transpiled_layout": {
+            "enabled": not getattr(options, "no_layout", False),
             "backend": options.backend,
             "basis": "Z",
             "trajectory_index": 0,
             "saved_time": float(times[-1]),
             "view": "physical",
-            "figure": paths["layout_figure"].name,
+            "figure": None if getattr(options, "no_layout", False) else paths["layout_figure"].name,
         },
         "figure_generation_status": "pending",
     }
@@ -1723,7 +1629,7 @@ def plot_results(
     diagnostic.grid(alpha=0.25)
     diagnostic.legend(fontsize="small")
     title = (
-        f"Experiment 8 physical local-folding ZNE on {backend} "
+        f"Experiment 8 native-qem local-folding ZNE on {backend} "
         f"(R={trajectories}, F={fold_repetitions})"
         if zne_enabled
         else f"Experiment 8 unfurled baseline on {backend} (R={trajectories})"
@@ -1917,13 +1823,32 @@ def _print_summary(options, schedule, payload, results, paths, checkpoint_path):
     artifact_names = ["results_figure"]
     if _zne_enabled(options):
         artifact_names.append("scaling_figure")
-    artifact_names.extend(("metrics_figure", "layout_figure", "result"))
+    artifact_names.append("metrics_figure")
+    if not getattr(options, "no_layout", False):
+        artifact_names.append("layout_figure")
+    artifact_names.append("result")
     for name in artifact_names:
         print(f"Saved {name.replace('_', ' ')}: {paths[name]}")
     print(f"Saved checkpoint: {checkpoint_path}")
 
 
+def _plot_layout_if_enabled(circuit, options, output_path, *, one_step_circuits=None,
+                            include_circuit_panels=True):
+    """Skip the complete layout/transpilation/rendering path when requested."""
+    if getattr(options, "no_layout", False):
+        print("Skipped transpiled layout figure (--no-layout)")
+        return False
+    experiment5.plot_transpiled_circuit_layout(
+        circuit, options, output_path, one_step_circuits=one_step_circuits,
+        include_circuit_panels=include_circuit_panels,
+    )
+    return True
+
+
 def main(options):
+    no_layout = getattr(options, "no_layout", False)
+    if no_layout and options.layout_only:
+        raise ValueError("--no-layout cannot be combined with --layout-only")
     if options.metadata_only:
         raise ValueError("Experiment 8 does not yet support --metadata-only")
     if options.metadata_file is not None:
@@ -2054,13 +1979,13 @@ def main(options):
                 )
                 for boundary in (experiment5.LEFT_BOUNDARY, experiment5.RIGHT_BOUNDARY)
             )
-            if representative_dt is not None and circuit_plots_enabled
+            if representative_dt is not None and circuit_plots_enabled and not no_layout
             else None
         )
-        full_circuit = _representative_full_circuit(
-            base_circuits,
-            base_metadata,
-            len(times) - 1,
+        full_circuit = (
+            None if no_layout else _representative_full_circuit(
+                base_circuits, base_metadata, len(times) - 1,
+            )
         )
         if options.layout_only:
             experiment5.plot_transpiled_circuit_layout(
@@ -2200,7 +2125,7 @@ def main(options):
             paths["metrics_figure"],
             zne_enabled=_zne_enabled(options),
         )
-        experiment5.plot_transpiled_circuit_layout(
+        _plot_layout_if_enabled(
             full_circuit,
             options,
             paths["layout_figure"],
@@ -2283,6 +2208,10 @@ def main(options):
 def parse_arguments(arguments=None):
     def configure_parser(parser):
         parser.add_argument(
+            "--no-layout", action="store_true",
+            help="skip the transpiled topology/mapping figure and its circuit panels; keep other figures",
+        )
+        parser.add_argument(
             "--optimized-classical-reference",
             action="store_true",
             help=(
@@ -2344,7 +2273,7 @@ def parse_arguments(arguments=None):
         default_t_final=experiment7.DEFAULT_T_FINAL,
         default_time_points=experiment7.DEFAULT_TIME_POINTS,
         description=(
-            "Run Experiment 8: post-transpilation physical local-folding ZNE "
+            "Run Experiment 8: native-qem post-transpilation local-folding ZNE "
             "on the Experiment 7 randomized Lie-Trotter circuits. Non-aer "
             "backends submit real QPU work."
         ),

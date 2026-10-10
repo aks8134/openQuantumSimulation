@@ -1,14 +1,13 @@
 import ast
 import unittest
 from dataclasses import FrozenInstanceError
-from importlib.util import find_spec
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 from qiskit import QuantumCircuit
 
 from mitiq_qem import (
-    MitiqUnavailable,
     combine_ddd,
     combine_pauli_twirling,
     combine_zne,
@@ -17,17 +16,24 @@ from mitiq_qem import (
     construct_zne,
     ddd_plan,
     diagonal_expectation,
+    extrapolation_weights,
+    independent_readout_plan,
     inference,
     mitigate_counts,
     pauli_twirling_plan,
+    scale_circuit,
     scaling,
     uncorrelated_readout_plan,
+    worker_info,
     zne_plan,
 )
 from mitiq_qem.qiskit import scale_unitary_regions, validate_mitiq_circuit
 
 
 class CoreAndZNETests(unittest.TestCase):
+    def test_upstream_mitiq_is_required_in_the_worker(self):
+        self.assertTrue(worker_info()["mitiq"])
+
     def test_zne_construction_is_reproducible_and_immutable(self):
         plan = zne_plan(
             (1.0, 2.0, 3.0),
@@ -81,6 +87,34 @@ class CoreAndZNETests(unittest.TestCase):
         self.assertAlmostEqual(result.estimate, 1.0)
         self.assertTrue(all(error > 0.0 for error in result.scale_standard_errors))
 
+    def test_zne_inference_delegates_to_upstream_mitiq(self):
+        plan = zne_plan((1.0, 3.0), inference=inference("linear"))
+        upstream_output = (1.0, (1.0, -0.1))
+
+        with patch(
+            "mitiq_qem.mitiq.request",
+            return_value=upstream_output,
+        ) as extrapolate:
+            result = combine_zne(plan, (0.9, 0.7))
+
+        extrapolate.assert_called_once_with(
+            "extrapolate_zero_noise",
+            {
+                "scale_factors": plan.scale_factors,
+                "values": (0.9, 0.7),
+                "specification": plan.inference,
+            },
+        )
+        self.assertEqual(result.estimate, 1.0)
+        self.assertEqual(result.coefficients, (1.0, -0.1))
+
+    def test_extrapolation_weights_are_derived_from_mitiq(self):
+        plan = zne_plan((1.0, 3.0), inference=inference("linear"))
+
+        self.assertTrue(
+            np.allclose(extrapolation_weights(plan), (1.5, -0.5))
+        )
+
 
 class EnsembleConstructionTests(unittest.TestCase):
     def test_twirling_and_ddd_compose_as_immutable_batches(self):
@@ -111,6 +145,32 @@ class EnsembleConstructionTests(unittest.TestCase):
         self.assertAlmostEqual(combine_pauli_twirling((0.8, 1.0)).estimate, 0.9)
         self.assertAlmostEqual(combine_ddd((0.7, 0.9)).estimate, 0.8)
 
+    def test_default_twirling_uses_upstream_mitiq_and_is_seeded(self):
+        circuit = QuantumCircuit(2)
+        circuit.cx(0, 1)
+        plan = pauli_twirling_plan(variants=2, seed=5)
+
+        first = construct_pauli_twirling(circuit, plan)
+        second = construct_pauli_twirling(circuit, plan)
+
+        self.assertEqual(first.circuits, second.circuits)
+        self.assertTrue(
+            all(value.count_ops().get("cx", 0) == 1 for value in first.circuits)
+        )
+
+    def test_ddd_combination_delegates_to_upstream_mitiq(self):
+        with patch(
+            "mitiq_qem.mitiq.request",
+            return_value=0.73,
+        ) as combine_results:
+            result = combine_ddd((0.7, 0.9))
+
+        combine_results.assert_called_once_with(
+            "combine_ddd_results", {"values": (0.7, 0.9)}
+        )
+        self.assertEqual(result.estimate, 0.73)
+        self.assertGreater(result.standard_error, 0.0)
+
 
 class ReadoutTests(unittest.TestCase):
     def test_uncorrelated_confusion_inversion_recovers_distribution(self):
@@ -137,6 +197,16 @@ class ReadoutTests(unittest.TestCase):
                 {"bad": 1},
             )
 
+    def test_distinct_local_readout_errors_are_mitigated_by_mitiq(self):
+        plan = independent_readout_plan(((0.1, 0.1), (0.2, 0.2)))
+        result = mitigate_counts(
+            plan,
+            {"00": 7200, "01": 1800, "10": 800, "11": 200},
+            seed=7,
+        )
+
+        self.assertEqual(result.mitigated_probabilities, (1.0, 0.0, 0.0, 0.0))
+
 
 class QiskitBoundaryTests(unittest.TestCase):
     @staticmethod
@@ -161,6 +231,39 @@ class QiskitBoundaryTests(unittest.TestCase):
             ("h", "h", "h", "reset", "x", "x", "x", "measure"),
         )
 
+    def test_default_reset_aware_folding_uses_mitiq_on_each_region(self):
+        circuit = QuantumCircuit(1, 1)
+        circuit.h(0)
+        circuit.reset(0)
+        circuit.x(0)
+        circuit.measure(0, 0)
+
+        scaled = construct_zne(
+            circuit,
+            zne_plan((1.0, 3.0), scaling=scaling("fold_all")),
+        ).circuits[1]
+
+        self.assertEqual(
+            tuple(item.operation.name for item in scaled.data),
+            ("h", "h", "h", "reset", "x", "x", "x", "measure"),
+        )
+
+    def test_declared_ideal_rz_is_preserved_outside_mitiq_folding(self):
+        circuit = QuantumCircuit(2)
+        circuit.rz(0.2, 0)
+        circuit.sx(0)
+        circuit.cz(0, 1)
+
+        scaled = scale_circuit(
+            circuit,
+            3.0,
+            scaling=scaling("random_local", fidelities=(("rz", 1.0),)),
+            seed=17,
+        )
+
+        self.assertEqual(scaled.count_ops().get("rz", 0), 1)
+        self.assertEqual(scaled.count_ops().get("cz", 0), 3)
+
     def test_mid_circuit_measurement_is_rejected(self):
         circuit = QuantumCircuit(1, 1)
         circuit.measure(0, 0)
@@ -168,15 +271,6 @@ class QiskitBoundaryTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "mid-circuit"):
             validate_mitiq_circuit(circuit)
-
-    @unittest.skipIf(find_spec("mitiq") is not None, "Mitiq is installed")
-    def test_missing_optional_dependency_has_actionable_error(self):
-        circuit = QuantumCircuit(1)
-        circuit.x(0)
-
-        with self.assertRaisesRegex(MitiqUnavailable, r"mitiq\[qiskit\]"):
-            construct_zne(circuit, zne_plan((1.0, 3.0)))
-
 
 class FunctionalStyleTests(unittest.TestCase):
     def test_package_avoids_imperative_traversal_syntax(self):

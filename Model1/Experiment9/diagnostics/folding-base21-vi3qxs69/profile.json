@@ -1,0 +1,68 @@
+{
+  "checkpoint": "/storage/home/aks8134/OpenQuantumSystem/Model1/Experiment9/results/mitiq_zne_randomized_lie_trotter_aer_N10_R4_F1_B3_pauli_off_dd_off_readout_off_linear_S1p0_1p5_2p0_checkpoint.json",
+  "base_index": 21,
+  "scale": 2.0,
+  "fold_seed": 8675374,
+  "time": 0.2,
+  "trajectory_index": 3,
+  "basis": "Z",
+  "python": "/storage/home/aks8134/OpenQuantumSystem/.venv-mitiq/bin/python",
+  "versions": {
+    "qiskit": "2.5.2",
+    "qiskit-aer": "0.17.2",
+    "mitiq": "1.1.0",
+    "cirq-core": "1.6.1"
+  },
+  "stages": [
+    {
+      "name": "imports (not folding time)",
+      "wall_seconds": 324.90147319156677,
+      "cpu_seconds": 4.041422203
+    },
+    {
+      "name": "explicit Experiment 7 circuit",
+      "wall_seconds": 0.3970835832878947,
+      "cpu_seconds": 0.008782501999999859,
+      "representation": "qiskit",
+      "operations": 293,
+      "depth": 34,
+      "qubits": 12,
+      "counts": {
+        "measure": 10,
+        "reset": 2,
+        "rx": 120,
+        "rz": 120,
+        "rzz": 40,
+        "x": 1
+      }
+    },
+    {
+      "name": "baseline optimizing compilation",
+      "wall_seconds": 44.01108171232045,
+      "cpu_seconds": 0.905936423,
+      "representation": "qiskit",
+      "operations": 137,
+      "depth": 18,
+      "qubits": 12,
+      "counts": {
+        "cp": 4,
+        "crx": 4,
+        "cry": 4,
+        "crz": 4,
+        "measure": 10,
+        "reset": 2,
+        "rx": 8,
+        "ryy": 10,
+        "rzz": 12,
+        "u1": 1,
+        "u2": 54,
+        "u3": 23,
+        "unitary": 1
+      }
+    }
+  ],
+  "conversions": [],
+  "jobs_submitted": 0,
+  "shots_executed": 0,
+  "baseline_matches_checkpoint": false
+}

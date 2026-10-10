@@ -1,6 +1,6 @@
 import unittest
 from dataclasses import FrozenInstanceError
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from IBMRuntime import (
     Aer,
@@ -153,6 +153,7 @@ class AerIntegrationTests(unittest.TestCase):
 
     def test_native_variants_compile_each_source_once_then_expand(self):
         transform_calls = []
+        progress_events = []
 
         def duplicate(native, target):
             transform_calls.append((native.name, target.num_qubits))
@@ -165,11 +166,17 @@ class AerIntegrationTests(unittest.TestCase):
             Sample(shots=32, seed_simulator=5),
             RuntimeEnvironment(),
             duplicate,
+            progress_callback=lambda stage, count: progress_events.append((stage, count)),
         )
 
         self.assertIsInstance(result, Ok)
         self.assertEqual(len(result.value), 4)
         self.assertEqual(len(transform_calls), 2)
+        self.assertEqual(progress_events, [
+            ("resolve_start", 2), ("compile_start", 2), ("transform_start", 2),
+            ("sample_start", 4), ("sample_done", 4),
+        ])
+        self.assertEqual(len(set(item.job_id for item in result.value)), 1)
         self.assertTrue(
             all(sum(counts_dict(item).values()) == 32 for item in result.value)
         )
@@ -259,6 +266,80 @@ class AerIntegrationTests(unittest.TestCase):
 
         self.assertIsInstance(result, Err)
         self.assertEqual(result.error.stage, "resolve_backend")
+
+
+class FakeKingstonOfflineTests(unittest.TestCase):
+    """Build noise models and compile locally; never execute a sampler job."""
+
+    BACKEND_NAME = "fake_kingston"
+
+    @classmethod
+    def setUpClass(cls):
+        with patch("qiskit_ibm_runtime.QiskitRuntimeService",
+                   side_effect=AssertionError("fake backends must not authenticate")):
+            result = qiskit_interpreter._resolve_backend(
+                FakeIBMBackend(cls.BACKEND_NAME, method="statevector"), RuntimeEnvironment())
+        if not isinstance(result, Ok):
+            raise AssertionError(result)
+        cls.backend = result.value
+
+    def test_target_and_method_validate_without_an_account(self):
+        plan = execution_plan(bell_circuit(), FakeIBMBackend(self.BACKEND_NAME), workload=Sample(shots=8))
+        self.assertEqual(validate(plan), Ok(plan))
+        bad = execution_plan(bell_circuit(), FakeIBMBackend(self.BACKEND_NAME, method="unknown"),
+                             workload=Sample(shots=8))
+        self.assertIsInstance(validate(bad), Err)
+        self.assertEqual(self.backend.provider, "fake")
+        self.assertEqual(self.backend.name, self.BACKEND_NAME)
+        self.assertEqual(self.backend.local_method, "statevector")
+
+    def test_local_sampler_uses_snapshot_noise_not_ideal_aer(self):
+        with patch("qiskit_ibm_runtime.QiskitRuntimeService",
+                   side_effect=AssertionError("must not authenticate")), \
+             patch("qiskit.primitives.BackendSamplerV2.run",
+                   side_effect=AssertionError("must not run simulation")):
+            sampler = qiskit_interpreter._sample_primitive(self.backend, 123)
+        self.assertEqual(sampler.options.seed_simulator, 123)
+        self.assertEqual(sampler.backend.options.method, "statevector")
+        self.assertTrue(sampler.backend.options.enable_truncation)
+        self.assertIsNotNone(sampler.backend.options.noise_model)
+        self.assertFalse(sampler.backend.options.noise_model.is_ideal())
+        error_types = {error["type"] for error in sampler.backend.options.noise_model.to_dict()["errors"]}
+        self.assertIn("qerror", error_types)
+        self.assertIn("roerror", error_types)
+        self.assertEqual(sampler.backend.target.num_qubits, self.backend.native.target.num_qubits)
+
+    def test_single_and_batch_sampling_use_the_local_primitive_without_recompile(self):
+        compiled = qiskit_interpreter._compile_circuits(self.backend, (bell_circuit(),),
+                                                       CompilerConfig(optimization_level=3))
+        self.assertIsInstance(compiled, Ok, compiled)
+        executable = compiled.value[0]
+        unsupported = {item.operation.name for item in executable.native.data
+                       if item.operation.name not in self.backend.native.target.operation_names}
+        self.assertEqual(unsupported, set())
+        sampler = Mock()
+        sampler.run.return_value.job_id.return_value = "local-test-only"
+        with patch.object(qiskit_interpreter, "_sample_primitive", return_value=sampler) as factory:
+            single = qiskit_interpreter._submit(self.backend, executable, Sample(shots=8, seed_simulator=7))
+            batch = qiskit_interpreter._submit_sample_batch(self.backend, (executable,),
+                                                           Sample(shots=8, seed_simulator=7))
+        self.assertIsInstance(single, Ok, single)
+        self.assertIsInstance(batch, Ok, batch)
+        self.assertEqual(factory.call_count, 2)
+        factory.assert_called_with(self.backend, 7)
+        for call in sampler.run.call_args_list:
+            self.assertIs(call.args[0][0], executable.native)
+            self.assertEqual(call.kwargs["shots"], 8)
+        self.assertEqual(batch.value.backend_name, self.BACKEND_NAME)
+
+    def test_fake_fez_stays_compilation_only(self):
+        backend = qiskit_interpreter._ResolvedBackend(provider="fake", name="fake_fez", native=None)
+        with self.assertRaisesRegex(ValueError, "offline compilation only"):
+            qiskit_interpreter._sample_primitive(backend, 0)
+
+
+class FakeMiamiOfflineTests(FakeKingstonOfflineTests):
+    BACKEND_NAME = "fake_miami"
 
 
 class AsyncAerIntegrationTests(unittest.IsolatedAsyncioTestCase):

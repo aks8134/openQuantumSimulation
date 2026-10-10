@@ -96,6 +96,8 @@ def run_sample_variants_batch_sync(
     workload: Sample,
     environment: RuntimeEnvironment,
     transform,
+    *,
+    progress_callback=None,
 ):
     """Compile each source once and sample post-compile ISA variants."""
 
@@ -106,4 +108,5 @@ def run_sample_variants_batch_sync(
         workload,
         environment,
         transform,
+        progress_callback=progress_callback,
     )

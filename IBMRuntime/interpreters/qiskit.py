@@ -69,6 +69,7 @@ class _ResolvedBackend:
     provider: Provider
     name: str
     native: Any = field(repr=False, compare=False)
+    local_method: str = "automatic"
 
 
 @dataclass(frozen=True, slots=True)
@@ -170,6 +171,26 @@ def _resolve_backend(
                 )
 
             return _protected("resolve_backend", resolve_fake_fez)
+
+        case FakeIBMBackend("fake_kingston", method):
+            def resolve_fake_kingston() -> _ResolvedBackend:
+                from qiskit_ibm_runtime.fake_provider import FakeKingston
+
+                backend = FakeKingston()
+                return _ResolvedBackend(provider="fake", name=backend.name,
+                                        native=backend, local_method=method)
+
+            return _protected("resolve_backend", resolve_fake_kingston)
+
+        case FakeIBMBackend("fake_miami", method):
+            def resolve_fake_miami() -> _ResolvedBackend:
+                from qiskit_ibm_runtime.fake_provider import FakeMiami
+
+                backend = FakeMiami()
+                return _ResolvedBackend(provider="fake", name=backend.name,
+                                        native=backend, local_method=method)
+
+            return _protected("resolve_backend", resolve_fake_miami)
 
 
 def _to_qiskit_instruction(
@@ -906,29 +927,45 @@ def _to_qiskit_observable(
     return logical if layout is None else logical.apply_layout(layout)
 
 
+def _sample_primitive(backend: _ResolvedBackend, seed_simulator: int | None):
+    """Use the device Target for compilation and snapshot-noisy Aer for sampling.
+
+    FakeKingston/FakeMiami construction and compilation are offline. The simulator is built
+    only for sampling; physical indices and the native ISA circuit stay intact.
+    Aer truncates idle device wires internally, without remapping noise data.
+    FakeFez remains compilation-only. No fake path creates a Runtime service.
+    """
+    if backend.provider == "ibm":
+        from qiskit_ibm_runtime import SamplerV2
+
+        return SamplerV2(mode=backend.native)
+    if backend.provider == "fake":
+        if backend.name not in ("fake_kingston", "fake_miami"):
+            raise ValueError("fake IBM backends other than fake_kingston/fake_miami support offline compilation only")
+        from qiskit_aer import AerSimulator
+
+        native = AerSimulator.from_backend(backend.native, method=backend.local_method,
+                                          enable_truncation=True)
+    else:
+        native = backend.native
+    from qiskit.primitives import BackendSamplerV2
+
+    return BackendSamplerV2(backend=native, options={"seed_simulator": seed_simulator})
+
+
 def _submit(
     backend: _ResolvedBackend,
     executable: _Executable,
     workload: Workload,
 ) -> Result[_SubmittedJob, RuntimeFailure]:
     def submit_native() -> _SubmittedJob:
-        if backend.provider == "fake":
+        if backend.provider == "fake" and not isinstance(workload, Sample):
             raise ValueError(
-                "fake IBM backends support offline compilation only"
+                "fake IBM execution supports sampling only (fake_kingston/fake_miami); other workloads are compilation-only"
             )
         match workload:
             case Sample(shots, seed_simulator):
-                if backend.provider == "aer":
-                    from qiskit.primitives import BackendSamplerV2
-
-                    sampler = BackendSamplerV2(
-                        backend=backend.native,
-                        options={"seed_simulator": seed_simulator},
-                    )
-                else:
-                    from qiskit_ibm_runtime import SamplerV2
-
-                    sampler = SamplerV2(mode=backend.native)
+                sampler = _sample_primitive(backend, seed_simulator)
                 job = sampler.run([executable.native], shots=shots)
             case SimulateDensityMatrices():
                 job = backend.native.run(executable.native)
@@ -985,21 +1022,7 @@ def _submit_sample_batch(
     workload: Sample,
 ) -> Result[_SubmittedSampleBatch, RuntimeFailure]:
     def submit_native() -> _SubmittedSampleBatch:
-        if backend.provider == "fake":
-            raise ValueError(
-                "fake IBM backends support offline compilation only"
-            )
-        if backend.provider == "aer":
-            from qiskit.primitives import BackendSamplerV2
-
-            sampler = BackendSamplerV2(
-                backend=backend.native,
-                options={"seed_simulator": workload.seed_simulator},
-            )
-        else:
-            from qiskit_ibm_runtime import SamplerV2
-
-            sampler = SamplerV2(mode=backend.native)
+        sampler = _sample_primitive(backend, workload.seed_simulator)
 
         job = sampler.run(
             list(map(lambda executable: executable.native, executables)),
@@ -1193,6 +1216,8 @@ def run_sample_variants_batch_sync(
     workload: Sample,
     environment: RuntimeEnvironment,
     transform: NativeVariantTransform,
+    *,
+    progress_callback: Callable[[str, int], None] | None = None,
 ) -> Result[tuple[SampleResult, ...], RuntimeFailure]:
     """Compile each source once, expand native variants, and sample them.
 
@@ -1201,6 +1226,10 @@ def run_sample_variants_batch_sync(
     order. Returned circuits are submitted directly and are not transpiled a
     second time, which is required for noise-scaling transformations whose
     inserted inverse pairs must not be optimized away.
+
+    An optional observer receives (stage, circuit_count) at the boundaries of
+    resolution, compilation, expansion and sampling. It does not split jobs,
+    change seeds, or imply per-circuit completion during a provider batch.
     """
 
     if not circuits:
@@ -1229,17 +1258,25 @@ def run_sample_variants_batch_sync(
     if problems:
         return Err(ValidationFailure(problems))
 
+    def report(stage, count):
+        if progress_callback is not None:
+            progress_callback(stage, count)
+
+    report("resolve_start", len(circuits))
     match _resolve_backend(target, environment):
         case Err(error):
             return Err(error)
         case Ok(backend):
             pass
 
+    report("compile_start", len(circuits))
     match _compile_circuits(backend, circuits, compiler):
         case Err(error):
             return Err(error)
         case Ok(executables):
             pass
+
+    report("transform_start", len(circuits))
 
     def expand_native() -> tuple[_Executable, ...]:
         backend_target = backend.native.target
@@ -1270,11 +1307,15 @@ def run_sample_variants_batch_sync(
         case Ok(variants):
             pass
 
+    report("sample_start", len(variants))
     match _submit_sample_batch(backend, variants, workload):
         case Err(error):
             return Err(error)
         case Ok(job):
-            return _collect_sample_batch(job)
+            result = _collect_sample_batch(job)
+            if isinstance(result, Ok):
+                report("sample_done", len(result.value))
+            return result
 
 
 def _is_finished(job: _SubmittedJob) -> Result[bool, RuntimeFailure]:

@@ -323,6 +323,10 @@ def _runtime_target(backend_name, aer_method, account_file):
         return Aer(method=aer_method), RuntimeEnvironment()
     if backend_name.lower() == "fake_fez":
         return FakeIBMBackend("fake_fez"), RuntimeEnvironment()
+    if backend_name.lower() in ("fake_kingston", "fake_miami"):
+        return FakeIBMBackend(backend_name.lower(), method=aer_method), RuntimeEnvironment()
+    if backend_name.lower().startswith("fake_"):
+        raise ValueError(f"unsupported local fake backend: {backend_name}; use fake_fez, fake_kingston or fake_miami")
 
     match load_ibm_account(account_file):
         case Err(error):

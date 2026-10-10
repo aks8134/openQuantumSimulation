@@ -29,6 +29,7 @@ class IBMHardware:
 @dataclass(frozen=True, slots=True)
 class FakeIBMBackend:
     backend_name: str
+    method: AerMethod = "automatic"
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,9 +47,9 @@ def validation_errors(target: Target) -> tuple[str, ...]:
         case FakeIBMBackend(backend_name):
             return (
                 ()
-                if backend_name == "fake_fez"
+                if backend_name in ("fake_fez", "fake_kingston", "fake_miami")
                 else (f"unsupported fake IBM backend: {backend_name}",)
-            )
+            ) + (() if target.method in AER_METHODS else (f"unsupported Aer method: {target.method}",))
         case Aer(method):
             return () if method in AER_METHODS else (f"unsupported Aer method: {method}",)
         case _:

@@ -22,7 +22,7 @@ DEFAULT_NUMBER_OF_QUBITS = 7
 
 J = 1.0
 h = 0.0
-gamma = 0.2
+gamma = 1
 
 T_FINAL = 10.0
 NUM_TIMES = 51

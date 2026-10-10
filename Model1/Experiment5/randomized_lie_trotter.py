@@ -2536,7 +2536,8 @@ def parse_arguments(
         default=DEFAULT_BACKEND,
         help=(
             "use 'aer' for local simulation, 'fake_fez' for offline "
-            "--layout-only transpilation, or an IBM backend name "
+            "--layout-only transpilation, 'fake_kingston'/'fake_miami' for local noisy "
+            "Aer sampling, or an IBM backend name "
             "(default: aer)"
         ),
     )

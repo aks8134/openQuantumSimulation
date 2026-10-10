@@ -1,0 +1,2 @@
+# UI dependency only; use the existing main experiment environment.
+tqdm>=4.67,<5

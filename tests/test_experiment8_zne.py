@@ -1,6 +1,7 @@
 import json
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -27,6 +28,35 @@ def sample_result(counts, shots=100):
 
 
 class Experiment8ConfigurationTests(unittest.TestCase):
+    def test_no_layout_only_changes_plotting_not_checkpoint_configuration(self):
+        enabled = experiment8.parse_arguments(())
+        disabled = experiment8.parse_arguments(("--no-layout",))
+        self.assertFalse(enabled.no_layout)
+        self.assertTrue(disabled.no_layout)
+        self.assertFalse(disabled.no_circuit_plots)
+        self.assertEqual(experiment8.output_paths(enabled), experiment8.output_paths(disabled))
+        self.assertEqual(experiment8._prospective_signature(enabled),
+                         experiment8._prospective_signature(disabled))
+
+    def test_no_layout_skips_layout_renderer_and_its_transpilation(self):
+        options = experiment8.parse_arguments(("--no-layout",))
+        with patch.object(experiment8.experiment5, "plot_transpiled_circuit_layout",
+                          side_effect=AssertionError("layout must not run")):
+            self.assertFalse(experiment8._plot_layout_if_enabled(None, options, None))
+
+    def test_default_still_generates_layout_with_circuit_panels(self):
+        options = experiment8.parse_arguments(())
+        with patch.object(experiment8.experiment5, "plot_transpiled_circuit_layout") as renderer:
+            self.assertTrue(experiment8._plot_layout_if_enabled("circuit", options, "output",
+                                                               one_step_circuits=("left", "right")))
+        renderer.assert_called_once_with("circuit", options, "output",
+            one_step_circuits=("left", "right"), include_circuit_panels=True)
+
+    def test_layout_only_and_no_layout_are_rejected_before_work(self):
+        options = experiment8.parse_arguments(("--no-layout", "--layout-only"))
+        with self.assertRaisesRegex(ValueError, "--no-layout cannot be combined"):
+            experiment8.main(options)
+
     def test_defaults_extend_experiment7_working_point(self):
         options = experiment8.parse_arguments(())
 
@@ -206,11 +236,11 @@ class PhysicalLocalFoldingTests(unittest.TestCase):
     def setUp(self):
         self.backend = AerSimulator()
 
-    def test_scale_three_folds_rx_and_rzz_but_not_virtual_rz(self):
+    def test_scale_three_folds_native_gates_but_not_virtual_rz(self):
         circuit = QuantumCircuit(2)
         circuit.rz(0.2, 0)
-        circuit.rx(0.3, 0)
-        circuit.rzz(0.4, 0, 1)
+        circuit.sx(0)
+        circuit.cz(0, 1)
 
         folded, diagnostic = experiment8.fold_native_circuit(
             circuit,
@@ -218,11 +248,33 @@ class PhysicalLocalFoldingTests(unittest.TestCase):
             experiment8.FoldSpec(1, 3.0, 0, 17),
         )
 
-        self.assertEqual(folded.count_ops(), {"rz": 1, "rx": 3, "rzz": 3})
-        self.assertEqual(diagnostic.eligible_gate_counts, (("rx", 1), ("rzz", 1)))
+        self.assertEqual(
+            folded.count_ops(),
+            {"rz": 1, "sx": 2, "sxdg": 1, "cz": 3},
+        )
+        self.assertEqual(diagnostic.eligible_gate_counts, (("cz", 1), ("sx", 1)))
         self.assertEqual(diagnostic.virtual_rz_count, 1)
         self.assertEqual(diagnostic.actual_physical_scale_factor, 3.0)
         self.assertTrue(Operator(folded).equiv(Operator(circuit)))
+
+    def test_scale_one_bypasses_folding_and_relowering(self):
+        circuit = QuantumCircuit(2)
+        circuit.rz(0.2, 0)
+        circuit.sx(0)
+        circuit.cz(0, 1)
+
+        with patch.object(experiment8.qem, "fold",
+                          side_effect=AssertionError("scale-one circuit reached folding")):
+            folded, diagnostic = experiment8.fold_native_circuit(
+                circuit,
+                self.backend.target,
+                experiment8.FoldSpec(0, 1.0, 0, 17),
+            )
+
+        self.assertIs(folded, circuit)
+        self.assertEqual(diagnostic.inserted_operation_count, 0)
+        self.assertEqual(diagnostic.inserted_physical_gate_count, 0)
+        self.assertEqual(diagnostic.actual_physical_scale_factor, 1.0)
 
     def test_reset_and_measurement_are_retained_once(self):
         circuit = QuantumCircuit(2, 2)
@@ -242,7 +294,7 @@ class PhysicalLocalFoldingTests(unittest.TestCase):
         self.assertEqual(diagnostic.reset_count, 1)
         self.assertEqual(diagnostic.measurement_count, 2)
 
-    def test_ibm_sx_inverse_uses_one_physical_sx_and_virtual_rz(self):
+    def test_ibm_sx_inverse_is_explicitly_synthesized_without_lowering(self):
         circuit = QuantumCircuit(1)
         circuit.sx(0)
 
@@ -252,12 +304,16 @@ class PhysicalLocalFoldingTests(unittest.TestCase):
             experiment8.FoldSpec(1, 3.0, 0, 41),
         )
 
-        self.assertEqual(folded.count_ops(), {"sx": 3, "rz": 2})
+        self.assertEqual(folded.count_ops(), {"sx": 5})
+        self.assertNotIn("sxdg", folded.count_ops())
+        self.assertTrue(
+            set(folded.count_ops()).issubset(FakeFez().target.operation_names)
+        )
         self.assertEqual(diagnostic.inserted_operation_count, 4)
-        self.assertEqual(diagnostic.inserted_physical_gate_count, 2)
-        self.assertEqual(diagnostic.inserted_virtual_gate_count, 2)
-        self.assertEqual(diagnostic.actual_physical_scale_factor, 3.0)
-        self.assertTrue(Operator(folded).equiv(Operator(circuit)))
+        self.assertEqual(diagnostic.inserted_physical_gate_count, 4)
+        self.assertEqual(diagnostic.inserted_virtual_gate_count, 0)
+        self.assertEqual(diagnostic.actual_physical_scale_factor, 5.0)
+        self.assertEqual(diagnostic.folded_gate_occurrences, 1)
 
 
 class ZNEObservableTests(unittest.TestCase):
