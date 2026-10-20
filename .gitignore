@@ -228,3 +228,15 @@ uv.lock
 
 pyproject.toml
 
+# Generated experiment data stays local; commit code, reports, and figures.
+# Already tracked historical files remain tracked. See ARTIFACTS.md.
+*.npz
+*.qpy
+*.bundle
+.local-artifacts/
+/Model*/Experiment*/results/**/*.json
+/Model*/Experiment*/runs/**/*.json
+/Model*/Experiment*/study/**/*.json
+/Model*/Experiment*/analysis/**/certificates/*.json
+/Model*/Experiment*/hardware_runs/
+

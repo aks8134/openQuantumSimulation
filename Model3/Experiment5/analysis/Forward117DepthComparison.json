@@ -1,0 +1,544 @@
+{
+  "backend": "fake_kingston",
+  "configuration": {
+    "algorithm": "saved_trajectory_circuits_v1",
+    "source_sha256": "9f5c6dbdd4ce54a689435a5e9814ac3cc754ead357ae14ad478d8237593ad4a9",
+    "backend": "fake_kingston",
+    "versions": {
+      "qiskit": "2.5.2",
+      "qiskit-ibm-runtime": "0.49.0"
+    },
+    "trajectories": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "prefix_steps": [
+      8,
+      64,
+      117
+    ],
+    "ancillas": "boundary",
+    "layout": "chain",
+    "initial_layout": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      0,
+      11
+    ],
+    "physical_path": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "optimization_level": 3,
+    "seed_transpiler": 11
+  },
+  "old_run": "Model3/Experiment5/runs/depth_ae673d9d9a95",
+  "new_run": "Model3/Experiment5/runs/depth_153aa2163bcf",
+  "before_490_steps": [
+    {
+      "trajectory": 0,
+      "basis": "z",
+      "depth": 7850,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65715,
+      "gates_excluding_rz": 38987,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66225,
+      "operation_counts": {
+        "sx": 28914,
+        "rz": 26728,
+        "cz": 9800,
+        "reset": 490,
+        "x": 273,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 0,
+      "basis": "xy",
+      "depth": 7852,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65740,
+      "gates_excluding_rz": 38997,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66250,
+      "operation_counts": {
+        "sx": 28924,
+        "rz": 26743,
+        "cz": 9800,
+        "reset": 490,
+        "x": 273,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 0,
+      "basis": "yx",
+      "depth": 7853,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65740,
+      "gates_excluding_rz": 38997,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66250,
+      "operation_counts": {
+        "sx": 28924,
+        "rz": 26743,
+        "cz": 9800,
+        "reset": 490,
+        "x": 273,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 1,
+      "basis": "z",
+      "depth": 7852,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65718,
+      "gates_excluding_rz": 38985,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66228,
+      "operation_counts": {
+        "sx": 28918,
+        "rz": 26733,
+        "cz": 9800,
+        "reset": 490,
+        "x": 267,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 1,
+      "basis": "xy",
+      "depth": 7854,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65743,
+      "gates_excluding_rz": 38995,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66253,
+      "operation_counts": {
+        "sx": 28928,
+        "rz": 26748,
+        "cz": 9800,
+        "reset": 490,
+        "x": 267,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 1,
+      "basis": "yx",
+      "depth": 7855,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65743,
+      "gates_excluding_rz": 38995,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66253,
+      "operation_counts": {
+        "sx": 28928,
+        "rz": 26748,
+        "cz": 9800,
+        "reset": 490,
+        "x": 267,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 2,
+      "basis": "z",
+      "depth": 7852,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65741,
+      "gates_excluding_rz": 38994,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66251,
+      "operation_counts": {
+        "sx": 28938,
+        "rz": 26747,
+        "cz": 9800,
+        "reset": 490,
+        "x": 256,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 2,
+      "basis": "xy",
+      "depth": 7854,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65766,
+      "gates_excluding_rz": 39004,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66276,
+      "operation_counts": {
+        "sx": 28948,
+        "rz": 26762,
+        "cz": 9800,
+        "reset": 490,
+        "x": 256,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 2,
+      "basis": "yx",
+      "depth": 7855,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65766,
+      "gates_excluding_rz": 39004,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66276,
+      "operation_counts": {
+        "sx": 28948,
+        "rz": 26762,
+        "cz": 9800,
+        "reset": 490,
+        "x": 256,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 3,
+      "basis": "z",
+      "depth": 7851,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65712,
+      "gates_excluding_rz": 38993,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66222,
+      "operation_counts": {
+        "sx": 28907,
+        "rz": 26719,
+        "cz": 9800,
+        "reset": 490,
+        "x": 286,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 3,
+      "basis": "xy",
+      "depth": 7853,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65737,
+      "gates_excluding_rz": 39003,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66247,
+      "operation_counts": {
+        "sx": 28917,
+        "rz": 26734,
+        "cz": 9800,
+        "reset": 490,
+        "x": 286,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 3,
+      "basis": "yx",
+      "depth": 7854,
+      "two_qubit_depth": 1960,
+      "gates_including_rz": 65737,
+      "gates_excluding_rz": 39003,
+      "cz": 9800,
+      "reset": 490,
+      "measure": 20,
+      "operations": 66247,
+      "operation_counts": {
+        "sx": 28917,
+        "rz": 26734,
+        "cz": 9800,
+        "reset": 490,
+        "x": 286,
+        "measure": 20
+      }
+    }
+  ],
+  "after_117_steps": [
+    {
+      "trajectory": 0,
+      "basis": "z",
+      "depth": 1882,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14715,
+      "gates_excluding_rz": 9159,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14852,
+      "operation_counts": {
+        "sx": 6408,
+        "rz": 5556,
+        "cz": 2340,
+        "x": 411,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 0,
+      "basis": "xy",
+      "depth": 1884,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14740,
+      "gates_excluding_rz": 9169,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14877,
+      "operation_counts": {
+        "sx": 6418,
+        "rz": 5571,
+        "cz": 2340,
+        "x": 411,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 0,
+      "basis": "yx",
+      "depth": 1885,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14740,
+      "gates_excluding_rz": 9169,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14877,
+      "operation_counts": {
+        "sx": 6418,
+        "rz": 5571,
+        "cz": 2340,
+        "x": 411,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 1,
+      "basis": "z",
+      "depth": 1884,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14723,
+      "gates_excluding_rz": 9184,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14860,
+      "operation_counts": {
+        "sx": 6408,
+        "rz": 5539,
+        "cz": 2340,
+        "x": 436,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 1,
+      "basis": "xy",
+      "depth": 1886,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14748,
+      "gates_excluding_rz": 9194,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14885,
+      "operation_counts": {
+        "sx": 6418,
+        "rz": 5554,
+        "cz": 2340,
+        "x": 436,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 1,
+      "basis": "yx",
+      "depth": 1887,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14748,
+      "gates_excluding_rz": 9194,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14885,
+      "operation_counts": {
+        "sx": 6418,
+        "rz": 5554,
+        "cz": 2340,
+        "x": 436,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 2,
+      "basis": "z",
+      "depth": 1884,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14736,
+      "gates_excluding_rz": 9174,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14873,
+      "operation_counts": {
+        "sx": 6410,
+        "rz": 5562,
+        "cz": 2340,
+        "x": 424,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 2,
+      "basis": "xy",
+      "depth": 1886,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14761,
+      "gates_excluding_rz": 9184,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14898,
+      "operation_counts": {
+        "sx": 6420,
+        "rz": 5577,
+        "cz": 2340,
+        "x": 424,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 2,
+      "basis": "yx",
+      "depth": 1887,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14761,
+      "gates_excluding_rz": 9184,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14898,
+      "operation_counts": {
+        "sx": 6420,
+        "rz": 5577,
+        "cz": 2340,
+        "x": 424,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 3,
+      "basis": "z",
+      "depth": 1882,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14736,
+      "gates_excluding_rz": 9184,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14873,
+      "operation_counts": {
+        "sx": 6409,
+        "rz": 5552,
+        "cz": 2340,
+        "x": 435,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 3,
+      "basis": "xy",
+      "depth": 1884,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14761,
+      "gates_excluding_rz": 9194,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14898,
+      "operation_counts": {
+        "sx": 6419,
+        "rz": 5567,
+        "cz": 2340,
+        "x": 435,
+        "reset": 117,
+        "measure": 20
+      }
+    },
+    {
+      "trajectory": 3,
+      "basis": "yx",
+      "depth": 1885,
+      "two_qubit_depth": 468,
+      "gates_including_rz": 14761,
+      "gates_excluding_rz": 9194,
+      "cz": 2340,
+      "reset": 117,
+      "measure": 20,
+      "operations": 14898,
+      "operation_counts": {
+        "sx": 6419,
+        "rz": 5567,
+        "cz": 2340,
+        "x": 435,
+        "reset": 117,
+        "measure": 20
+      }
+    }
+  ],
+  "mean_native_depth_reduction_percent": 76.00042447073805,
+  "cz_gate_reduction_percent": 76.12244897959184,
+  "scope": "Four saved seed-29 trajectories; body plus Z/XY/YX readouts. Forward mean validation is classical work, excluded from executable circuits."
+}

@@ -1,0 +1,134 @@
+[
+  {
+    "n": 7,
+    "method": "lie",
+    "dt": 0.003,
+    "t_final": 20,
+    "maximum_population_error": 0.0009902477323903147,
+    "worst_initial_state": "0000000",
+    "worst_time": 1.2630000000000001,
+    "worst_site": 1,
+    "stationary_population_error": 0.0007455473954536274,
+    "stationary_populations": [
+      0.7007455473954536,
+      0.5000005576264152,
+      0.5000001800198143,
+      0.5000001802586693,
+      0.5000001805752157,
+      0.4999998049615881,
+      0.29966354398855877
+    ],
+    "stationary_map_residual": 2.812589294800535e-13,
+    "elapsed_seconds": 42.81629312969744
+  },
+  {
+    "n": 7,
+    "method": "lie",
+    "dt": 0.00303,
+    "t_final": 20,
+    "maximum_population_error": 0.0010001448761156606,
+    "worst_initial_state": "0000000",
+    "worst_time": 1.2635100000000001,
+    "worst_site": 1,
+    "stationary_population_error": 0.0007529983060127199,
+    "stationary_populations": [
+      0.7007529983060127,
+      0.5000005688590015,
+      0.5000001836721226,
+      0.5000001839130391,
+      0.5000001842376617,
+      0.49999980108924297,
+      0.2996601950474874
+    ],
+    "stationary_map_residual": 2.93558830883458e-13,
+    "elapsed_seconds": 40.18340474739671
+  },
+  {
+    "n": 7,
+    "method": "lie",
+    "dt": 0.00304,
+    "t_final": 20,
+    "maximum_population_error": 0.0010034438825317071,
+    "worst_initial_state": "0000000",
+    "worst_time": 1.26464,
+    "worst_site": 1,
+    "stationary_population_error": 0.0007554819207488128,
+    "stationary_populations": [
+      0.7007554819207488,
+      0.5000005726272533,
+      0.5000001848943236,
+      0.5000001851349636,
+      0.5000001854579689,
+      0.499999799777766,
+      0.2996590787983709
+    ],
+    "stationary_map_residual": 3.0059552092171846e-13,
+    "elapsed_seconds": 19.28421587217599
+  },
+  {
+    "n": 7,
+    "method": "strang",
+    "dt": 0.0043,
+    "t_final": 20,
+    "maximum_population_error": 0.0009783613413958392,
+    "worst_initial_state": "1111111",
+    "worst_time": 3.4701,
+    "worst_site": 2,
+    "stationary_population_error": 0.0002073128617564035,
+    "stationary_populations": [
+      0.7000606401371572,
+      0.5000689961027884,
+      0.4999998363373874,
+      0.49999985639031386,
+      0.4999998758528169,
+      0.49993066236568606,
+      0.29979268713824364
+    ],
+    "stationary_map_residual": 4.294796323351288e-13,
+    "elapsed_seconds": 24.418765360489488
+  },
+  {
+    "n": 7,
+    "method": "strang",
+    "dt": 0.00439,
+    "t_final": 20,
+    "maximum_population_error": 0.000998854156771256,
+    "worst_initial_state": "1111111",
+    "worst_time": 3.4724899999999996,
+    "worst_site": 2,
+    "stationary_population_error": 0.00021161026774507707,
+    "stationary_populations": [
+      0.7000618575339662,
+      0.500070444346674,
+      0.49999982944502136,
+      0.4999998503602328,
+      0.4999998706355397,
+      0.4999291996572138,
+      0.29978838973225497
+    ],
+    "stationary_map_residual": 4.4369211599788853e-13,
+    "elapsed_seconds": 13.553471396677196
+  },
+  {
+    "n": 7,
+    "method": "strang",
+    "dt": 0.0044,
+    "t_final": 20,
+    "maximum_population_error": 0.0010011301427881314,
+    "worst_initial_state": "1111111",
+    "worst_time": 3.4716,
+    "worst_site": 2,
+    "stationary_population_error": 0.00021208765294417065,
+    "stationary_populations": [
+      0.7000619926684206,
+      0.5000706052704368,
+      0.49999982866737325,
+      0.4999998496799545,
+      0.49999987004473306,
+      0.49992903710138675,
+      0.2997879123470559
+    ],
+    "stationary_map_residual": 4.5140238966347594e-13,
+    "elapsed_seconds": 14.164418805390596
+  }
+]

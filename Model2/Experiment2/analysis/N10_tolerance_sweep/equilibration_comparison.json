@@ -1,0 +1,8 @@
+{
+  "T": 12,
+  "stationary_population": 0.25,
+  "maximum_population_distance": {
+    "N7": 0.00047949563441990195,
+    "N10": 0.03390543042055261
+  }
+}

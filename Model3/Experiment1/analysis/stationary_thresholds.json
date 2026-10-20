@@ -1,0 +1,26 @@
+[
+  {
+    "n": 3,
+    "method": "lie",
+    "stationary_dt_threshold": 0.004024725118621853,
+    "stationary_population_error": 0.0010000000000081055
+  },
+  {
+    "n": 3,
+    "method": "strang",
+    "stationary_dt_threshold": 0.0209905815287992,
+    "stationary_population_error": 0.00099999998448419
+  },
+  {
+    "n": 7,
+    "method": "lie",
+    "stationary_dt_threshold": 0.004024722693436664,
+    "stationary_population_error": 0.0010000000000962572
+  },
+  {
+    "n": 7,
+    "method": "strang",
+    "stationary_dt_threshold": 0.021550228462667333,
+    "stationary_population_error": 0.0010000000004714016
+  }
+]

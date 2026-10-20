@@ -1,0 +1,393 @@
+{
+  "scope": "Saved arrays only; no evolution or new reference computations. Original plots and results preserved.",
+  "stationary_distance": "Original saved metric over ALL sites/bonds, not only the displayed subset.",
+  "runs": [
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_1b4da2a37311.json",
+      "source_sha256": "27a87cffe413828e62a47a9065e4b88e7b43dd37240ff0ec71a174cb114fe9c5",
+      "N": 10,
+      "run_id": "1b4da2a37311",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            50.0,
+            1.0
+          ],
+          [
+            60.0,
+            0.1
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_1b4da2a37311_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_1b4da2a37311_three_observables_late.png",
+      "late_time_range": [
+        40.0,
+        60.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_1f4884fb6f5a.json",
+      "source_sha256": "4ede54a8ca7d605f84202984e2e8e947d51da67d77feeaa84f2dbb52720dbad1",
+      "N": 10,
+      "run_id": "1f4884fb6f5a",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            30.0,
+            2.0
+          ],
+          [
+            60.0,
+            0.1
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_1f4884fb6f5a_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_1f4884fb6f5a_three_observables_late.png",
+      "late_time_range": [
+        40.0,
+        60.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_24233d21d16c.json",
+      "source_sha256": "4b950873af09014185f3f33b34a1c5b342a0f7dcf8f15ee87983cf6094b9dbb0",
+      "N": 10,
+      "run_id": "24233d21d16c",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            2.0,
+            0.5
+          ],
+          [
+            10.0,
+            0.2
+          ],
+          [
+            20.0,
+            0.1
+          ],
+          [
+            40.0,
+            0.05
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_24233d21d16c_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_24233d21d16c_three_observables_late.png",
+      "late_time_range": [
+        26.666666666666668,
+        40.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_39cec2ef4427.json",
+      "source_sha256": "d8fc659d2b08a22b7d3482c58d3d891a3c91f039d4d7b14829ffa98c0f4aa2d4",
+      "N": 10,
+      "run_id": "39cec2ef4427",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            20.0,
+            1.0
+          ],
+          [
+            30.0,
+            0.5
+          ],
+          [
+            40.0,
+            0.1
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_39cec2ef4427_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_39cec2ef4427_three_observables_late.png",
+      "late_time_range": [
+        26.666666666666668,
+        40.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_56299862d9d8.json",
+      "source_sha256": "983cbe4881795eaf29c3e8a2cfc88396f561f4e76c22f2539b4e8949dc84cdd9",
+      "N": 10,
+      "run_id": "56299862d9d8",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            30.0,
+            2.0
+          ],
+          [
+            60.0,
+            1.0
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_56299862d9d8_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_56299862d9d8_three_observables_late.png",
+      "late_time_range": [
+        40.0,
+        60.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_5c1d59d5d02a.json",
+      "source_sha256": "c65128e511ea26e9095eb34d6b5689f072a3901027c906df560051b516f135eb",
+      "N": 10,
+      "run_id": "5c1d59d5d02a",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            60.0,
+            2.0
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_5c1d59d5d02a_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_5c1d59d5d02a_three_observables_late.png",
+      "late_time_range": [
+        40.0,
+        60.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_754e0cbbdb98.json",
+      "source_sha256": "0b9ad9d7fced97caeea944f99efbb48117749a58d39bd3e1454e48a7ba10653e",
+      "N": 10,
+      "run_id": "754e0cbbdb98",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            2.0,
+            0.1
+          ],
+          [
+            10.0,
+            0.05
+          ],
+          [
+            20.0,
+            0.01
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_754e0cbbdb98_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_754e0cbbdb98_three_observables_late.png",
+      "late_time_range": [
+        13.333333333333334,
+        20.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_7cbec7bdcc09.json",
+      "source_sha256": "5054355a2d90b84c1a845a53c4d84119b7a2b861afd778bd1939ab23bdbd9d90",
+      "N": 10,
+      "run_id": "7cbec7bdcc09",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            50.0,
+            3.0
+          ],
+          [
+            60.0,
+            0.1
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_7cbec7bdcc09_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_7cbec7bdcc09_three_observables_late.png",
+      "late_time_range": [
+        40.0,
+        60.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_e5257c026bae.json",
+      "source_sha256": "75f108c6f057881b4c46bdef5d8d22412b8eac365a989ff0490d338a2f3c48f0",
+      "N": 10,
+      "run_id": "e5257c026bae",
+      "sites": [
+        0,
+        4,
+        9
+      ],
+      "bonds": [
+        0,
+        4,
+        8
+      ],
+      "schedule": {
+        "segments": [
+          [
+            2.0,
+            1.0
+          ],
+          [
+            10.0,
+            0.5
+          ],
+          [
+            20.0,
+            0.2
+          ],
+          [
+            40.0,
+            0.1
+          ],
+          [
+            60.0,
+            0.05
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N10_J1_g1_R64_e5257c026bae_three_observables.png",
+      "late": "classical_randomized_N10_J1_g1_R64_e5257c026bae_three_observables_late.png",
+      "late_time_range": [
+        40.0,
+        60.0
+      ]
+    },
+    {
+      "source": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment3/results/classical_randomized_N3_J1_g1_R64_91ce13a92679.json",
+      "source_sha256": "9d54fbdf71cd64d0ba3b61af477db6db9190c189e6bf0f5e42f4460545d3e19b",
+      "N": 3,
+      "run_id": "91ce13a92679",
+      "sites": [
+        0,
+        1,
+        2
+      ],
+      "bonds": [
+        0,
+        1
+      ],
+      "schedule": {
+        "segments": [
+          [
+            2.0,
+            0.1
+          ],
+          [
+            10.0,
+            0.05
+          ],
+          [
+            20.0,
+            0.01
+          ]
+        ],
+        "step_dts": null,
+        "constant_dt": null
+      },
+      "full": "classical_randomized_N3_J1_g1_R64_91ce13a92679_three_observables.png",
+      "late": "classical_randomized_N3_J1_g1_R64_91ce13a92679_three_observables_late.png",
+      "late_time_range": [
+        13.333333333333334,
+        20.0
+      ]
+    }
+  ]
+}

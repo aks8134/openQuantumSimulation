@@ -1,0 +1,389 @@
+{
+  "parameters": {
+    "J": 10,
+    "gamma": 20,
+    "p": 0.25,
+    "delta": 0,
+    "exchange_prefactor": 0.25,
+    "tolerance": 0.001
+  },
+  "tolerance": 0.001,
+  "criterion": "Maximum absolute population distance from p across all sites and three preparations, for every later time",
+  "method": "Continuous Lindblad XX covariance matrix exponential; floating-point numerical precision",
+  "secondary_rate_set": {
+    "J": 1.0,
+    "gamma": 2.0
+  },
+  "empirical_power_fit": {
+    "exponent": 2.953381578757763,
+    "coefficient": 0.034164222341016105,
+    "fitted_N_range": [
+      6,
+      20
+    ],
+    "interpretation": "Empirical fit to exact settling times; not an asymptotic theorem"
+  },
+  "records": [
+    {
+      "n": 2,
+      "settling_time": 0.3310036607086659,
+      "lower_time": 0.3310036599636078,
+      "upper_time": 0.3310036607086659,
+      "bracket_width": 7.450580707946131e-10,
+      "population_error_at_lower": 0.0010000000072582032,
+      "population_error_at_upper": 0.0009999999923570408,
+      "errors_by_initial_state": {
+        "00": 0.00033333333078566785,
+        "11": 0.000999999992357059,
+        "10": 0.0009905645452408796
+      },
+      "worst_initial_state": "11",
+      "largest_error_site": 2,
+      "slowest_covariance_decay_rate": 20.0,
+      "population_distance_at_t12": 4.409462023683873e-105,
+      "ten_times_slower_rate_settling_time": 3.310036607086659
+    },
+    {
+      "n": 3,
+      "settling_time": 0.7634822480380534,
+      "lower_time": 0.7634822472929953,
+      "upper_time": 0.7634822480380534,
+      "bracket_width": 7.450581263057643e-10,
+      "population_error_at_lower": 0.0010000000028512908,
+      "population_error_at_upper": 0.000999999998624065,
+      "errors_by_initial_state": {
+        "000": 0.00033333333287469125,
+        "111": 0.000999999998624046,
+        "100": 0.00014421065933498123
+      },
+      "worst_initial_state": "111",
+      "largest_error_site": 2,
+      "slowest_covariance_decay_rate": 9.999999999999996,
+      "population_distance_at_t12": 1.0158273918998992e-52,
+      "ten_times_slower_rate_settling_time": 7.634822480380534
+    },
+    {
+      "n": 4,
+      "settling_time": 1.8329255722463131,
+      "lower_time": 1.8329255715012551,
+      "upper_time": 1.8329255722463131,
+      "bracket_width": 7.450580152834618e-10,
+      "population_error_at_lower": 0.0010000000001539901,
+      "population_error_at_upper": 0.000999999997358599,
+      "errors_by_initial_state": {
+        "0000": 0.000333333332452862,
+        "1111": 0.0009999999973586138,
+        "1000": 0.0003332924379464419
+      },
+      "worst_initial_state": "1111",
+      "largest_error_site": 2,
+      "slowest_covariance_decay_rate": 3.7518946615617352,
+      "population_distance_at_t12": 2.713253571716768e-20,
+      "ten_times_slower_rate_settling_time": 18.32925572246313
+    },
+    {
+      "n": 5,
+      "settling_time": 3.8763726472854607,
+      "lower_time": 3.8763726465404025,
+      "upper_time": 3.8763726472854607,
+      "bracket_width": 7.450582373280668e-10,
+      "population_error_at_lower": 0.00100000000112256,
+      "population_error_at_upper": 0.0009999999996901199,
+      "errors_by_initial_state": {
+        "00000": 0.0003333333332300459,
+        "11111": 0.0009999999996901376,
+        "10000": 0.00026924680298245907
+      },
+      "worst_initial_state": "11111",
+      "largest_error_site": 3,
+      "slowest_covariance_decay_rate": 1.7468540428030588,
+      "population_distance_at_t12": 6.871106290453873e-10,
+      "ten_times_slower_rate_settling_time": 38.76372647285461
+    },
+    {
+      "n": 6,
+      "settling_time": 6.608987016975881,
+      "lower_time": 6.608987016230823,
+      "upper_time": 6.608987016975881,
+      "bracket_width": 7.450582373280668e-10,
+      "population_error_at_lower": 0.0010000000000000612,
+      "population_error_at_upper": 0.0009999999992874352,
+      "errors_by_initial_state": {
+        "000000": 0.0003333333330958199,
+        "111111": 0.0009999999992874598,
+        "100000": 0.0003330984204044929
+      },
+      "worst_initial_state": "111111",
+      "largest_error_site": 4,
+      "slowest_covariance_decay_rate": 0.9564354385467659,
+      "population_distance_at_t12": 5.763899851428788e-06,
+      "ten_times_slower_rate_settling_time": 66.08987016975881
+    },
+    {
+      "n": 7,
+      "settling_time": 10.703271718323233,
+      "lower_time": 10.703271717578176,
+      "upper_time": 10.703271718323233,
+      "bracket_width": 7.450573491496471e-10,
+      "population_error_at_lower": 0.0010000000005654084,
+      "population_error_at_upper": 0.000999999999711385,
+      "errors_by_initial_state": {
+        "0000000": 0.00033333333323712355,
+        "1111111": 0.0009999999997113984,
+        "1000000": 0.0002951244819360821
+      },
+      "worst_initial_state": "1111111",
+      "largest_error_site": 4,
+      "slowest_covariance_decay_rate": 0.5801314732668965,
+      "population_distance_at_t12": 0.00047949563441993003,
+      "ten_times_slower_rate_settling_time": 107.03271718323234
+    },
+    {
+      "n": 8,
+      "settling_time": 15.864911973476413,
+      "lower_time": 15.864911972731356,
+      "upper_time": 15.864911973476413,
+      "bracket_width": 7.450573491496471e-10,
+      "population_error_at_lower": 0.0010000000001177296,
+      "population_error_at_upper": 0.0009999999998361192,
+      "errors_by_initial_state": {
+        "00000000": 0.0003333333332787014,
+        "11111111": 0.000999999999836132,
+        "10000000": 0.0003323147925639869
+      },
+      "worst_initial_state": "11111111",
+      "largest_error_site": 4,
+      "slowest_covariance_decay_rate": 0.37805517853999504,
+      "population_distance_at_t12": 0.0043110487568638525,
+      "ten_times_slower_rate_settling_time": 158.64911973476413
+    },
+    {
+      "n": 9,
+      "settling_time": 22.763050103932624,
+      "lower_time": 22.763050103187567,
+      "upper_time": 22.763050103932624,
+      "bracket_width": 7.450573491496471e-10,
+      "population_error_at_lower": 0.0010000000001945733,
+      "population_error_at_upper": 0.0009999999998822002,
+      "errors_by_initial_state": {
+        "000000000": 0.000333333333294078,
+        "111111111": 0.0009999999998822062,
+        "100000000": 0.00031935872410041033
+      },
+      "worst_initial_state": "111111111",
+      "largest_error_site": 5,
+      "slowest_covariance_decay_rate": 0.2598970914529559,
+      "population_distance_at_t12": 0.016342887521423453,
+      "ten_times_slower_rate_settling_time": 227.63050103932625
+    },
+    {
+      "n": 10,
+      "settling_time": 30.92104602530598,
+      "lower_time": 30.921046024560923,
+      "upper_time": 30.92104602530598,
+      "bracket_width": 7.450573491496471e-10,
+      "population_error_at_lower": 0.0010000000000010033,
+      "population_error_at_upper": 0.0009999999998622534,
+      "errors_by_initial_state": {
+        "0000000000": 0.00033333333328741666,
+        "1111111111": 0.0009999999998622777,
+        "1000000000": 0.0003317174128500966
+      },
+      "worst_initial_state": "1111111111",
+      "largest_error_site": 5,
+      "slowest_covariance_decay_rate": 0.18623954539542353,
+      "population_distance_at_t12": 0.033905430420550664,
+      "ten_times_slower_rate_settling_time": 309.2104602530598
+    },
+    {
+      "n": 11,
+      "settling_time": 41.171090941131126,
+      "lower_time": 41.171090940386065,
+      "upper_time": 41.171090941131126,
+      "bracket_width": 7.450609018633259e-10,
+      "population_error_at_lower": 0.0010000000000292082,
+      "population_error_at_upper": 0.0009999999998240063,
+      "errors_by_initial_state": {
+        "00000000000": 0.00033333333327467685,
+        "11111111111": 0.0009999999998240305,
+        "10000000000": 0.0003241519864073117
+      },
+      "worst_initial_state": "11111111111",
+      "largest_error_site": 6,
+      "slowest_covariance_decay_rate": 0.1379621033391345,
+      "population_distance_at_t12": 0.055605927755367456,
+      "ten_times_slower_rate_settling_time": 411.71090941131126
+    },
+    {
+      "n": 12,
+      "settling_time": 53.011112046241756,
+      "lower_time": 53.0111120454967,
+      "upper_time": 53.011112046241756,
+      "bracket_width": 7.450537964359683e-10,
+      "population_error_at_lower": 0.001000000000051723,
+      "population_error_at_upper": 0.0009999999999734178,
+      "errors_by_initial_state": {
+        "000000000000": 0.00033333333332447035,
+        "111111111111": 0.000999999999973411,
+        "100000000000": 0.00033018682545649103
+      },
+      "worst_initial_state": "111111111111",
+      "largest_error_site": 6,
+      "slowest_covariance_decay_rate": 0.10501461305047499,
+      "population_distance_at_t12": 0.07440019398306873,
+      "ten_times_slower_rate_settling_time": 530.1111204624176
+    },
+    {
+      "n": 13,
+      "settling_time": 67.30536743178966,
+      "lower_time": 67.3053674310446,
+      "upper_time": 67.30536743178966,
+      "bracket_width": 7.450609018633259e-10,
+      "population_error_at_lower": 0.0010000000000405965,
+      "population_error_at_upper": 0.0009999999999648003,
+      "errors_by_initial_state": {
+        "0000000000000": 0.0003333333333216115,
+        "1111111111111": 0.0009999999999648068,
+        "1000000000000": 0.0003299444669755125
+      },
+      "worst_initial_state": "1111111111111",
+      "largest_error_site": 7,
+      "slowest_covariance_decay_rate": 0.08176767495603386,
+      "population_distance_at_t12": 0.09099812715691859,
+      "ten_times_slower_rate_settling_time": 673.0536743178966
+    },
+    {
+      "n": 14,
+      "settling_time": 83.30233975425364,
+      "lower_time": 83.30233975350858,
+      "upper_time": 83.30233975425364,
+      "bracket_width": 7.450609018633259e-10,
+      "population_error_at_lower": 0.0010000000000428564,
+      "population_error_at_upper": 0.0009999999999945127,
+      "errors_by_initial_state": {
+        "00000000000000": 0.0003333333333314925,
+        "11111111111111": 0.0009999999999945053,
+        "10000000000000": 0.0003317320794669065
+      },
+      "worst_initial_state": "11111111111111",
+      "largest_error_site": 7,
+      "slowest_covariance_decay_rate": 0.06490041506123709,
+      "population_distance_at_t12": 0.10300015687425465,
+      "ten_times_slower_rate_settling_time": 833.0233975425364
+    },
+    {
+      "n": 15,
+      "settling_time": 102.07214644923806,
+      "lower_time": 102.072146448493,
+      "upper_time": 102.07214644923806,
+      "bracket_width": 7.450609018633259e-10,
+      "population_error_at_lower": 0.001000000000022484,
+      "population_error_at_upper": 0.0009999999999500291,
+      "errors_by_initial_state": {
+        "000000000000000": 0.00033333333331667103,
+        "111111111111111": 0.0009999999999500409,
+        "100000000000000": 0.0003300942485645608
+      },
+      "worst_initial_state": "111111111111111",
+      "largest_error_site": 8,
+      "slowest_covariance_decay_rate": 0.052367460764827456,
+      "population_distance_at_t12": 0.11294352170136229,
+      "ten_times_slower_rate_settling_time": 1020.7214644923806
+    },
+    {
+      "n": 16,
+      "settling_time": 122.90762868523595,
+      "lower_time": 122.90762868449089,
+      "upper_time": 122.90762868523595,
+      "bracket_width": 7.450609018633259e-10,
+      "population_error_at_lower": 0.0010000000000102251,
+      "population_error_at_upper": 0.000999999999978318,
+      "errors_by_initial_state": {
+        "0000000000000000": 0.00033333333332610793,
+        "1111111111111111": 0.000999999999978296,
+        "1000000000000000": 0.0003333327621961868
+      },
+      "worst_initial_state": "1111111111111111",
+      "largest_error_site": 9,
+      "slowest_covariance_decay_rate": 0.04286219765999988,
+      "population_distance_at_t12": 0.11978748945913675,
+      "ten_times_slower_rate_settling_time": 1229.0762868523595
+    },
+    {
+      "n": 17,
+      "settling_time": 146.78006451129912,
+      "lower_time": 146.78006451055404,
+      "upper_time": 146.78006451129912,
+      "bracket_width": 7.450751127180411e-10,
+      "population_error_at_lower": 0.0010000000000285937,
+      "population_error_at_upper": 0.0009999999999766788,
+      "errors_by_initial_state": {
+        "00000000000000000": 0.0003333333333255528,
+        "11111111111111111": 0.0009999999999766862,
+        "10000000000000000": 0.0003310170322800565
+      },
+      "worst_initial_state": "11111111111111111",
+      "largest_error_site": 9,
+      "slowest_covariance_decay_rate": 0.035523376050711285,
+      "population_distance_at_t12": 0.12196571811089311,
+      "ten_times_slower_rate_settling_time": 1467.800645112991
+    },
+    {
+      "n": 18,
+      "settling_time": 172.89406676143406,
+      "lower_time": 172.894066760689,
+      "upper_time": 172.89406676143406,
+      "bracket_width": 7.450751127180411e-10,
+      "population_error_at_lower": 0.001000000000000259,
+      "population_error_at_upper": 0.000999999999978064,
+      "errors_by_initial_state": {
+        "000000000000000000": 0.00033333333332602466,
+        "111111111111111111": 0.000999999999978074,
+        "100000000000000000": 0.00033246431321282133
+      },
+      "worst_initial_state": "111111111111111111",
+      "largest_error_site": 10,
+      "slowest_covariance_decay_rate": 0.02976765524938685,
+      "population_distance_at_t12": 0.1314507424213908,
+      "ten_times_slower_rate_settling_time": 1728.9406676143406
+    },
+    {
+      "n": 19,
+      "settling_time": 202.42985774278645,
+      "lower_time": 202.4298577420414,
+      "upper_time": 202.42985774278645,
+      "bracket_width": 7.450466910086107e-10,
+      "population_error_at_lower": 0.0010000000000282866,
+      "population_error_at_upper": 0.0009999999999975506,
+      "errors_by_initial_state": {
+        "0000000000000000000": 0.00033333333333251947,
+        "1111111111111111111": 0.0009999999999975584,
+        "1000000000000000000": 0.0003319598084830788
+      },
+      "worst_initial_state": "1111111111111111111",
+      "largest_error_site": 10,
+      "slowest_covariance_decay_rate": 0.02519039495324904,
+      "population_distance_at_t12": 0.13704002089185785,
+      "ten_times_slower_rate_settling_time": 2024.2985774278645
+    },
+    {
+      "n": 20,
+      "settling_time": 234.28878123834733,
+      "lower_time": 234.28878123760225,
+      "upper_time": 234.28878123834733,
+      "bracket_width": 7.450751127180411e-10,
+      "population_error_at_lower": 0.0010000000000006462,
+      "population_error_at_upper": 0.0009999999999844213,
+      "errors_by_initial_state": {
+        "00000000000000000000": 0.0003333333333281341,
+        "11111111111111111111": 0.0009999999999844023,
+        "10000000000000000000": 0.0003331413655792703
+      },
+      "worst_initial_state": "11111111111111111111",
+      "largest_error_site": 11,
+      "slowest_covariance_decay_rate": 0.021504934248408887,
+      "population_distance_at_t12": 0.13425110241333318,
+      "ten_times_slower_rate_settling_time": 2342.8878123834734
+    }
+  ]
+}

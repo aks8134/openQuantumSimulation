@@ -1,0 +1,24 @@
+{
+  "n": 10,
+  "steps": 942,
+  "dt": 0.012738853503184714,
+  "observed_population_error": 0.019992644675616122,
+  "observed_normalized_current_error": 0.012569352797826205,
+  "largest_error": {
+    "initial_state": "1111111111",
+    "site": 10,
+    "step": 6,
+    "time": 0.07643312101910829
+  },
+  "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+  "simulated_population_distance_from_steady_at_T": 0.03467628704546727,
+  "diagnostics": {
+    "early_direct_agreement": 1.520400847284646e-13,
+    "eigenvector_condition": 13.768667166641405,
+    "power_residual_bound": 7.175037348464793e-11,
+    "spectral_radius": 0.9976492729424683,
+    "stationary_covariance_residual": 5.551115123125783e-17,
+    "maximum_hermiticity_error": 6.346898921424567e-14,
+    "late_direct_agreement": 1.3304562798749538e-13
+  }
+}

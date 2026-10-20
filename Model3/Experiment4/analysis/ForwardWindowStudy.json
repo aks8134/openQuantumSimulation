@@ -1,0 +1,247 @@
+{
+  "scope": "Five deterministic forward searches plus three R=8192 output replays; hardware depth not compiled.",
+  "plans": [
+    {
+      "label": "Forward, original grid",
+      "run": "budget_6fa3680ca8cb",
+      "steps": 328,
+      "mean_window_error": 0.015993369106972743,
+      "stages": [
+        {
+          "dt": 0.5,
+          "steps": 20
+        },
+        {
+          "dt": 0.25,
+          "steps": 20
+        },
+        {
+          "dt": 0.0625,
+          "steps": 288
+        }
+      ],
+      "validation_steps": 160,
+      "search_limit_reached": false,
+      "beam_expansions": 1437,
+      "planning_seconds": 1.5222420099999
+    },
+    {
+      "label": "Intermediate cleanup grid, block 10 / width 8",
+      "run": "budget_755fc46666df",
+      "steps": 210,
+      "mean_window_error": 0.015823955327848915,
+      "stages": [
+        {
+          "dt": 0.25,
+          "steps": 50
+        },
+        {
+          "dt": 0.1,
+          "steps": 10
+        },
+        {
+          "dt": 0.0625,
+          "steps": 150
+        }
+      ],
+      "validation_steps": 160,
+      "search_limit_reached": false,
+      "beam_expansions": 7196,
+      "planning_seconds": 5.27421401799802
+    },
+    {
+      "label": "Coarse grid, block 10 / width 8",
+      "run": "budget_cc272b1c7739",
+      "steps": 180,
+      "mean_window_error": 0.014236068568486082,
+      "stages": [
+        {
+          "dt": 0.5,
+          "steps": 30
+        },
+        {
+          "dt": 0.25,
+          "steps": 80
+        },
+        {
+          "dt": 0.03125,
+          "steps": 70
+        }
+      ],
+      "validation_steps": 320,
+      "search_limit_reached": false,
+      "beam_expansions": 10129,
+      "planning_seconds": 6.877803473998938
+    },
+    {
+      "label": "Coarse grid, block 5 / width 8",
+      "run": "budget_e382900d19fc",
+      "steps": 200,
+      "mean_window_error": 0.015080871520041284,
+      "stages": [
+        {
+          "dt": 0.5,
+          "steps": 15
+        },
+        {
+          "dt": 0.09,
+          "steps": 135
+        },
+        {
+          "dt": 0.03125,
+          "steps": 50
+        }
+      ],
+      "validation_steps": 320,
+      "search_limit_reached": false,
+      "beam_expansions": 23649,
+      "planning_seconds": 7.4313634099999035
+    },
+    {
+      "label": "Extended cleanup grid, block 2 / width 16",
+      "run": "budget_ce6e6a632f23",
+      "steps": 118,
+      "mean_window_error": 0.01592229335798412,
+      "stages": [
+        {
+          "dt": 0.75,
+          "steps": 8
+        },
+        {
+          "dt": 0.25,
+          "steps": 56
+        },
+        {
+          "dt": 0.05,
+          "steps": 54
+        }
+      ],
+      "validation_steps": 200,
+      "search_limit_reached": false,
+      "beam_expansions": 104761,
+      "planning_seconds": 17.03569463799795
+    }
+  ],
+  "replays": [
+    {
+      "seed": 29,
+      "run": "budget_419029a6f9bc",
+      "steps": 117,
+      "stages": [
+        {
+          "dt": 0.75,
+          "steps": 8
+        },
+        {
+          "dt": 0.25,
+          "steps": 56
+        },
+        {
+          "dt": 0.05,
+          "steps": 53
+        }
+      ],
+      "output_time": 22.650000000000038,
+      "assessment": {
+        "tail_window_covered": true,
+        "validation_mode": "forward",
+        "window_start": 22.650000000000038,
+        "checked_from_time": 22.650000000000038,
+        "window_end": 32.650000000000134,
+        "tail_mean_error": 0.01592229335798412,
+        "tail_sampled_error": 0.015510236679943334,
+        "output_mean_error": 0.01458473217352374,
+        "output_sampled_error": 0.015510236679943334,
+        "max_sampling_distance": 0.0013000343303889994,
+        "max_two_standard_errors": 0.002324039031379927,
+        "sampling_budget_met": true,
+        "sampling_scope": "output_only",
+        "interpretation": "finite-node mean window; descriptive sampling check, not simultaneous confidence or permanent settling"
+      }
+    },
+    {
+      "seed": 30,
+      "run": "budget_52a1ea7d1155",
+      "steps": 117,
+      "stages": [
+        {
+          "dt": 0.75,
+          "steps": 8
+        },
+        {
+          "dt": 0.25,
+          "steps": 56
+        },
+        {
+          "dt": 0.05,
+          "steps": 53
+        }
+      ],
+      "output_time": 22.650000000000038,
+      "assessment": {
+        "tail_window_covered": true,
+        "validation_mode": "forward",
+        "window_start": 22.650000000000038,
+        "checked_from_time": 22.650000000000038,
+        "window_end": 32.650000000000134,
+        "tail_mean_error": 0.01592229335798412,
+        "tail_sampled_error": 0.017116023993394403,
+        "output_mean_error": 0.01458473217352374,
+        "output_sampled_error": 0.017116023993394403,
+        "max_sampling_distance": 0.0025312918198706624,
+        "max_two_standard_errors": 0.002325080569963124,
+        "sampling_budget_met": true,
+        "sampling_scope": "output_only",
+        "interpretation": "finite-node mean window; descriptive sampling check, not simultaneous confidence or permanent settling"
+      }
+    },
+    {
+      "seed": 31,
+      "run": "budget_39e2dd5c49ba",
+      "steps": 117,
+      "stages": [
+        {
+          "dt": 0.75,
+          "steps": 8
+        },
+        {
+          "dt": 0.25,
+          "steps": 56
+        },
+        {
+          "dt": 0.05,
+          "steps": 53
+        }
+      ],
+      "output_time": 22.650000000000038,
+      "assessment": {
+        "tail_window_covered": true,
+        "validation_mode": "forward",
+        "window_start": 22.650000000000038,
+        "checked_from_time": 22.650000000000038,
+        "window_end": 32.650000000000134,
+        "tail_mean_error": 0.01592229335798412,
+        "tail_sampled_error": 0.01720871382202105,
+        "output_mean_error": 0.01458473217352374,
+        "output_sampled_error": 0.01720871382202105,
+        "max_sampling_distance": 0.0026239816485009726,
+        "max_two_standard_errors": 0.002343359590791226,
+        "sampling_budget_met": true,
+        "sampling_scope": "output_only",
+        "interpretation": "finite-node mean window; descriptive sampling check, not simultaneous confidence or permanent settling"
+      }
+    }
+  ],
+  "source_sha256": {
+    "runs/budget_6fa3680ca8cb/search.json": "3246dece7316df766e0ba394bb7a28d60e79f036ea4b026d88d8c803c11dfe97",
+    "runs/budget_755fc46666df/search.json": "5cca103b153375108e0fc8ff981601cb91a76d76be31ce5fdfdd94c21cf8fa8a",
+    "runs/budget_cc272b1c7739/search.json": "00035870aad33c1faa3bf8894c40b2bc4495880e04f4406b1f1441c3c605e3e4",
+    "runs/budget_e382900d19fc/search.json": "e619af2613f8549cf06dfb57dccf0b95611ad724ac4eeff94e014a57ee1a2f16",
+    "runs/budget_ce6e6a632f23/search.json": "c5beb24b629c6f9415b68e8ebc2161682f81f08e0b4edb9ffb45dbe941bd8b1e",
+    "runs/budget_419029a6f9bc/replay_R8192.json": "9f5c6dbdd4ce54a689435a5e9814ac3cc754ead357ae14ad478d8237593ad4a9",
+    "runs/budget_52a1ea7d1155/replay_R8192.json": "4ee56c421d99e23bee5a1905a7ffd329722fd51061836a7abac6752d1b1a6fa1",
+    "runs/budget_39e2dd5c49ba/replay_R8192.json": "8a405f6d3c46102c205c8ea6bc8040b7fbfc2384993719e7c2a789e55bb9ff60"
+  },
+  "steps_reduction_percent": 76.12244897959184,
+  "validation_mode": "forward; deterministic mean only after output; sampled checks at output only"
+}

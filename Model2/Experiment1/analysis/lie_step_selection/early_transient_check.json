@@ -1,0 +1,58 @@
+{
+  "parameters": {
+    "number_of_qubits": 7,
+    "J": 10.0,
+    "delta": 0.0,
+    "gamma": 20.0,
+    "p": 0.25,
+    "exchange_prefactor": 0.25,
+    "max_dt": 0.05
+  },
+  "records": [
+    {
+      "dt": 0.005,
+      "maximum_population_error_first_0p1": 0.010731464474729141,
+      "worst": {
+        "time": 0.035,
+        "state": "1111111",
+        "site": 7
+      }
+    },
+    {
+      "dt": 0.002,
+      "maximum_population_error_first_0p1": 0.004086422799524286,
+      "worst": {
+        "time": 0.036000000000000004,
+        "state": "1111111",
+        "site": 7
+      }
+    },
+    {
+      "dt": 0.001,
+      "maximum_population_error_first_0p1": 0.0020098988811627916,
+      "worst": {
+        "time": 0.036000000000000004,
+        "state": "1111111",
+        "site": 7
+      }
+    },
+    {
+      "dt": 0.0005,
+      "maximum_population_error_first_0p1": 0.0009967566121443228,
+      "worst": {
+        "time": 0.035500000000000004,
+        "state": "1111111",
+        "site": 7
+      }
+    },
+    {
+      "dt": 0.00025,
+      "maximum_population_error_first_0p1": 0.0004963400078170366,
+      "worst": {
+        "time": 0.035750000000000004,
+        "state": "1111111",
+        "site": 7
+      }
+    }
+  ]
+}

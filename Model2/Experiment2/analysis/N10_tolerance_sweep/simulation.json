@@ -1,0 +1,353 @@
+[
+  {
+    "n": 10,
+    "steps": 283,
+    "dt": 0.04240282685512368,
+    "observed_population_error": 0.0997606838891224,
+    "observed_normalized_current_error": 0.02988493557847387,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 2,
+      "time": 0.08480565371024736
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03602623294075541,
+    "diagnostics": {
+      "early_direct_agreement": 1.5510191884325973e-14,
+      "eigenvector_condition": 7.310240335323087,
+      "power_residual_bound": 1.0174878969329685e-11,
+      "spectral_radius": 0.9922599533519603,
+      "stationary_covariance_residual": 2.7755575615628914e-17,
+      "maximum_hermiticity_error": 2.1214110376215333e-14,
+      "late_direct_agreement": 1.0684273759181183e-14
+    },
+    "tolerance": 0.1,
+    "preceding_steps": 282,
+    "preceding_observed_population_error": 0.10026889664117311
+  },
+  {
+    "n": 10,
+    "steps": 330,
+    "dt": 0.03636363636363636,
+    "observed_population_error": 0.07963802451035729,
+    "observed_normalized_current_error": 0.028250678981892863,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 1,
+      "step": 2,
+      "time": 0.07272727272727272
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.035794754431334064,
+    "diagnostics": {
+      "early_direct_agreement": 9.631868384823173e-14,
+      "eigenvector_condition": 9.126519411709275,
+      "power_residual_bound": 1.2027208114480903e-11,
+      "spectral_radius": 0.9933559738131417,
+      "stationary_covariance_residual": 2.7755575615628914e-17,
+      "maximum_hermiticity_error": 2.9457274011327866e-14,
+      "late_direct_agreement": 6.570748980620973e-14
+    },
+    "tolerance": 0.08,
+    "preceding_steps": 329,
+    "preceding_observed_population_error": 0.08000048474250443
+  },
+  {
+    "n": 10,
+    "steps": 398,
+    "dt": 0.03015075376884422,
+    "observed_population_error": 0.059887821541728115,
+    "observed_normalized_current_error": 0.02500294153968108,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 3,
+      "time": 0.09045226130653267
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03553647349913397,
+    "diagnostics": {
+      "early_direct_agreement": 5.917895521159597e-14,
+      "eigenvector_condition": 12.3575447206427,
+      "power_residual_bound": 2.0908289179513854e-11,
+      "spectral_radius": 0.9944819493182334,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 3.380335932221367e-14,
+      "late_direct_agreement": 4.621576711400776e-14
+    },
+    "tolerance": 0.06,
+    "preceding_steps": 397,
+    "preceding_observed_population_error": 0.060079893638821324
+  },
+  {
+    "n": 10,
+    "steps": 458,
+    "dt": 0.026200873362445413,
+    "observed_population_error": 0.04985657988610781,
+    "observed_normalized_current_error": 0.022957880159570787,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 3,
+      "time": 0.07860262008733623
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.035359878796087374,
+    "diagnostics": {
+      "early_direct_agreement": 2.1489532847321737e-14,
+      "eigenvector_condition": 15.915988738079026,
+      "power_residual_bound": 2.695941741539459e-11,
+      "spectral_radius": 0.9951980505833604,
+      "stationary_covariance_residual": 1.1102230246251565e-16,
+      "maximum_hermiticity_error": 3.900496464581883e-14,
+      "late_direct_agreement": 9.559206825046176e-15
+    },
+    "tolerance": 0.05,
+    "preceding_steps": 457,
+    "preceding_observed_population_error": 0.05000258477185038
+  },
+  {
+    "n": 10,
+    "steps": 538,
+    "dt": 0.022304832713754646,
+    "observed_population_error": 0.03994709675542485,
+    "observed_normalized_current_error": 0.02015967827821028,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 1,
+      "step": 3,
+      "time": 0.06691449814126393
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03517540618538295,
+    "diagnostics": {
+      "early_direct_agreement": 7.444225088248545e-14,
+      "eigenvector_condition": 19.64401885425125,
+      "power_residual_bound": 3.593034122323683e-11,
+      "spectral_radius": 0.9959052961721027,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 3.3087596174785214e-14,
+      "late_direct_agreement": 6.74085739088881e-14
+    },
+    "tolerance": 0.04,
+    "preceding_steps": 537,
+    "preceding_observed_population_error": 0.04005232130997449
+  },
+  {
+    "n": 10,
+    "steps": 674,
+    "dt": 0.017804154302670624,
+    "observed_population_error": 0.029985853608101687,
+    "observed_normalized_current_error": 0.016810832988259715,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 4,
+      "time": 0.0712166172106825
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03494893428637652,
+    "diagnostics": {
+      "early_direct_agreement": 3.74659834369322e-14,
+      "eigenvector_condition": 17.44061978349213,
+      "power_residual_bound": 5.365879098453196e-11,
+      "spectral_radius": 0.9967241845043706,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 5.103065178523412e-14,
+      "late_direct_agreement": 1.715906651864252e-14
+    },
+    "tolerance": 0.03,
+    "preceding_steps": 673,
+    "preceding_observed_population_error": 0.030044781795615094
+  },
+  {
+    "n": 10,
+    "steps": 942,
+    "dt": 0.012738853503184714,
+    "observed_population_error": 0.019992644675616122,
+    "observed_normalized_current_error": 0.012569352797826205,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 6,
+      "time": 0.07643312101910829
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03467628704546727,
+    "diagnostics": {
+      "early_direct_agreement": 1.520400847284646e-13,
+      "eigenvector_condition": 13.768667166641405,
+      "power_residual_bound": 7.175037348464793e-11,
+      "spectral_radius": 0.9976492729424683,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 6.346898921424567e-14,
+      "late_direct_agreement": 1.3304562798749538e-13
+    },
+    "tolerance": 0.02,
+    "preceding_steps": 941,
+    "preceding_observed_population_error": 0.020018667728539996
+  },
+  {
+    "n": 10,
+    "steps": 1208,
+    "dt": 0.009933774834437087,
+    "observed_population_error": 0.01499491336186104,
+    "observed_normalized_current_error": 0.010008871621073268,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 9,
+      "time": 0.08940397350993377
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03451704612487688,
+    "diagnostics": {
+      "early_direct_agreement": 5.698892892367401e-14,
+      "eigenvector_condition": 12.55571041911996,
+      "power_residual_bound": 7.664662083062099e-11,
+      "spectral_radius": 0.9981635861991444,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 6.677640688961616e-14,
+      "late_direct_agreement": 6.275637604013632e-14
+    },
+    "tolerance": 0.015,
+    "preceding_steps": 1207,
+    "preceding_observed_population_error": 0.015008661282660818
+  },
+  {
+    "n": 10,
+    "steps": 1739,
+    "dt": 0.006900517538815411,
+    "observed_population_error": 0.009994561057895757,
+    "observed_normalized_current_error": 0.007092611494612178,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 1,
+      "step": 13,
+      "time": 0.08970672800460033
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03433817653110166,
+    "diagnostics": {
+      "early_direct_agreement": 1.089585382973277e-13,
+      "eigenvector_condition": 11.675538835056573,
+      "power_residual_bound": 1.0775759626392651e-10,
+      "spectral_radius": 0.9987216546718951,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 1.2729842663134908e-13,
+      "late_direct_agreement": 9.082827458967496e-14
+    },
+    "tolerance": 0.01,
+    "preceding_steps": 1738,
+    "preceding_observed_population_error": 0.010000793355120274
+  },
+  {
+    "n": 10,
+    "steps": 2268,
+    "dt": 0.005291005291005291,
+    "observed_population_error": 0.007498029626238634,
+    "observed_normalized_current_error": 0.00549724550628532,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 17,
+      "time": 0.08994708994708994
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03424044403023585,
+    "diagnostics": {
+      "early_direct_agreement": 1.9519882443668303e-13,
+      "eigenvector_condition": 11.340010087540355,
+      "power_residual_bound": 1.3725030597322884e-10,
+      "spectral_radius": 0.9990186733885004,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 2.694597326816051e-13,
+      "late_direct_agreement": 4.0820341424161315e-13
+    },
+    "tolerance": 0.0075,
+    "preceding_steps": 2267,
+    "preceding_observed_population_error": 0.007501575030633534
+  },
+  {
+    "n": 10,
+    "steps": 3326,
+    "dt": 0.0036079374624173183,
+    "observed_population_error": 0.0049987582392111984,
+    "observed_normalized_current_error": 0.0037874681164189903,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 26,
+      "time": 0.09380637402285028
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.034136156167338005,
+    "diagnostics": {
+      "early_direct_agreement": 1.7768044271224347e-13,
+      "eigenvector_condition": 11.07604802698533,
+      "power_residual_bound": 2.2010566598541378e-10,
+      "spectral_radius": 0.9993299836301891,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 2.2852918807882425e-13,
+      "late_direct_agreement": 6.192324264500211e-14
+    },
+    "tolerance": 0.005,
+    "preceding_steps": 3325,
+    "preceding_observed_population_error": 0.0050003247398870965
+  },
+  {
+    "n": 10,
+    "steps": 4119,
+    "dt": 0.0029133284777858705,
+    "observed_population_error": 0.0039996195259869305,
+    "observed_normalized_current_error": 0.0030708522130532766,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 10,
+      "step": 32,
+      "time": 0.09322651128914786
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03409249475222542,
+    "diagnostics": {
+      "early_direct_agreement": 1.3277387074847274e-13,
+      "eigenvector_condition": 11.002211806189091,
+      "power_residual_bound": 2.301925606198121e-10,
+      "spectral_radius": 0.9994586864816216,
+      "stationary_covariance_residual": 6.83191628964697e-19,
+      "maximum_hermiticity_error": 3.5191716667443694e-13,
+      "late_direct_agreement": 1.324771886225239e-13
+    },
+    "tolerance": 0.004,
+    "preceding_steps": 4118,
+    "preceding_observed_population_error": 0.004000630572561448
+  },
+  {
+    "n": 10,
+    "steps": 5441,
+    "dt": 0.0022054769343870613,
+    "observed_population_error": 0.0029999177856044335,
+    "observed_normalized_current_error": 0.002334510028368597,
+    "largest_error": {
+      "initial_state": "1111111111",
+      "site": 1,
+      "step": 43,
+      "time": 0.09483550817864364
+    },
+    "exact_population_distance_from_steady_at_T": 0.03390543042055261,
+    "simulated_population_distance_from_steady_at_T": 0.03404762817510759,
+    "diagnostics": {
+      "early_direct_agreement": 1.430104127426604e-13,
+      "eigenvector_condition": 10.97240337245128,
+      "power_residual_bound": 3.1696806935668414e-10,
+      "spectral_radius": 0.999589982183488,
+      "stationary_covariance_residual": 5.551115123125783e-17,
+      "maximum_hermiticity_error": 3.065416904652675e-13,
+      "late_direct_agreement": 2.8128791644576417e-13
+    },
+    "tolerance": 0.003,
+    "preceding_steps": 5440,
+    "preceding_observed_population_error": 0.00300048563025318
+  }
+]
