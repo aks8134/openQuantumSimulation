@@ -292,3 +292,41 @@ target selection, native compilation, two baths and preparation measurements,
 bit order and current signs, output-register isolation, job persistence,
 recovery, ambiguity handling, batching, shot validation, and integrity checks.
 No IBM hardware job was submitted during implementation.
+
+## Analyze saved hardware results and plot output observables
+
+The analysis command reads collected counts and source references without
+connecting to IBM, evolving new trajectories, or changing the run files:
+
+```bash
+MPLCONFIGDIR=/tmp/model3_hw_analysis OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
+.venv/bin/python Model3/Experiment5/analyze_hardware.py \
+  --run-directory Model3/Experiment5/hardware_runs/ibm_phoenix_20261020T190507_427277Z
+```
+
+Use `--output-directory` to change its default output directory under
+`Model3/Experiment5/analysis/hardware/<run-name>/`. It writes `Analysis.md`,
+`analysis.json`, a three-panel final population/magnetization/current plot in
+PNG/PDF, a per-trajectory current plot, and per-observable CSV tables.
+These are spatial profiles at the measured output; no hardware time series
+was collected. Error bars show twice the nominal shot SE conditional on the
+selected paths. Within-setting site/bond correlations are retained, and
+across-path uncertainties are reported separately to avoid double-counting.
+
+For job `dbbrmpc24mrc73ciaq4g` (4 paths, 12 circuits, 8192 shots each), the
+maximum local hardware error is **0.25103**, exceeding the 0.02 target.
+The same four ideal paths have error 0.11525 from the physical target; their
+sampling discrepancy from the ideal mean channel is 0.10305. Hardware differs
+from those same ideal paths by 0.25761. These maximum norms do not add as
+scalar contributions. The measured spatial mean current is 0.09745 versus
+0.27880 for the same ideal paths and the physical stationary current 0.32.
+Nominal shot errors are much smaller than these discrepancies.
+
+See [the saved-run report](analysis/hardware/ibm_phoenix_20261020T190507_427277Z/Analysis.md)
+and [the observable plot](analysis/hardware/ibm_phoenix_20261020T190507_427277Z/observables.png).
+The source hash was reproduced exactly after restoring Windows CRLF line
+endings. The ISA QPY file was not copied with this run, so its stored hash
+could not be checked here. The analysis does not infer permanent stationarity,
+attribute a specific hardware noise mechanism, or treat a measured population
+slope as evidence of diffusive transport. Six statistical reconstruction
+tests and the twenty existing hardware/circuit tests passed.

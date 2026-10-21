@@ -1,0 +1,345 @@
+{
+  "run_directory": "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_20261020T190507_427277Z",
+  "backend": "ibm_phoenix",
+  "physics": {
+    "n_qubits": 10,
+    "J": 1.0,
+    "gamma": 1.0,
+    "p_left": 0.9,
+    "p_right": 0.1,
+    "exchange_prefactor": 0.5,
+    "delta": 0.0
+  },
+  "job_ids": [
+    "dbbrmpc24mrc73ciaq4g"
+  ],
+  "paths": 4,
+  "circuits": 12,
+  "shots_per_circuit": 8192,
+  "total_shots": 98304,
+  "preparation_steps": 72,
+  "preparation": "half_mixed",
+  "physical_output_time": 22.809542863156878,
+  "tolerance": 0.02,
+  "hardware_output_within_tolerance": false,
+  "hardware": {
+    "populations": [
+      0.62274169921875,
+      0.554595947265625,
+      0.562225341796875,
+      0.543365478515625,
+      0.5511474609375,
+      0.503082275390625,
+      0.476104736328125,
+      0.470489501953125,
+      0.454010009765625,
+      0.357879638671875
+    ],
+    "magnetizations": [
+      -0.2454833984375,
+      -0.10919189453125,
+      -0.12445068359375,
+      -0.08673095703125,
+      -0.102294921875,
+      -0.00616455078125,
+      0.04779052734375,
+      0.05902099609375,
+      0.09197998046875,
+      0.28424072265625
+    ],
+    "excitation_flows": [
+      0.134368896484375,
+      0.086334228515625,
+      0.114013671875,
+      0.1148681640625,
+      0.10162353515625,
+      0.0689697265625,
+      0.0721435546875,
+      0.08587646484375,
+      0.09881591796875
+    ]
+  },
+  "references": {
+    "physical_stationary": {
+      "populations": [
+        0.58,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.42000000000000004
+      ],
+      "magnetizations": [
+        -0.15999999999999992,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.15999999999999992
+      ],
+      "excitation_flows": [
+        0.32000000000000006,
+        0.32000000000000006,
+        0.32000000000000006,
+        0.32000000000000006,
+        0.32000000000000006,
+        0.32000000000000006,
+        0.32000000000000006,
+        0.32000000000000006,
+        0.32000000000000006
+      ]
+    },
+    "ideal_mean_channel": {
+      "populations": [
+        0.5959253877563332,
+        0.4919573222304867,
+        0.5095626390467981,
+        0.4853941112427249,
+        0.5082239373129691,
+        0.49177606268703045,
+        0.5146058887572749,
+        0.49043736095320184,
+        0.508042677769513,
+        0.404074612243667
+      ],
+      "magnetizations": [
+        -0.19185077551266638,
+        0.01608535553902657,
+        -0.01912527809359621,
+        0.029211777514550175,
+        -0.01644787462593822,
+        0.016447874625939107,
+        -0.02921177751454973,
+        0.01912527809359632,
+        -0.016085355539025903,
+        0.19185077551266605
+      ],
+      "excitation_flows": [
+        0.3112599301965326,
+        0.3078023301886117,
+        0.31178225824191697,
+        0.304131790800147,
+        0.30777062534699395,
+        0.30413179080014674,
+        0.3117822582419165,
+        0.30780233018861164,
+        0.31125993019653214
+      ]
+    },
+    "ideal_same_saved_paths": {
+      "populations": [
+        0.5852978844620902,
+        0.47230377046278693,
+        0.5398241627937249,
+        0.5224053216701864,
+        0.5342459225118998,
+        0.4751765610024752,
+        0.550738075881818,
+        0.5159430952599919,
+        0.4897644057528102,
+        0.38074744527860954
+      ],
+      "magnetizations": [
+        -0.1705957689241803,
+        0.055392459074426165,
+        -0.07964832558744978,
+        -0.04481064334037288,
+        -0.06849184502379965,
+        0.04964687799504966,
+        -0.10147615176363606,
+        -0.03188619051998379,
+        0.020471188494379483,
+        0.23850510944278094
+      ],
+      "excitation_flows": [
+        0.27720761823353257,
+        0.2047517905177362,
+        0.2700372456212895,
+        0.27158454742734306,
+        0.30843764656204464,
+        0.3265757978731046,
+        0.3073690964332042,
+        0.3076780209634651,
+        0.23554297495622353
+      ]
+    }
+  },
+  "shot_standard_errors_fixed_paths": {
+    "populations": [
+      0.002656371917210927,
+      0.0027434994206547944,
+      0.0027374999801851284,
+      0.00274763366985694,
+      0.0027443924902513955,
+      0.0027603440494859475,
+      0.002758433660400237,
+      0.0027568591694632017,
+      0.002748743251524392,
+      0.002627204116422402
+    ],
+    "magnetizations": [
+      0.005312743834421854,
+      0.005486998841309589,
+      0.005474999960370257,
+      0.00549526733971388,
+      0.005488784980502791,
+      0.005520688098971895,
+      0.005516867320800474,
+      0.005513718338926403,
+      0.005497486503048784,
+      0.005254408232844804
+    ],
+    "excitation_flows": [
+      0.0038680134109293145,
+      0.003891293134337102,
+      0.0038803316775613897,
+      0.003877390449175758,
+      0.0038847869790390554,
+      0.003896973581216879,
+      0.0038953316682662905,
+      0.0038892949733559962,
+      0.0038822184601168784
+    ]
+  },
+  "across_path_standard_errors_including_shots": {
+    "populations": [
+      0.035315136909493124,
+      0.01171274826220273,
+      0.014114602576896059,
+      0.01599915867508319,
+      0.014325286206842034,
+      0.010727308546045608,
+      0.006561847041207027,
+      0.0061590844017905344,
+      0.010544945693455774,
+      0.03491930676232558
+    ],
+    "excitation_flows": [
+      0.018397645427071018,
+      0.009498421541010129,
+      0.009416836531690852,
+      0.021574064369438997,
+      0.010748023557467259,
+      0.0038188047547689018,
+      0.0124021074567898,
+      0.018279358475253176,
+      0.02127052573362414
+    ]
+  },
+  "comparisons": {
+    "hardware_vs_physical": {
+      "population_max": 0.062225341796875,
+      "current_divided_by_J_max": 0.25103027343750006,
+      "maximum": 0.25103027343750006,
+      "population_rmse": 0.045388944683390206,
+      "current_divided_by_J_rmse": 0.22346800933519198,
+      "worst_site_1based": 3,
+      "worst_bond_1based": [
+        6,
+        7
+      ]
+    },
+    "hardware_vs_same_ideal_paths": {
+      "population_max": 0.08229217680283807,
+      "current_divided_by_J_max": 0.2576060713106046,
+      "maximum": 0.2576060713106046,
+      "population_rmse": 0.04429114070298547,
+      "current_divided_by_J_rmse": 0.1872856518063526,
+      "worst_site_1based": 2,
+      "worst_bond_1based": [
+        6,
+        7
+      ]
+    },
+    "finite_paths_vs_ideal_mean": {
+      "population_max": 0.03701121042746147,
+      "current_divided_by_J_max": 0.10305053967087549,
+      "maximum": 0.10305053967087549,
+      "population_rmse": 0.025635545606597074,
+      "current_divided_by_J_rmse": 0.04811752965158168,
+      "worst_site_1based": 4,
+      "worst_bond_1based": [
+        2,
+        3
+      ]
+    },
+    "same_ideal_paths_vs_physical": {
+      "population_max": 0.050738075881818,
+      "current_divided_by_J_max": 0.11524820948226386,
+      "maximum": 0.11524820948226386,
+      "population_rmse": 0.030242623061631613,
+      "current_divided_by_J_rmse": 0.05535236590874982,
+      "worst_site_1based": 7,
+      "worst_bond_1based": [
+        2,
+        3
+      ]
+    },
+    "ideal_mean_vs_physical": {
+      "population_max": 0.01592538775633323,
+      "current_divided_by_J_max": 0.015868209199853323,
+      "maximum": 0.01592538775633323,
+      "population_rmse": 0.01175339812778139,
+      "current_divided_by_J_rmse": 0.011731080408818933,
+      "worst_site_1based": 1,
+      "worst_bond_1based": [
+        6,
+        7
+      ]
+    }
+  },
+  "mean_bond_currents": {
+    "hardware": 0.0974460177951389,
+    "physical_stationary": 0.32000000000000006,
+    "ideal_mean_channel": 0.30863591602237883,
+    "ideal_same_saved_paths": 0.27879830428754926
+  },
+  "mean_hardware_bond_current_shot_se": 0.0013084402403029472,
+  "mean_current_fraction_of_same_ideal_paths": 0.3495215584045814,
+  "resource_metrics": {
+    "native_depth_range": [
+      1127,
+      1131
+    ],
+    "cz_gates_per_circuit": [
+      1440
+    ],
+    "resets_per_circuit": [
+      72
+    ],
+    "physical_path": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      19,
+      29
+    ]
+  },
+  "verification": {
+    "source_integrity": "matches_original_CRLF_line_endings",
+    "saved_observables_reproduced_from_counts": true,
+    "physical_reference_reconstructed": true,
+    "original_files_sha256": {
+      "manifest.json": "6f3b21b5057ae818ab9bfa39752205eed087391feb38920979183a9ee12732f4",
+      "hardware_results.json": "83a5fed1aacc010d72574fb3e2cfef1ade1e4d8c00fa09582be12c840bd69853",
+      "source.json": "68ef2cf258003a4eaf0d4e80d36eb8025be8a3a6beffa0fa9ec0e82d38c4fbc6"
+    },
+    "isa_file_available": false
+  },
+  "interpretation": "Final output only; no hardware time series or stationarity proof. Shot SE assumes independent shots within fixed paths; across-path SE includes shots and must not be added to shot SE in quadrature. Max-norm comparison terms do not add as scalars. Hardware discrepancy includes gate, reset, preparation and readout effects, which this run cannot isolate."
+}
