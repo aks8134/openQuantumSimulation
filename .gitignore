@@ -238,5 +238,5 @@ pyproject.toml
 /Model*/Experiment*/runs/**/*.json
 /Model*/Experiment*/study/**/*.json
 /Model*/Experiment*/analysis/**/certificates/*.json
-/Model*/Experiment*/hardware_runs/
+
 
