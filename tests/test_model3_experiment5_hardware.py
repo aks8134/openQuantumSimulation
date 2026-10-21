@@ -53,11 +53,28 @@ class HardwareRunnerTests(unittest.TestCase):
         self.assertEqual(options.shots, 8192)
         self.assertEqual(options.trajectory_indices, [0, 1, 2, 3])
         self.assertFalse(options.compile_only)
+        counted = hardware.parse_arguments(["--trajectory-count", "8192", "--shots", "1", "--batch-size", "512"])
+        self.assertEqual(counted.trajectory_indices, list(range(8192)))
+        self.assertEqual(counted.shots, 1)
+        self.assertEqual(counted.batch_size, 512)
+        self.assertEqual(hardware.parse_arguments(["--trajectory-count", "1"]).trajectory_indices, [0])
+        self.assertEqual(hardware.parse_arguments(["--trajectory-indices", "3", "1"]).trajectory_indices, [3, 1])
         for args in (("--shots", "0"), ("--batch-size", "0"), ("--backend", " "),
+                     ("--trajectory-count", "0"), ("--trajectory-count", "-1"),
                      ("--trajectory-indices", "0", "0"), ("--seed-transpiler", "-1"),
                      ("--resume", "x.json", "--compile-only")):
             with self.subTest(args=args), self.assertRaises(ValueError):
                 hardware.parse_arguments(args)
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            hardware.parse_arguments(["--trajectory-count", "2", "--trajectory-indices", "0", "1"])
+
+    def test_trajectory_count_exceeding_saved_paths_fails_before_account_access(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = self.options(folder).source
+            options = hardware.parse_arguments(["--source", str(path), "--trajectory-count", "3"])
+            with patch.object(hardware, "make_service", side_effect=AssertionError("no account")), \
+                 self.assertRaisesRegex(ValueError, "trajectory index outside saved replay"):
+                hardware.main(options)
 
     def test_portable_input_preserves_exact_paths_and_does_not_claim_subset_accuracy(self):
         original = source()

@@ -235,6 +235,31 @@ a hardware trial and do not reproduce the ideal R=8192 trajectory average;
 shots and trajectory count are separate quantities. No DD, gate twirling,
 measurement twirling, or mitigation is enabled by this runner.
 
+To select the first N saved paths, use `--trajectory-count N` instead of
+`--trajectory-indices`. The two options are mutually exclusive. Omitting both
+retains the default indices `0 1 2 3`; the count must be positive and cannot
+exceed the number of paths in the input. For 8192 trajectories with one shot
+per measurement setting and 512 circuits per job:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_hardware.py `
+  --source ".\Model3\Experiment7\runs\comparison_d3fd93cb452e\cosine\replay_seed29_R8192.json" `
+  --backend ibm_phoenix `
+  --account-file ".\IBMRuntime\apikey.json" `
+  --trajectory-count 8192 `
+  --shots 1 `
+  --batch-size 512 `
+  --optimization-level 3 `
+  --seed-transpiler 11
+```
+
+The full replay must be copied to the Windows machine; it is excluded from
+Git. The default compact input contains only four paths. This command requests
+24,576 circuits in 48 sequential jobs. Compilation still builds all circuits
+before submission, so it can require substantial time and memory. The separate
+`analyze_hardware.py` currently requires at least two shots per circuit;
+one-shot results require an analysis that estimates uncertainty across paths.
+
 The compact input is approximately 100 KiB and preserves the exact first four
 paths and all 72 timesteps from the original replay. It is the runner's new
 default, so `--source` can also be omitted. Full replay JSON and generated

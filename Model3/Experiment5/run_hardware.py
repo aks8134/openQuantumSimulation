@@ -35,7 +35,11 @@ def parse_arguments(arguments=None):
     parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
     parser.add_argument("--backend", default="ibm_phoenix")
     parser.add_argument("--account-file", type=Path, help="default IBMRuntime/apikey.json if present; otherwise the saved Qiskit account")
-    parser.add_argument("--trajectory-indices", type=int, nargs="+", default=[0, 1, 2, 3])
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--trajectory-indices", type=int, nargs="+",
+                           help="saved trajectory indices to execute (default: 0 1 2 3)")
+    selection.add_argument("--trajectory-count", type=int, metavar="N",
+                           help="execute the first N saved trajectories (indices 0 through N-1)")
     parser.add_argument("--shots", type=int, default=8192, help="shots per trajectory and measurement basis")
     parser.add_argument("--batch-size", type=int, default=12, help="circuits per Runtime job; batches are collected sequentially")
     parser.add_argument("--optimization-level", type=int, choices=range(4), default=3)
@@ -46,6 +50,12 @@ def parse_arguments(arguments=None):
     parser.add_argument("--resume", type=Path, help="recover a manifest; collect submitted jobs and submit only batches with no recorded job ID")
     parser.add_argument("--output-directory", type=Path, default=DIRECTORY/"hardware_runs")
     options = parser.parse_args(arguments)
+    if options.trajectory_count is not None:
+        if options.trajectory_count < 1:
+            raise ValueError("trajectory-count must be positive")
+        options.trajectory_indices = list(range(options.trajectory_count))
+    elif options.trajectory_indices is None:
+        options.trajectory_indices = [0, 1, 2, 3]
     if not options.backend.strip():
         raise ValueError("backend name cannot be empty")
     if options.shots < 1 or options.batch_size < 1 or options.seed_transpiler < 0:
