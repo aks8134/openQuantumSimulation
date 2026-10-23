@@ -13,6 +13,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 import sys
+import zipfile
 
 import numpy as np
 from qiskit import qpy, transpile
@@ -26,6 +27,7 @@ from IBMRuntime.result import Err
 from IBMRuntime.utils import load_ibm_account
 from library.reservoir_scaling import atomic_json
 from Model3.Experiment5 import circuit_depth as circuits
+from Model3.Experiment5 import control_quality
 
 DEFAULT_SOURCE = DIRECTORY/"inputs/cosine72_seed29_paths0-3.json"
 
@@ -45,7 +47,10 @@ def parse_arguments(arguments=None):
                         help="z for populations only; default: z xy yx")
     parser.add_argument("--population-controls", action="store_true",
                         help="interleave all-zero, all-one, and initial-mixture controls; requires --bases z")
+    parser.add_argument("--controls-only", action="store_true", help="compile/execute only the three short population controls")
     parser.add_argument("--control-shots", type=int, default=512, help="shots for each population control")
+    parser.add_argument("--max-control-error", type=float, default=.03, help="control baseline error upper-bound threshold")
+    parser.add_argument("--control-alpha", type=float, default=.05, help="nominal family significance level for control screening")
     parser.add_argument("--batch-size", type=int, default=12, help="circuits per Runtime job; batches are collected sequentially")
     parser.add_argument("--optimization-level", type=int, choices=range(4), default=3)
     parser.add_argument("--seed-transpiler", type=int, default=11)
@@ -55,6 +60,10 @@ def parse_arguments(arguments=None):
     parser.add_argument("--resume", type=Path, help="recover a manifest; collect submitted jobs and submit only batches with no recorded job ID")
     parser.add_argument("--output-directory", type=Path, default=DIRECTORY/"hardware_runs")
     options = parser.parse_args(arguments)
+    if options.controls_only:
+        options.population_controls = True
+        if options.bases == list(circuits.BASES):
+            options.bases = ["z"]
     if options.trajectory_count is not None:
         if options.trajectory_count < 1:
             raise ValueError("trajectory-count must be positive")
@@ -65,6 +74,10 @@ def parse_arguments(arguments=None):
         raise ValueError("backend name cannot be empty")
     if options.shots < 1 or options.control_shots < 1 or options.batch_size < 1 or options.seed_transpiler < 0:
         raise ValueError("shots, control-shots and batch-size must be positive; seed-transpiler must be nonnegative")
+    if not 0 < options.max_control_error < 1 or not 0 < options.control_alpha < 1:
+        raise ValueError("invalid control screening thresholds")
+    if options.controls_only and options.control_shots < 2:
+        raise ValueError("controls-only diagnostics require at least two shots")
     if options.bases not in (["z"], list(circuits.BASES)):
         raise ValueError("bases must be either z or z xy yx")
     if options.population_controls and options.bases != ["z"]:
@@ -119,11 +132,13 @@ def prepare(source, backend, options):
     layout, path = (circuits.chain_layout(backend, n, "boundary", options.physical_path)
                     if options.layout == "chain" else (None, None))
     publications, records = [], []
-    for trajectory in options.trajectory_indices:
+    for trajectory in ([] if options.controls_only else options.trajectory_indices):
         logical = circuits.build_body(source, trajectory, ancillas="boundary")
         native = transpile(logical, backend=backend, initial_layout=layout,
             optimization_level=options.optimization_level, seed_transpiler=options.seed_transpiler)
         mapping = native.layout.final_index_layout(filter_ancillas=True)
+        if getattr(options, "required_system_sites", None) is not None and mapping[:n] != options.required_system_sites:
+            raise ValueError("compiled readout mapping differs from the saved control system sites")
         for basis in options.bases:
             circuit = circuits.append_readout(native, mapping[:n], basis)
             circuits.assert_native(circuit, backend)
@@ -149,7 +164,8 @@ def prepare(source, backend, options):
             circuit = circuits.append_readout(native, mapping[:n], "z")
             circuit.metadata = {**circuit.metadata, "control": name, "expected_populations": list(populations)}
             circuits.assert_native(circuit, backend)
-            if mapping[:n] != records[0]["final_logical_to_physical"][:n]:
+            expected_sites = records[0]["final_logical_to_physical"][:n] if records else control_layout[:n]
+            if mapping[:n] != expected_sites:
                 raise ValueError("controls and evolved circuits must measure the same physical sites")
             controls.append((circuit, {"kind": "control", "control": name, "basis": "z",
                 "shots": options.control_shots, "expected_populations": list(populations),
@@ -179,7 +195,7 @@ def count_observables(counts, n):
     return singles/shots, pairs/shots, shots
 
 
-def summarize(source, records, observations):
+def summarize(source, records, observations, *, max_control_error=.03, control_alpha=.05):
     if len(records) != len(observations):
         raise ValueError("observation count differs from saved circuit count")
     p = source["configuration"]["physics"]
@@ -201,7 +217,13 @@ def summarize(source, records, observations):
             raise ValueError("duplicate trajectory/basis record")
         by_path.setdefault(record["trajectory"], {})[record["basis"]] = (singles, pairs, shots)
     if not by_path:
-        raise ValueError("no evolved trajectory results")
+        if not controls:
+            raise ValueError("no evolved trajectory results or controls")
+        return {"observables": {}, "per_trajectory": {"indices": []}, "across_path_standard_errors": {"paths": 0},
+                "references": {}, "local_observable_errors": {}, "measurement_bases": ["z"],
+                "error_scope": "controls_only", "population_controls": controls,
+                "control_assessment": control_quality.assess_controls(controls, max_control_error, control_alpha),
+                "scope": "Preparation/readout controls only; no Trotter evolution and no evolved-state accuracy claim."}
     bases = set(next(iter(by_path.values())))
     if bases not in ({"z"}, set(circuits.BASES)) or any(set(path) != bases for path in by_path.values()):
         raise ValueError("each trajectory must have z only or all three measurement bases")
@@ -266,6 +288,18 @@ def save_backend_snapshot(backend, path, records, directory):
         except Exception as error:
             snapshot["backend_properties_unavailable"] = str(error)
     atomic_json(directory/"backend_snapshot.json", json.loads(json.dumps(snapshot, default=str)))
+
+
+def save_control_pointer(pointer_file, directory, config, passed=None):
+    pointer_file = Path(pointer_file)
+    pointer_file.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path = (directory/"manifest.json").resolve()
+    try:
+        reference = manifest_path.relative_to(pointer_file.resolve().parent).as_posix()
+    except ValueError:
+        reference = str(manifest_path)
+    atomic_json(pointer_file, {"artifact_type": "model3_population_controls_v1", "manifest": reference,
+        "backend": config["backend"], "physical_path": config["physical_path"], "controls_passed": passed})
 
 
 def collect_and_submit(manifest, directory, publications, service, backend, sampler_factory=None):
@@ -364,19 +398,26 @@ def main(options, *, service=None, backend=None, sampler_factory=None):
         save_backend_snapshot(backend, path, records, directory)
         config = {"backend": options.backend, "source_sha256": hashlib.sha256(raw).hexdigest(),
             "isa_sha256": hashlib.sha256((directory/"isa_circuits.qpy").read_bytes()).hexdigest(),
-            "trajectory_indices": options.trajectory_indices, "shots": options.shots, "batch_size": options.batch_size,
+            "trajectory_indices": [] if options.controls_only else options.trajectory_indices,
+            "shots": options.shots, "batch_size": options.batch_size,
             "measurement_bases": options.bases, "population_controls": options.population_controls,
+            "controls_only": options.controls_only, "max_control_error": options.max_control_error,
+            "control_alpha": options.control_alpha, "path_selection": getattr(options, "path_selection", None),
             "control_shots": options.control_shots if options.population_controls else None,
             "total_circuits": len(records), "total_shots": sum(row["shots"] for row in records),
             "optimization_level": options.optimization_level, "seed_transpiler": options.seed_transpiler,
             "layout": options.layout, "physical_path": path, "ancillas": "boundary",
-            "preparation_steps": len(source["schedule"]["step_dts"]),
+            "preparation_steps": 0 if options.controls_only else len(source["schedule"]["step_dts"]),
             "versions": {name: importlib.metadata.version(name) for name in ("qiskit", "qiskit-ibm-runtime")}}
         manifest = {"experiment": "Model3/Experiment5/hardware", "status": "compiled",
             "configuration": config, "circuits": records, "batches": [
                 {"start": start, "stop": min(start+options.batch_size, len(publications)), "job_id": None, "status": "not_submitted"}
                 for start in range(0, len(publications), options.batch_size)]}
         atomic_json(directory/"manifest.json", manifest)
+        if config["path_selection"] is not None:
+            atomic_json(directory/"selected_path.json", config["path_selection"])
+        if not options.compile_only and getattr(options, "control_pointer_file", None) is not None:
+            save_control_pointer(options.control_pointer_file, directory, config)
         print(f"Saved compilation: {directory/'manifest.json'}", flush=True)
         if options.compile_only:
             print("Compile only: no jobs submitted.", flush=True)
@@ -385,9 +426,23 @@ def main(options, *, service=None, backend=None, sampler_factory=None):
         raise ValueError("Runtime service required for hardware execution")
     observations = collect_and_submit(manifest, directory, publications, service, backend, sampler_factory)
     result = {"experiment": "Model3/Experiment5/hardware", "configuration": manifest["configuration"],
+              "run_directory": str(directory.resolve()),
               "job_ids": [batch["job_id"] for batch in manifest["batches"]],
-              **summarize(source, manifest["circuits"], observations)}
+              **summarize(source, manifest["circuits"], observations,
+                          max_control_error=manifest["configuration"].get("max_control_error", .03),
+                          control_alpha=manifest["configuration"].get("control_alpha", .05))}
     atomic_json(directory/"hardware_results.json", result)
+    if "control_assessment" in result:
+        assessment = result["control_assessment"]
+        (directory/"ControlReport.md").write_text(control_quality.markdown(assessment))
+        print(f"Controls diagnostic passed: {assessment['passed']}; failed sites: {assessment['failed_sites_1based']}", flush=True)
+    if manifest["configuration"].get("path_selection") is not None or manifest["configuration"].get("controls_only"):
+        with zipfile.ZipFile(directory/"results_bundle.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name in ("source.json", "isa_circuits.qpy", "manifest.json", "hardware_results.json",
+                         "backend_snapshot.json", "selected_path.json", "ControlReport.md"):
+                if (directory/name).exists():
+                    archive.write(directory/name, arcname=name)
+        print(f"Complete result bundle (includes compiled QPY): {directory/'results_bundle.zip'}", flush=True)
     print(f"Results: {directory/'hardware_results.json'}", flush=True)
     print(f"Output errors: {result['local_observable_errors']}", flush=True)
     return result

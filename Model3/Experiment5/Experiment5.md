@@ -320,6 +320,79 @@ No IBM hardware job was submitted during implementation.
 
 ## Population-only Phoenix diagnostic with controls
 
+### Two-stage workflow with calibration-selected paths
+
+`run_population_diagnostic.py` separates a short controls experiment from a
+later full evolution experiment. Neither stage automatically launches the other.
+The commands below are for Windows PowerShell from the repository root.
+
+First select the path and execute **only three controls**, 2048 shots each:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_population_diagnostic.py controls --backend ibm_phoenix --account-file .\IBMRuntime\apikey.json --control-shots 2048 --avoid-qubits 7
+```
+
+This refreshes the live backend configuration and target before searching
+connected 12-qubit paths. Default hard filters are T1 >= 80 µs, T2 >= 60 µs,
+readout error <= 2%, and reported CZ error <= 0.5%; missing calibration data
+are excluded. Qubit 7 is excluded by default. Qualifying paths are ranked by
+worst CZ error, a CZ-error sum weighted by actual saved-path gate use, worst
+and total system readout error, then minimum T2/T1. Paths have a bath at each
+end and the ten system qubits between them. The score is a heuristic and does
+not predict an observable error or certify the 0.02 tolerance. The path search
+reports whether its two-million-expansion limit was reached; thresholds are
+never silently relaxed. Filter/search options are listed by `--help`.
+
+Controls-only skips building the 72-step bodies. It executes all-zero,
+all-one, and initial-mixture circuits, **3 circuits / 6144 shots**, and saves:
+
+- A normal run folder with source, actual compiled QPY, counts, and calibration.
+- `selected_path.json` with selection criteria, metrics and search diagnostics.
+- `ControlReport.md` and `control_assessment` in `hardware_results.json`.
+- `results_bundle.zip`, which includes the actual compiled QPY alongside results.
+- `hardware_runs/latest_population_controls.json`, a pointer to that control run.
+
+The diagnostic requires family-adjusted Wilson upper bounds on zero/one
+baseline errors to be <= 3%, and checks the mixture against the affine
+prediction from zero/one populations with nominal family-adjusted normal
+tests. The nominal family alpha is 0.05. Preparation errors, time dependence,
+and non-binomial device behavior remain limitations; a pass does not validate
+reservoir reset performance or full-evolution accuracy.
+
+After the report says `Controls diagnostic passed: True`, execute the full
+population experiment with **128 trajectories / 64 shots each**, 8192 shots:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_population_diagnostic.py full --account-file .\IBMRuntime\apikey.json --trajectory-count 128 --shots 64
+```
+
+The full stage reads the pointer, verifies the original source and controls
+QPY hashes, recomputes the control diagnostic from manifest counts, and
+refreshes calibration. It reuses that exact physical path and saved source;
+it does not select a replacement path. Failed controls, changed source/QPY,
+backend mismatch, or a path that no longer meets its original quality filters
+stop the run before submission. The original 72-step cosine schedule and
+boundary choices are unchanged. The two stages are separate one-job requests
+at the default batch size 256.
+
+Use `--selection-file PATH` on both commands to keep multiple control/path
+experiments separate. `--compile-only` saves circuits without submission and
+does not replace the control-run pointer. For a real control run, the pointer
+is saved before submission; incomplete results block the full stage. An
+interrupted run can be recovered with the existing
+`run_hardware.py --resume MANIFEST` command. Once collection completes, the
+full command uses that same pointer and recomputes the diagnostic; its cached
+pass flag is never trusted. There is no need to resubmit the controls.
+Copy `results_bundle.zip` back with each run so compiled circuits are retained.
+
+The workflow was checked only with injected local backends, mocked Sampler
+jobs, and the previously saved calibration snapshot. No IBM account lookup,
+live backend refresh, calibration experiment or hardware job was performed
+during implementation. The actual path is selected when you run the first
+command.
+
+### Earlier combined experiment
+
 Copy the updated `run_hardware.py` and compact
 `inputs/cosine72_seed29_paths0-127.json` into the Windows checkout. The new input
 is about 608 KiB and preserves the exact first 128 saved trajectories, including
@@ -369,6 +442,47 @@ The run folder keeps `source.json`, `isa_circuits.qpy`, `manifest.json`, and
 compilation-time qubit/gate properties. Per-job timing metadata is saved when
 available. Keep these files together when copying the results back.
 `--compile-only` and `--resume` work with mixed-shot control runs as well.
+
+### Analyze the collected population/control run
+
+`analyze_populations.py` independently reconstructs Z counts and their
+within-shot covariance, checks control/trajectory separation and each PUB's
+requested shots, and compares populations against the matching saved ideal
+paths and analytically reconstructed stationary target. It also tests the
+initial-mixture control against the local response predicted by zero/one
+controls, and summarizes the selected-qubit calibration snapshot. It does
+not connect to IBM or evolve any new trajectories.
+
+```bash
+MPLCONFIGDIR=/tmp/model3-pop-analysis-mpl OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
+.venv/bin/python Model3/Experiment5/analyze_populations.py \
+  --run-directory Model3/Experiment5/hardware_runs/ibm_phoenix_20261023T135506_304864Z \
+  --compare-analysis \
+    Model3/Experiment5/analysis/hardware/ibm_phoenix_20261020T190507_427277Z/analysis.json \
+    Model3/Experiment5/analysis/hardware/ibm_phoenix_20261021T102532_376654Z/analysis.json
+```
+
+All 131 circuits and 9728 shots of job `dbdmeh7i0auc73crdct0` were collected.
+The maximum hardware population error is **0.09106** against physical and
+**0.10188** against its matched ideal, while the 128 ideal paths have maximum
+physical population error **0.01900**. The initial-mixture control gives
+site 7 (physical qubit 7) population **0.38086** instead of 0.5; zero/one
+controls predict **0.47656**, a discrepancy of **4.33 nominal SE**. That
+qubit has reported T1 **16.67 µs**, T2 **19.61 µs**; adjacent CZ edge 7–8
+has reported error **1.2366%**. Together these are concrete layout concerns,
+not a unique causal diagnosis. The original ISA QPY is still absent from
+the pulled run; the calibration snapshot is available.
+
+The analyzer writes population and control/calibration PNG/PDF figures,
+per-path residuals, a comparison with prior runs, CSVs, and a Markdown report
+to a separate analysis folder. Primary results remain raw: an exploratory
+local affine adjustment is reported only as a response-model diagnostic,
+with its assumptions and propagated uncertainty. Original files are
+hash-checked and preserved.
+
+See the [128-path population report](analysis/hardware/ibm_phoenix_20261023T135506_304864Z/Analysis.md),
+[population plot](analysis/hardware/ibm_phoenix_20261023T135506_304864Z/populations.png),
+and [controls and calibration](analysis/hardware/ibm_phoenix_20261023T135506_304864Z/controls_and_calibration.png).
 
 ## Analyze saved hardware results and plot output observables
 
