@@ -318,6 +318,58 @@ bit order and current signs, output-register isolation, job persistence,
 recovery, ambiguity handling, batching, shot validation, and integrity checks.
 No IBM hardware job was submitted during implementation.
 
+## Population-only Phoenix diagnostic with controls
+
+Copy the updated `run_hardware.py` and compact
+`inputs/cosine72_seed29_paths0-127.json` into the Windows checkout. The new input
+is about 608 KiB and preserves the exact first 128 saved trajectories, including
+the original four. It includes matching ideal covariance references and does
+not require the large, Git-ignored replay file.
+
+Run from the repository root in PowerShell:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_hardware.py `
+  --source .\Model3\Experiment5\inputs\cosine72_seed29_paths0-127.json `
+  --backend ibm_phoenix `
+  --account-file .\IBMRuntime\apikey.json `
+  --trajectory-count 128 `
+  --bases z `
+  --shots 64 `
+  --population-controls `
+  --control-shots 512 `
+  --batch-size 256 `
+  --physical-path 0 1 2 3 4 5 6 7 8 9 19 29 `
+  --optimization-level 3 `
+  --seed-transpiler 11
+```
+
+This plans **131 circuits in one job**: 128 evolved Z-measurement circuits at
+64 shots each plus three controls at 512 shots each, **9728 shots total**.
+The physical path is the one used in the earlier Phoenix runs; live target
+compatibility is checked during compilation. Control circuits prepare all
+zeros at the beginning, all ones near the midpoint, and the original initial
+mixture at the end. These are submission-order positions; device execution
+timing is recorded when available. The mixture control retains its initial
+measurements but has no Trotter steps. Controls are checked against their
+known populations and excluded from the trajectory average. This is a
+preparation/readout diagnostic rather than a full correlated-readout correction.
+
+SamplerV2's per-PUB shot override lets trajectory and control circuits share
+a job with different shots. Collection checks each result against its own
+requested shot count. See the
+[SamplerV2 interface](https://quantum.cloud.ibm.com/docs/en/api/qiskit-ibm-runtime/sampler-v2).
+The defaults still measure all three bases; `--bases z` selects population-only
+results and `error_scope: populations_only`. Unmeasured currents are omitted.
+The matching ideal references use only the selected 128 trajectories; the
+original full-ensemble sampling validation is not claimed for this subset.
+
+The run folder keeps `source.json`, `isa_circuits.qpy`, `manifest.json`, and
+`hardware_results.json`, plus a new `backend_snapshot.json` with available
+compilation-time qubit/gate properties. Per-job timing metadata is saved when
+available. Keep these files together when copying the results back.
+`--compile-only` and `--resume` work with mixed-shot control runs as well.
+
 ## Analyze saved hardware results and plot output observables
 
 The analysis command reads collected counts and source references without
@@ -355,3 +407,105 @@ could not be checked here. The analysis does not infer permanent stationarity,
 attribute a specific hardware noise mechanism, or treat a measured population
 slope as evidence of diffusive transport. Six statistical reconstruction
 tests and the twenty existing hardware/circuit tests passed.
+
+## Analyze saved one-shot trajectories
+
+For one shot per trajectory and measurement setting, use the separate
+`analyze_one_shot.py` entry point. It estimates uncertainty across trajectories;
+within-circuit shot variance cannot be estimated from a single outcome.
+It reconstructs every raw count, checks the matching ideal covariance references,
+and adds a job-cluster sensitivity check using complete trajectory triples within
+each job. No Runtime connection, trajectory evolution, or mitigation is used.
+The job-cluster diagnostic requires at least two jobs with two complete paths each.
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\analyze_one_shot.py `
+  --run-directory ".\Model3\Experiment5\hardware_runs\ibm_phoenix_20261021T102532_376654Z" `
+  --compare-run ".\Model3\Experiment5\hardware_runs\ibm_phoenix_20261020T190507_427277Z"
+```
+
+The optional `--compare-run` reads the previous multi-shot run for a descriptive
+comparison. Outputs go to `analysis/hardware/<run-name>/`: `Analysis.md`,
+`analysis.json`, observable PNG/PDF, a per-job current plot, and CSV tables.
+`--output-directory` selects another analysis destination; original run files
+are hash-checked and preserved.
+
+The collected 8192-path, one-shot run has 48 jobs and 24,576 circuit executions.
+Its maximum physical error is 0.2792285, while the same ideal paths have error
+0.01710975. Hardware mean current is 0.1040446 versus the matched ideal 0.3095208.
+The nominal pooled SE of the mean current is 0.00257455; clustering by job gives
+0.00324952 on the complete-path subset. This result does not meet the 0.02 target.
+See [the one-shot analysis](analysis/hardware/ibm_phoenix_20261021T102532_376654Z/Analysis.md)
+and [actual observable plot](analysis/hardware/ibm_phoenix_20261021T102532_376654Z/observables.png).
+
+## Subsample the earlier population measurements
+
+`subsample_populations.py` studies shot allocation using only the earlier saved
+Z-basis counts. It samples whole bitstrings without replacement within each of
+the four fixed trajectories, preserving correlations between sites. The default
+uses 10,000 replicates at each of eleven shot levels from 1 to 8192 shots/path.
+It writes actual population profiles, resampling quantiles, CSV tables, and an
+exact finite-pool covariance check to a separate `population_subsampling/` folder.
+Original results are hash-checked and preserved; no hardware connection or
+trajectory evolution is performed.
+
+```bash
+MPLCONFIGDIR=/tmp/model3-subsampling-mpl OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
+.venv/bin/python Model3/Experiment5/subsample_populations.py \
+  --run-directory Model3/Experiment5/hardware_runs/ibm_phoenix_20261020T190507_427277Z \
+  --compare-analysis Model3/Experiment5/analysis/hardware/ibm_phoenix_20261021T102532_376654Z/analysis.json
+```
+
+At 2048 shots/path, the four old paths use 8192 Z measurements, matching the
+newer experiment's population-measurement count. Population MAE versus the
+physical target has median **0.04201**, central 95% resampling range
+**0.03918–0.04485**, versus **0.04187** for the full old dataset and **0.04900**
+for the newer hardware run. These conditional subsamples do not reproduce a
+different trajectory ensemble or execution occasion. One shot on four fixed
+paths also does not emulate one shot on 8192 distinct paths.
+
+See the [population subsampling report](analysis/hardware/ibm_phoenix_20261020T190507_427277Z/population_subsampling/Analysis.md)
+and [actual population profiles](analysis/hardware/ibm_phoenix_20261020T190507_427277Z/population_subsampling/population_subsamples.png).
+
+## Validate populations with noiseless Aer
+
+`check_aer_populations.py` reconstructs the same saved logical paths and checks
+their populations in Aer without connecting to IBM. An exact ten-qubit
+density-matrix calculation traces out each freshly prepared bath after its
+collision; ignored preparation outcomes are averaged exactly. This transformation
+is checked against explicit system-plus-bath density matrices in the tests.
+
+A separate simulation retains the full twelve-qubit circuit, initial preparation
+measurements, bath resets, and terminal Z measurements. It compiles to an offline
+CZ line with the saved transpiler seed/optimization level and samples 512 shots
+per path by default. In addition to raw counts, simulator-only conditional
+expectation snapshots give a lower-variance population estimator with its own
+sampling SE. These snapshots are not available from hardware measurements.
+
+```bash
+MPLCONFIGDIR=/tmp/model3-aer-mpl OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=2 \
+.venv/bin/python Model3/Experiment5/check_aer_populations.py \
+  --run-directory Model3/Experiment5/hardware_runs/ibm_phoenix_20261020T190507_427277Z
+```
+
+Outputs go to `analysis/hardware/<run-name>/aer_population_check/`: the report,
+population plots for the ensemble and each path, a CSV, per-path counts and
+diagnostics, and compressed regenerated QPY circuits. Original source/results
+are hash-checked and preserved. The original Phoenix ISA QPY files were not
+pulled, so the offline regenerated compilation does not certify the historical
+Phoenix circuits or reproduce their execution-time calibration.
+
+See the [Aer population report](analysis/hardware/ibm_phoenix_20261020T190507_427277Z/aer_population_check/Analysis.md)
+and [population comparison](analysis/hardware/ibm_phoenix_20261020T190507_427277Z/aer_population_check/populations.png).
+
+For the saved four-path Phoenix run, all 40 exact density populations agree
+with their saved ideal references within **2.50e-15**. The full twelve-qubit
+CZ simulations used 512 shots/path; the largest conditional-estimator
+discrepancy was **2.06 nominal SE** across sites/paths. The raw-count
+populations also agree within sampling uncertainty (largest marginal
+standardized discrepancy **2.50 SE**). The ensemble maximum hardware-versus-
+ideal population difference remains **0.08229**. This supports consistency
+of the regenerated circuit and mathematical reference; it does not establish
+which device error caused the hardware discrepancy. All 26 relevant circuit,
+Aer-helper, and hardware-runner tests passed. The compressed QPY archive was
+reloaded successfully and all original input hashes were unchanged.

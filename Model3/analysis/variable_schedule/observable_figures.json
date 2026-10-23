@@ -1,0 +1,33 @@
+{
+  "scope": "Plot saved observable values only; no errors plotted, new evolution, interpolation, or hardware calls.",
+  "manual_curves": "Deterministic mean channels; five schedules, separate fixed preparation per figure.",
+  "sites_zero_based": [
+    0,
+    4,
+    9
+  ],
+  "bonds_zero_based": [
+    [
+      0,
+      1
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      8,
+      9
+    ]
+  ],
+  "source_sha256": {
+    "Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_754e0cbbdb98.json": "0b9ad9d7fced97caeea944f99efbb48117749a58d39bd3e1454e48a7ba10653e",
+    "Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_e5257c026bae.json": "75f108c6f057881b4c46bdef5d8d22412b8eac365a989ff0490d338a2f3c48f0",
+    "Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_1f4884fb6f5a.json": "4ede54a8ca7d605f84202984e2e8e947d51da67d77feeaa84f2dbb52720dbad1",
+    "Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_5c1d59d5d02a.json": "c65128e511ea26e9095eb34d6b5689f072a3901027c906df560051b516f135eb",
+    "Model3/Experiment3/results/classical_randomized_N10_J1_g1_R64_7cbec7bdcc09.json": "5054355a2d90b84c1a845a53c4d84119b7a2b861afd778bd1939ab23bdbd9d90",
+    "Model3/Experiment4/runs/budget_419029a6f9bc/replay_R8192.json": "9f5c6dbdd4ce54a689435a5e9814ac3cc754ead357ae14ad478d8237593ad4a9",
+    "Model3/Experiment7/runs/comparison_d3fd93cb452e/cosine/replay_seed29_R8192.json": "ae9fdfa38294333318b565252930d1893b34e7ec66a9408fed85192c1327a635"
+  },
+  "original_sources_unchanged": true
+}
