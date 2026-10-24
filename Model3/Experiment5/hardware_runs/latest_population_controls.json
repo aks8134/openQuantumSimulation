@@ -1,0 +1,20 @@
+{
+  "artifact_type": "model3_population_controls_v1",
+  "manifest": "ibm_phoenix_20261023T192723_098429Z/manifest.json",
+  "backend": "ibm_phoenix",
+  "physical_path": [
+    39,
+    49,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    95,
+    105
+  ],
+  "controls_passed": true
+}
