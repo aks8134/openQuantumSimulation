@@ -1,0 +1,474 @@
+{
+  "full_run": "ibm_phoenix_20261024T042722_287349Z",
+  "control_run": "ibm_phoenix_20261023T192723_098429Z",
+  "previous_run": "ibm_phoenix_20261023T135506_304864Z",
+  "physical_path": [
+    39,
+    49,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    95,
+    105
+  ],
+  "physical_sites": [
+    49,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    95
+  ],
+  "control_assessment": {
+    "passed": true,
+    "failed_sites_1based": [],
+    "sites": [
+      {
+        "site_1based": 1,
+        "physical_qubit": 49,
+        "zero_population": 0.00537109375,
+        "one_population": 0.98974609375,
+        "mixture_population": 0.501953125,
+        "predicted_mixture": 0.49755859375,
+        "mixture_residual": 0.00439453125,
+        "mixture_residual_se": 0.01113642666096147,
+        "zero_error_upper_bound": 0.012913790101730004,
+        "one_error_upper_bound": 0.01948905331635406,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 2,
+        "physical_qubit": 48,
+        "zero_population": 0.00244140625,
+        "one_population": 0.99169921875,
+        "mixture_population": 0.49462890625,
+        "predicted_mixture": 0.4970703125,
+        "mixture_residual": -0.00244140625,
+        "mixture_residual_se": 0.011109394800907803,
+        "zero_error_upper_bound": 0.008615727241957964,
+        "one_error_upper_bound": 0.016916001685062253,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 3,
+        "physical_qubit": 58,
+        "zero_population": 0.00537109375,
+        "one_population": 0.9912109375,
+        "mixture_population": 0.4853515625,
+        "predicted_mixture": 0.498291015625,
+        "mixture_residual": -0.012939453125,
+        "mixture_residual_se": 0.011123917604851404,
+        "zero_error_upper_bound": 0.012913790101730004,
+        "one_error_upper_bound": 0.017565125562294757,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 4,
+        "physical_qubit": 57,
+        "zero_population": 0.00244140625,
+        "one_population": 0.98876953125,
+        "mixture_population": 0.4970703125,
+        "predicted_mixture": 0.49560546875,
+        "mixture_residual": 0.00146484375,
+        "mixture_residual_se": 0.011125617610910622,
+        "zero_error_upper_bound": 0.008615727241957964,
+        "one_error_upper_bound": 0.020754594425066785,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 5,
+        "physical_qubit": 56,
+        "zero_population": 0.00048828125,
+        "one_population": 0.99267578125,
+        "mixture_population": 0.482421875,
+        "predicted_mixture": 0.49658203125,
+        "mixture_residual": -0.01416015625,
+        "mixture_residual_se": 0.011087224983148366,
+        "zero_error_upper_bound": 0.005371382634097312,
+        "one_error_upper_bound": 0.01560416122898504,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 6,
+        "physical_qubit": 66,
+        "zero_population": 0.00439453125,
+        "one_population": 0.98388671875,
+        "mixture_population": 0.486328125,
+        "predicted_mixture": 0.494140625,
+        "mixture_residual": -0.0078125,
+        "mixture_residual_se": 0.011158368249239497,
+        "zero_error_upper_bound": 0.011525176228051177,
+        "one_error_upper_bound": 0.026927428439742475,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 7,
+        "physical_qubit": 76,
+        "zero_population": 0.00146484375,
+        "one_population": 0.99169921875,
+        "mixture_population": 0.47265625,
+        "predicted_mixture": 0.49658203125,
+        "mixture_residual": -0.02392578125,
+        "mixture_residual_se": 0.011088222920902254,
+        "zero_error_upper_bound": 0.007057321412568721,
+        "one_error_upper_bound": 0.016916001685062253,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 8,
+        "physical_qubit": 86,
+        "zero_population": 0.01025390625,
+        "one_population": 0.9921875,
+        "mixture_population": 0.50390625,
+        "predicted_mixture": 0.501220703125,
+        "mixture_residual": 0.002685546875,
+        "mixture_residual_se": 0.011149378726517127,
+        "zero_error_upper_bound": 0.01948905331635406,
+        "one_error_upper_bound": 0.01626246811561504,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 9,
+        "physical_qubit": 85,
+        "zero_population": 0.00146484375,
+        "one_population": 0.99560546875,
+        "mixture_population": 0.490234375,
+        "predicted_mixture": 0.49853515625,
+        "mixture_residual": -0.00830078125,
+        "mixture_residual_se": 0.01108135108708133,
+        "zero_error_upper_bound": 0.007057321412568721,
+        "one_error_upper_bound": 0.011525176228051177,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 10,
+        "physical_qubit": 95,
+        "zero_population": 0.0166015625,
+        "one_population": 0.99755859375,
+        "mixture_population": 0.52001953125,
+        "predicted_mixture": 0.507080078125,
+        "mixture_residual": 0.012939453125,
+        "mixture_residual_se": 0.01114564869541024,
+        "zero_error_upper_bound": 0.027533285306830014,
+        "one_error_upper_bound": 0.008615727241957964,
+        "passed": true,
+        "reasons": []
+      }
+    ],
+    "max_baseline_error": 0.03,
+    "family_alpha": 0.05,
+    "nominal_z_cutoff": 3.0233414397391534,
+    "interpretation": "Diagnostic screening of preparation/readout, with nominal family-adjusted mixture tests. Passing does not certify 0.02 accuracy or reservoir-reset performance."
+  },
+  "hardware_populations": [
+    0.615234375,
+    0.52978515625,
+    0.5494384765625,
+    0.4833984375,
+    0.4808349609375,
+    0.4842529296875,
+    0.5079345703125,
+    0.4725341796875,
+    0.4825439453125,
+    0.40380859375
+  ],
+  "references": {
+    "physical_stationary": [
+      0.58,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.42000000000000004
+    ],
+    "ideal_same_saved_paths": [
+      0.5895654632935236,
+      0.4872627718000835,
+      0.5123101395474169,
+      0.4920838098493074,
+      0.5096783658885944,
+      0.48906957632323245,
+      0.5106574060966026,
+      0.4955482592636044,
+      0.5189958519624033,
+      0.4149519674418912
+    ],
+    "ideal_mean_channel": [
+      0.5959253877563332,
+      0.4919573222304867,
+      0.5095626390467981,
+      0.4853941112427249,
+      0.5082239373129691,
+      0.49177606268703045,
+      0.5146058887572749,
+      0.49043736095320184,
+      0.508042677769513,
+      0.404074612243667
+    ]
+  },
+  "comparisons": {
+    "physical_stationary": {
+      "mae": 0.02350195312500001,
+      "rmse": 0.026168425010920805,
+      "maximum": 0.0494384765625,
+      "worst_site_1based": 3
+    },
+    "ideal_same_saved_paths": {
+      "mae": 0.02209972528096118,
+      "rmse": 0.02601175767404477,
+      "maximum": 0.04252238444991652,
+      "worst_site_1based": 2
+    },
+    "ideal_mean_channel": {
+      "mae": 0.01842596925577631,
+      "rmse": 0.022847072493543005,
+      "maximum": 0.039875837515701895,
+      "worst_site_1based": 3
+    }
+  },
+  "previous_populations": [
+    0.6302490234375,
+    0.578857421875,
+    0.591064453125,
+    0.5394287109375,
+    0.5408935546875,
+    0.50439453125,
+    0.46826171875,
+    0.4482421875,
+    0.4171142578125,
+    0.359619140625
+  ],
+  "previous_comparisons": {
+    "physical_stationary": {
+      "mae": 0.05316503906250001,
+      "rmse": 0.05872349957091683,
+      "maximum": 0.091064453125,
+      "worst_site_1based": 3
+    },
+    "ideal_same_saved_paths": {
+      "mae": 0.055183374868734335,
+      "rmse": 0.06097097300444584,
+      "maximum": 0.10188159414990328,
+      "worst_site_1based": 9
+    },
+    "ideal_mean_channel": {
+      "mae": 0.052597147007231414,
+      "rmse": 0.05804397803752866,
+      "maximum": 0.09092841995701295,
+      "worst_site_1based": 9
+    }
+  },
+  "ideal_vs_physical": {
+    "mae": 0.010229084211042183,
+    "rmse": 0.010958142749661993,
+    "maximum": 0.018995851962403276,
+    "worst_site_1based": 9
+  },
+  "shot_se_fixed_paths": [
+    0.005298738152204433,
+    0.005489352079287482,
+    0.005466402722177324,
+    0.005508621776474208,
+    0.005502542768035303,
+    0.005502069913583267,
+    0.005499317953967944,
+    0.0055047775301410575,
+    0.0055040040613259225,
+    0.0053742194610536
+  ],
+  "across_path_se": [
+    0.009010547934864513,
+    0.006942079463424889,
+    0.007203972826075503,
+    0.006288974619745957,
+    0.006563496909069843,
+    0.0066595415010498775,
+    0.006908592763207993,
+    0.006202398965518484,
+    0.006523114934361371,
+    0.007857426303658589
+  ],
+  "paired_residual_se": [
+    0.006741053725534182,
+    0.006864232224775549,
+    0.00639430232519267,
+    0.00758970322060039,
+    0.0073012449254367924,
+    0.006274967880900353,
+    0.006041856810807185,
+    0.006342743152561557,
+    0.006431413819871391,
+    0.006445648347158938
+  ],
+  "residual_nominal_z": [
+    3.807848557747901,
+    6.194776496115257,
+    5.806471938119438,
+    -1.1443625787281206,
+    -3.9504776576672436,
+    -0.76759701836774,
+    -0.4506620844162024,
+    -3.6284110868985806,
+    -5.667790577753898,
+    -1.728821228170617
+  ],
+  "within_tolerance_sites_1based": [
+    4,
+    5,
+    6,
+    7,
+    9,
+    10
+  ],
+  "path_metrics": {
+    "worst_cz_error": 0.0012864899042462352,
+    "gate_use_weighted_cz_error_sum": 1.5982177349807405,
+    "worst_system_readout_error": 0.0145263671875,
+    "system_readout_error_sum": 0.0797119140625,
+    "minimum_t1_seconds": 0.00010580748714148314,
+    "minimum_t2_seconds": 0.00014778187945874702
+  },
+  "resources": {
+    "depth_range": [
+      1106,
+      1113
+    ],
+    "cz_counts": [
+      1440
+    ],
+    "reset_counts": [
+      72
+    ],
+    "two_qubit_depth": [
+      288
+    ]
+  },
+  "jobs": {
+    "ibm_phoenix_20261023T192723_098429Z": [
+      "dbdra78m94ac738qqbg0"
+    ],
+    "ibm_phoenix_20261024T042722_287349Z": [
+      "dbe37d0m94ac738r5ebg"
+    ]
+  },
+  "job_timing": {
+    "ibm_phoenix_20261023T192723_098429Z": [
+      {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-10-23T19:27:25.947971Z",
+          "finished": "2026-10-23T21:47:23.622355Z",
+          "running": "2026-10-23T21:44:11.596845Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 3,
+          "value": 0.046771,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.046771,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 3
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 100157952
+      }
+    ],
+    "ibm_phoenix_20261024T042722_287349Z": [
+      {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-10-24T04:27:32.933627Z",
+          "finished": "2026-10-24T09:41:56.346872Z",
+          "running": "2026-10-24T09:37:08.219155Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 4,
+          "value": 0.056437,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.056437,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 4
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 430096128
+      }
+    ]
+  },
+  "verification": {
+    "same_128_saved_choices_and_ideal_covariances_as_previous_run": true,
+    "controls_and_full_share_source_and_mapping": true,
+    "raw_counts_reproduce_saved_means_and_standard_errors": true,
+    "inputs": {
+      "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_20261023T192723_098429Z": {
+        "hashes": {
+          "manifest.json": "2a0374e39691159e3558b08070a67639f019484a003e2ee6b8cff9c9fd72be5c",
+          "hardware_results.json": "777aa74a3f3e466af143237aa3ea65c3f721438d8d6f8150d2afccdd3951f355",
+          "source.json": "bb14fbd519dddf92d3d5c066955439f3c11fc3abfd8b8a8375d345aa4651a05f",
+          "backend_snapshot.json": "efb4c79ec4e50f0910348c3c9bbdbf2d56b82bad204e82cf032c66320938aa38",
+          "results_bundle.zip": "8f4ee1b3ee5dadb1b9cf39730ab6b34a51854e7761fb528e0b2bab9de1527ca3"
+        },
+        "source_integrity": "matches_original_CRLF_line_endings",
+        "bundle_check": "ZIP CRCs, JSON contents, original source SHA-256 and ISA QPY SHA-256 verified"
+      },
+      "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_20261024T042722_287349Z": {
+        "hashes": {
+          "manifest.json": "d75f8b044e0645be39b5a9a5bb61040b7f280cc097fb13eee379967bb4f80c0d",
+          "hardware_results.json": "d95d0dc937127b4c8a63cebf02e7a7d2ae2358c03745f21a22bf3eb4e3c9d972",
+          "source.json": "bb14fbd519dddf92d3d5c066955439f3c11fc3abfd8b8a8375d345aa4651a05f",
+          "backend_snapshot.json": "6498daf63d48fe919bd410c4776530997fa88473ee8945eff3d68e773127e09c",
+          "results_bundle.zip": "854501b93d8b223f5759d376740cc39aa449790005a0782613a09e6e1cb6f97a"
+        },
+        "source_integrity": "matches_original_CRLF_line_endings",
+        "bundle_check": "ZIP CRCs, JSON contents, original source SHA-256 and ISA QPY SHA-256 verified"
+      },
+      "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_20261023T135506_304864Z": {
+        "hashes": {
+          "manifest.json": "7c737b6995aeb57fc966792c9de133bfe06a9e7972a12f2f15f4e8cbfee5cb46",
+          "hardware_results.json": "b6ea491579640702c9eb91128575b6c35d403994cbddbef706e1985e26b703d9",
+          "source.json": "bb14fbd519dddf92d3d5c066955439f3c11fc3abfd8b8a8375d345aa4651a05f",
+          "backend_snapshot.json": "167435b4c18c1488346b9b484be47417a9b7bc7c48d880acbc309991cb4b3893"
+        },
+        "source_integrity": "matches_original_CRLF_line_endings",
+        "bundle_check": null
+      }
+    },
+    "original_files_unchanged": true
+  }
+}

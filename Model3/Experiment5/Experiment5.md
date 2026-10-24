@@ -623,3 +623,84 @@ of the regenerated circuit and mathematical reference; it does not establish
 which device error caused the hardware discrepancy. All 26 relevant circuit,
 Aer-helper, and hardware-runner tests passed. The compressed QPY archive was
 reloaded successfully and all original input hashes were unchanged.
+
+## Diagnose population errors using circuit prefixes
+
+`run_prefix_diagnostic.py` reuses the collected full run's **physical chain,
+original cosine timesteps, preparation and saved branch choices**. Its default
+reference is `hardware_runs/ibm_phoenix_20261024T042722_287349Z`. It refreshes the
+backend calibration and checks the same path against its original quality
+thresholds; it does not select a different path. A failing check stops before
+submission. No change to the pump/loss gate construction is made.
+
+The default is **32 trajectories × 128 shots**, Z measurements only, at
+prefixes **0, 12, 24, 48 and 72**: **160 circuits, 20,480 shots, one batch** at
+the default batch size of 256. These are the first 32 trajectories from the
+reference run, reused at every prefix. Step zero repeats the initial-mixture
+preparation, including its ignored measurements, with no evolution. It does
+not add all-zero/all-one or bath-reset controls. The 32 zero-step circuits
+have identical logical preparation and independent measurement samples.
+
+All prefix/trajectory pairs are shuffled with a saved seed (`--order-seed 29`)
+before submission, so prefix length is not deliberately ordered with job
+position. This does not provide a calibrated execution timeline.
+
+From the repository root in Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_prefix_diagnostic.py --account-file .\IBMRuntime\apikey.json
+```
+
+Use `--reference-run` to choose a different collected full run, and optionally
+`--trajectory-count`, `--trajectory-indices`, `--prefix-steps`, `--shots`, or
+`--batch-size` to change the diagnostic. The trajectory selection must be a
+subset of the reference hardware run. Prefixes must fit the original saved
+schedule. In particular, a 48-step prefix retains the **first 48 original
+cosine steps**; it does not rescale the cosine to 48 steps.
+
+Add `--compile-only` to query the target and save native circuits without
+submitting jobs. This still connects to IBM to resolve its live target.
+An interrupted run can be recovered with its saved circuits, shots and job IDs:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_prefix_diagnostic.py --resume ".\Model3\Experiment5\hardware_runs\<prefix-run-folder>\manifest.json" --account-file .\IBMRuntime\apikey.json
+```
+
+Resume collects jobs that already have saved IDs and submits only batches
+without an ID. An interruption between submission and saving an ID stops
+automatic resubmission and requires recovering the ID first. A fully collected
+resume can regenerate analysis without accessing the account. Run settings
+come from the manifest on resume; other CLI selection/shot options do not
+replace them.
+
+Each run is saved under `hardware_runs/ibm_phoenix_prefix_<timestamp>/`, with
+`source.json`, `ideal_prefixes.json`, reference provenance, `manifest.json`,
+`isa_circuits.qpy`, calibration snapshot and selected-path data. Once collected,
+`hardware_results.json` and `results_bundle.zip` include all prefix results;
+the bundle retains the original compiled QPY plus the analysis plots/report.
+Bring back the bundle after execution.
+
+The analyzer recomputes the exact finite-step **ideal population at each
+prefix for those same trajectories** using the covariance channel, including
+the actual collision angles. It checks the full-prefix covariance against
+the original saved final covariance. No Aer sampling is needed. Intermediate
+prefixes are compared with their own transient predictions, not treated as
+steady states. The smaller trajectory subset is not independently certified
+to satisfy the original 0.02 sampling budget.
+
+Analysis is written to `analysis/hardware/<prefix-run-folder>/`: actual
+population profiles at each prefix (PNG/PDF), population progression at the
+first/middle/last sites and
+hardware-minus-ideal metrics (PNG/PDF), CSV, JSON and `Analysis.md`.
+Error bars describe shot uncertainty conditional on these paths; across-path
+and paired-residual covariance estimates are retained separately. No automatic
+mitigation or attribution to a specific device error is performed.
+
+To regenerate the analysis offline after pulling results:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\analyze_prefix_diagnostic.py --run-directory ".\Model3\Experiment5\hardware_runs\<prefix-run-folder>"
+```
+
+This reads saved counts and references only. It can verify the original QPY
+inside `results_bundle.zip` if that file was not extracted separately.
