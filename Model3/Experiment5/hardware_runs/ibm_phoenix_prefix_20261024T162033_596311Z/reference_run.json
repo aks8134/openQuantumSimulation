@@ -1,0 +1,24 @@
+{
+  "reference_run": "ibm_phoenix_20261024T042722_287349Z",
+  "manifest_sha256": "f1e2baf7f42f7ff7c4d87c8093827b96a1c76fdddd4c6105f3b9fe8776fb4e15",
+  "original_source_sha256": "ddf05c05c5c8726feffe4e15c61261b16126fc72e4fe3dc6071c492647c48475",
+  "source_integrity": "exact_bytes",
+  "backend": "ibm_phoenix",
+  "physical_path": [
+    39,
+    49,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    95,
+    105
+  ],
+  "reference_job_ids": [
+    "dbe37d0m94ac738r5ebg"
+  ]
+}
