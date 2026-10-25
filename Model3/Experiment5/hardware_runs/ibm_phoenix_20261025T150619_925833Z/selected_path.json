@@ -1,0 +1,29 @@
+{
+  "mode": "fixed_chain_preparation_followup",
+  "reference_run": "ibm_phoenix_prefix_20261024T162033_596311Z",
+  "reference_manifest_sha256": "08a29962bf10fafbd3bdfa9baea04b6dc98384477ce5dc2aabb5334b6d44134f",
+  "reference_source_sha256": "ddf05c05c5c8726feffe4e15c61261b16126fc72e4fe3dc6071c492647c48475",
+  "source_integrity": "exact_bytes",
+  "reference_job_ids": [
+    "dbedllvsstms73fbsblg"
+  ],
+  "physical_path": [
+    39,
+    49,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    95,
+    105
+  ],
+  "focus_qubits": [
+    56,
+    76
+  ],
+  "interpretation": "Fixed-chain preparation/readout followup. Current calibration is captured; no reranking or full-evolution calibration filter is applied to these zero-evolution controls."
+}
