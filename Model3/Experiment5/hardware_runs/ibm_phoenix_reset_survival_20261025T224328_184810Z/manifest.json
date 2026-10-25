@@ -1,0 +1,4422 @@
+{
+  "experiment": "Model3/Experiment5/reset_survival",
+  "status": "collected",
+  "configuration": {
+    "backend": "ibm_phoenix",
+    "physical_path": [
+      39,
+      49,
+      48,
+      58,
+      57,
+      56,
+      66,
+      76,
+      86,
+      85,
+      95,
+      105
+    ],
+    "reference": {
+      "reference_run": "ibm_phoenix_boundary_20261025T215447_981524Z",
+      "reference_manifest_sha256": "a4cb9aeaa7c27bb6f603deb2e79a390ebecdb49716fd422f2f248f17d2f8dd7f",
+      "reference_job_ids": [
+        "dbf7la7sstms73fd957g"
+      ],
+      "physical_path": [
+        39,
+        49,
+        48,
+        58,
+        57,
+        56,
+        66,
+        76,
+        86,
+        85,
+        95,
+        105
+      ]
+    },
+    "shots": 2048,
+    "batch_size": 256,
+    "order_seed": 29,
+    "steps": [
+      12,
+      36,
+      72
+    ],
+    "idle_scales": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "source_sha256": "ddf05c05c5c8726feffe4e15c61261b16126fc72e4fe3dc6071c492647c48475",
+    "num_qubits": 120,
+    "timing_model": {
+      "dt_seconds": 4e-09,
+      "alignment_dt": 1,
+      "min_length_dt": 2,
+      "pairs": {
+        "left": {
+          "system": 49,
+          "bath": 39,
+          "instruction_dt": {
+            "x_49": 10,
+            "x_39": 10,
+            "reset_39": 100,
+            "measure_49": 485,
+            "measure_39": 485
+          },
+          "prepare_dt": 10,
+          "bath_x_slot_dt": 10,
+          "reset_slot_dt": 100,
+          "cycle_dt": 110
+        },
+        "right": {
+          "system": 95,
+          "bath": 105,
+          "instruction_dt": {
+            "x_95": 10,
+            "x_105": 10,
+            "reset_105": 100,
+            "measure_95": 485,
+            "measure_105": 485
+          },
+          "prepare_dt": 10,
+          "bath_x_slot_dt": 10,
+          "reset_slot_dt": 100,
+          "cycle_dt": 110
+        }
+      },
+      "scope": "Equal means equal summed target-model time before final measurement, not verified equal hardware elapsed time. Reset block-transition latency is unknown. Idle scales bracket the target model; no finite bracket is guaranteed to contain actual reset latency."
+    },
+    "total_circuits": 64,
+    "total_shots": 131072,
+    "isa_sha256": "39ca946af6e9b7f0a8a073065b4ffef7ce5656fd20bc01870ce2dddd29077f4d"
+  },
+  "circuits": [
+    {
+      "case_id": "right_s0_idle_12_scale0.5",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 0.5,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 660,
+      "modeled_wait_us": 2.64,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 0,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 26,
+          "barrier": 13,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 1155
+        },
+        "summed_pre_measure_dt": 670,
+        "summed_total_dt": 1155,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_reset_one_36_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "reset_one",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 1,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "barrier": 109,
+          "delay": 73,
+          "x": 37,
+          "reset": 36,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 37,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 485
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_reset_one_72_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "reset_one",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 2,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 146,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 292,
+        "operation_counts": {
+          "barrier": 217,
+          "delay": 145,
+          "x": 73,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 73,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 110,
+          "38": 110,
+          "39": 110,
+          "40": 110,
+          "41": 110,
+          "42": 110,
+          "43": 110,
+          "44": 110,
+          "45": 110,
+          "46": 110,
+          "47": 110,
+          "48": 110,
+          "49": 110,
+          "50": 110,
+          "51": 110,
+          "52": 110,
+          "53": 110,
+          "54": 110,
+          "55": 110,
+          "56": 110,
+          "57": 110,
+          "58": 110,
+          "59": 110,
+          "60": 110,
+          "61": 110,
+          "62": 110,
+          "63": 110,
+          "64": 110,
+          "65": 110,
+          "66": 110,
+          "67": 110,
+          "68": 110,
+          "69": 110,
+          "70": 110,
+          "71": 110,
+          "72": 110,
+          "73": 485
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_reset_zero_72_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "reset_zero",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 3,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 146,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 292,
+        "operation_counts": {
+          "delay": 217,
+          "barrier": 217,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 73,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 110,
+          "38": 110,
+          "39": 110,
+          "40": 110,
+          "41": 110,
+          "42": 110,
+          "43": 110,
+          "44": 110,
+          "45": 110,
+          "46": 110,
+          "47": 110,
+          "48": 110,
+          "49": 110,
+          "50": 110,
+          "51": 110,
+          "52": 110,
+          "53": 110,
+          "54": 110,
+          "55": 110,
+          "56": 110,
+          "57": 110,
+          "58": 110,
+          "59": 110,
+          "60": 110,
+          "61": 110,
+          "62": 110,
+          "63": 110,
+          "64": 110,
+          "65": 110,
+          "66": 110,
+          "67": 110,
+          "68": 110,
+          "69": 110,
+          "70": 110,
+          "71": 110,
+          "72": 110,
+          "73": 485
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_reset_zero_36_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "reset_zero",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 4,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 110,
+          "barrier": 109,
+          "reset": 36,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 37,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 485
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_reset_zero_72_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "reset_zero",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 5,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 146,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 292,
+        "operation_counts": {
+          "delay": 217,
+          "barrier": 217,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 73,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 110,
+          "38": 110,
+          "39": 110,
+          "40": 110,
+          "41": 110,
+          "42": 110,
+          "43": 110,
+          "44": 110,
+          "45": 110,
+          "46": 110,
+          "47": 110,
+          "48": 110,
+          "49": 110,
+          "50": 110,
+          "51": 110,
+          "52": 110,
+          "53": 110,
+          "54": 110,
+          "55": 110,
+          "56": 110,
+          "57": 110,
+          "58": 110,
+          "59": 110,
+          "60": 110,
+          "61": 110,
+          "62": 110,
+          "63": 110,
+          "64": 110,
+          "65": 110,
+          "66": 110,
+          "67": 110,
+          "68": 110,
+          "69": 110,
+          "70": 110,
+          "71": 110,
+          "72": 110,
+          "73": 485
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_idle_12_scale2",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 2.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 2640,
+      "modeled_wait_us": 10.56,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 6,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 26,
+          "barrier": 13,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 3135
+        },
+        "summed_pre_measure_dt": 2650,
+        "summed_total_dt": 3135,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_36_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 7,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 74,
+          "barrier": 37,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 4455
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_72_scale0.5",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 0.5,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 8,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 145,
+          "barrier": 73,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 4455
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_idle_72_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 9,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 146,
+          "barrier": 73,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 8415
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_reset_one_36_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "reset_one",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 10,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "barrier": 109,
+          "delay": 74,
+          "x": 36,
+          "reset": 36,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 37,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 485
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_36_scale0.5",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 0.5,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 1980,
+      "modeled_wait_us": 7.920000000000001,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 11,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 74,
+          "barrier": 37,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 2475
+        },
+        "summed_pre_measure_dt": 1990,
+        "summed_total_dt": 2475,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_36_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 12,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 73,
+          "barrier": 37,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 4455
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_reset_one_12_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "reset_one",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 13,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 26,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 52,
+        "operation_counts": {
+          "barrier": 37,
+          "delay": 25,
+          "x": 13,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 13,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 485
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_72_scale2",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 2.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 15840,
+      "modeled_wait_us": 63.36000000000001,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 14,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 146,
+          "barrier": 73,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 16335
+        },
+        "summed_pre_measure_dt": 15850,
+        "summed_total_dt": 16335,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_12_scale2",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 2.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 2640,
+      "modeled_wait_us": 10.56,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 15,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 25,
+          "barrier": 13,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 3135
+        },
+        "summed_pre_measure_dt": 2650,
+        "summed_total_dt": 3135,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_reset_zero_12_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "reset_zero",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 16,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 26,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 52,
+        "operation_counts": {
+          "delay": 38,
+          "barrier": 37,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 13,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 485
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_72_scale0.5",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 0.5,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 17,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 146,
+          "barrier": 73,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 4455
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_baseline_0_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "baseline",
+      "steps": 0,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 0,
+      "modeled_wait_us": 0.0,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 18,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 2,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 4,
+        "operation_counts": {
+          "measure": 2,
+          "x": 1,
+          "delay": 1,
+          "barrier": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 495
+        },
+        "summed_pre_measure_dt": 10,
+        "summed_total_dt": 495,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_72_scale2",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 2.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 15840,
+      "modeled_wait_us": 63.36000000000001,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 19,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 145,
+          "barrier": 73,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 16335
+        },
+        "summed_pre_measure_dt": 15850,
+        "summed_total_dt": 16335,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_36_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 20,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 73,
+          "barrier": 37,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 4455
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_12_scale0.5",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 0.5,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 660,
+      "modeled_wait_us": 2.64,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 21,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 25,
+          "barrier": 13,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 1155
+        },
+        "summed_pre_measure_dt": 670,
+        "summed_total_dt": 1155,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_idle_12_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 22,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 26,
+          "barrier": 13,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 1815
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_36_scale0.5",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 0.5,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 1980,
+      "modeled_wait_us": 7.920000000000001,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 23,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 73,
+          "barrier": 37,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 2475
+        },
+        "summed_pre_measure_dt": 1990,
+        "summed_total_dt": 2475,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_reset_zero_12_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "reset_zero",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 24,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 26,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 52,
+        "operation_counts": {
+          "delay": 38,
+          "barrier": 37,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 13,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 485
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_baseline_0_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "baseline",
+      "steps": 0,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 0,
+      "modeled_wait_us": 0.0,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 25,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 2,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 4,
+        "operation_counts": {
+          "delay": 2,
+          "measure": 2,
+          "barrier": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 495
+        },
+        "summed_pre_measure_dt": 10,
+        "summed_total_dt": 495,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_idle_36_scale0.5",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 0.5,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 1980,
+      "modeled_wait_us": 7.920000000000001,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 26,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 74,
+          "barrier": 37,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 2475
+        },
+        "summed_pre_measure_dt": 1990,
+        "summed_total_dt": 2475,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_72_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 27,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 146,
+          "barrier": 73,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 8415
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_72_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 28,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 145,
+          "barrier": 73,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 8415
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_idle_36_scale2",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 2.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 29,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 74,
+          "barrier": 37,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 8415
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_12_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 30,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 25,
+          "barrier": 13,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 1815
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_72_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 31,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 145,
+          "barrier": 73,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 8415
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_idle_72_scale2",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 2.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 15840,
+      "modeled_wait_us": 63.36000000000001,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 32,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 146,
+          "barrier": 73,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 16335
+        },
+        "summed_pre_measure_dt": 15850,
+        "summed_total_dt": 16335,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_baseline_0_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "baseline",
+      "steps": 0,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 0,
+      "modeled_wait_us": 0.0,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 33,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 2,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 4,
+        "operation_counts": {
+          "delay": 2,
+          "measure": 2,
+          "barrier": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 495
+        },
+        "summed_pre_measure_dt": 10,
+        "summed_total_dt": 495,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_baseline_0_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "baseline",
+      "steps": 0,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 0,
+      "modeled_wait_us": 0.0,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 34,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 2,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 4,
+        "operation_counts": {
+          "measure": 2,
+          "x": 1,
+          "delay": 1,
+          "barrier": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 495
+        },
+        "summed_pre_measure_dt": 10,
+        "summed_total_dt": 495,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_12_scale2",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 2.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 2640,
+      "modeled_wait_us": 10.56,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 35,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 25,
+          "barrier": 13,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 3135
+        },
+        "summed_pre_measure_dt": 2650,
+        "summed_total_dt": 3135,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_reset_zero_36_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "reset_zero",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 36,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 109,
+          "barrier": 109,
+          "reset": 36,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 37,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 485
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_reset_one_72_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "reset_one",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 37,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 146,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 292,
+        "operation_counts": {
+          "barrier": 217,
+          "delay": 145,
+          "x": 73,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 73,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 110,
+          "38": 110,
+          "39": 110,
+          "40": 110,
+          "41": 110,
+          "42": 110,
+          "43": 110,
+          "44": 110,
+          "45": 110,
+          "46": 110,
+          "47": 110,
+          "48": 110,
+          "49": 110,
+          "50": 110,
+          "51": 110,
+          "52": 110,
+          "53": 110,
+          "54": 110,
+          "55": 110,
+          "56": 110,
+          "57": 110,
+          "58": 110,
+          "59": 110,
+          "60": 110,
+          "61": 110,
+          "62": 110,
+          "63": 110,
+          "64": 110,
+          "65": 110,
+          "66": 110,
+          "67": 110,
+          "68": 110,
+          "69": 110,
+          "70": 110,
+          "71": 110,
+          "72": 110,
+          "73": 485
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_12_scale2",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 2.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 2640,
+      "modeled_wait_us": 10.56,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 38,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 26,
+          "barrier": 13,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 3135
+        },
+        "summed_pre_measure_dt": 2650,
+        "summed_total_dt": 3135,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_idle_72_scale0.5",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 0.5,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 39,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 146,
+          "barrier": 73,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 4455
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_reset_zero_36_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "reset_zero",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 40,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 109,
+          "barrier": 109,
+          "reset": 36,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 37,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 485
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_12_scale0.5",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 0.5,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 660,
+      "modeled_wait_us": 2.64,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 41,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 26,
+          "barrier": 13,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 1155
+        },
+        "summed_pre_measure_dt": 670,
+        "summed_total_dt": 1155,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_12_scale0.5",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 0.5,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 660,
+      "modeled_wait_us": 2.64,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 42,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 25,
+          "barrier": 13,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 1155
+        },
+        "summed_pre_measure_dt": 670,
+        "summed_total_dt": 1155,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_reset_one_36_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "reset_one",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 43,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "barrier": 109,
+          "delay": 74,
+          "x": 36,
+          "reset": 36,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 37,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 485
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_reset_zero_72_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "reset_zero",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 44,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 146,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 292,
+        "operation_counts": {
+          "delay": 218,
+          "barrier": 217,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 73,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 110,
+          "38": 110,
+          "39": 110,
+          "40": 110,
+          "41": 110,
+          "42": 110,
+          "43": 110,
+          "44": 110,
+          "45": 110,
+          "46": 110,
+          "47": 110,
+          "48": 110,
+          "49": 110,
+          "50": 110,
+          "51": 110,
+          "52": 110,
+          "53": 110,
+          "54": 110,
+          "55": 110,
+          "56": 110,
+          "57": 110,
+          "58": 110,
+          "59": 110,
+          "60": 110,
+          "61": 110,
+          "62": 110,
+          "63": 110,
+          "64": 110,
+          "65": 110,
+          "66": 110,
+          "67": 110,
+          "68": 110,
+          "69": 110,
+          "70": 110,
+          "71": 110,
+          "72": 110,
+          "73": 485
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_72_scale2",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 2.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 15840,
+      "modeled_wait_us": 63.36000000000001,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 45,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 145,
+          "barrier": 73,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 16335
+        },
+        "summed_pre_measure_dt": 15850,
+        "summed_total_dt": 16335,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_36_scale2",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 2.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 46,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 73,
+          "barrier": 37,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 8415
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_reset_one_72_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "reset_one",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 47,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 146,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 292,
+        "operation_counts": {
+          "barrier": 217,
+          "delay": 146,
+          "x": 72,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 73,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 110,
+          "38": 110,
+          "39": 110,
+          "40": 110,
+          "41": 110,
+          "42": 110,
+          "43": 110,
+          "44": 110,
+          "45": 110,
+          "46": 110,
+          "47": 110,
+          "48": 110,
+          "49": 110,
+          "50": 110,
+          "51": 110,
+          "52": 110,
+          "53": 110,
+          "54": 110,
+          "55": 110,
+          "56": 110,
+          "57": 110,
+          "58": 110,
+          "59": 110,
+          "60": 110,
+          "61": 110,
+          "62": 110,
+          "63": 110,
+          "64": 110,
+          "65": 110,
+          "66": 110,
+          "67": 110,
+          "68": 110,
+          "69": 110,
+          "70": 110,
+          "71": 110,
+          "72": 110,
+          "73": 485
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_reset_zero_72_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "reset_zero",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 48,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 146,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 292,
+        "operation_counts": {
+          "delay": 218,
+          "barrier": 217,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 73,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 110,
+          "38": 110,
+          "39": 110,
+          "40": 110,
+          "41": 110,
+          "42": 110,
+          "43": 110,
+          "44": 110,
+          "45": 110,
+          "46": 110,
+          "47": 110,
+          "48": 110,
+          "49": 110,
+          "50": 110,
+          "51": 110,
+          "52": 110,
+          "53": 110,
+          "54": 110,
+          "55": 110,
+          "56": 110,
+          "57": 110,
+          "58": 110,
+          "59": 110,
+          "60": 110,
+          "61": 110,
+          "62": 110,
+          "63": 110,
+          "64": 110,
+          "65": 110,
+          "66": 110,
+          "67": 110,
+          "68": 110,
+          "69": 110,
+          "70": 110,
+          "71": 110,
+          "72": 110,
+          "73": 485
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_reset_one_36_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "reset_one",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 49,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "barrier": 109,
+          "delay": 73,
+          "x": 37,
+          "reset": 36,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 37,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 485
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_reset_one_12_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "reset_one",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 50,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 26,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 52,
+        "operation_counts": {
+          "barrier": 37,
+          "delay": 26,
+          "x": 12,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 13,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 485
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_36_scale2",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 2.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 51,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 74,
+          "barrier": 37,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 8415
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_idle_12_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 52,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 26,
+          "barrier": 13,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 1815
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s0_reset_one_12_scale1",
+      "side": "left",
+      "initial_system": 0,
+      "arm": "reset_one",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 53,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 26,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 52,
+        "operation_counts": {
+          "barrier": 37,
+          "delay": 26,
+          "x": 12,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 13,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 485
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_reset_zero_36_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "reset_zero",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 54,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 110,
+          "barrier": 109,
+          "reset": 36,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 37,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 485
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_72_scale0.5",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 72,
+      "idle_scale": 0.5,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 55,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 148,
+        "operation_counts": {
+          "delay": 145,
+          "barrier": 73,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 4455
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_reset_one_72_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "reset_one",
+      "steps": 72,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 56,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 146,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 292,
+        "operation_counts": {
+          "barrier": 217,
+          "delay": 146,
+          "x": 72,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 73,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 110,
+          "14": 110,
+          "15": 110,
+          "16": 110,
+          "17": 110,
+          "18": 110,
+          "19": 110,
+          "20": 110,
+          "21": 110,
+          "22": 110,
+          "23": 110,
+          "24": 110,
+          "25": 110,
+          "26": 110,
+          "27": 110,
+          "28": 110,
+          "29": 110,
+          "30": 110,
+          "31": 110,
+          "32": 110,
+          "33": 110,
+          "34": 110,
+          "35": 110,
+          "36": 110,
+          "37": 110,
+          "38": 110,
+          "39": 110,
+          "40": 110,
+          "41": 110,
+          "42": 110,
+          "43": 110,
+          "44": 110,
+          "45": 110,
+          "46": 110,
+          "47": 110,
+          "48": 110,
+          "49": 110,
+          "50": 110,
+          "51": 110,
+          "52": 110,
+          "53": 110,
+          "54": 110,
+          "55": 110,
+          "56": 110,
+          "57": 110,
+          "58": 110,
+          "59": 110,
+          "60": 110,
+          "61": 110,
+          "62": 110,
+          "63": 110,
+          "64": 110,
+          "65": 110,
+          "66": 110,
+          "67": 110,
+          "68": 110,
+          "69": 110,
+          "70": 110,
+          "71": 110,
+          "72": 110,
+          "73": 485
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_36_scale2",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 2.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 220,
+      "modeled_wait_dt": 7920,
+      "modeled_wait_us": 31.680000000000003,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 57,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 73,
+          "barrier": 37,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 8415
+        },
+        "summed_pre_measure_dt": 7930,
+        "summed_total_dt": 8415,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s0_idle_36_scale1",
+      "side": "right",
+      "initial_system": 0,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 3960,
+      "modeled_wait_us": 15.840000000000002,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 58,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 74,
+          "barrier": 37,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 4455
+        },
+        "summed_pre_measure_dt": 3970,
+        "summed_total_dt": 4455,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_idle_36_scale0.5",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 36,
+      "idle_scale": 0.5,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 55,
+      "modeled_wait_dt": 1980,
+      "modeled_wait_us": 7.920000000000001,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 59,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 38,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 76,
+        "operation_counts": {
+          "delay": 73,
+          "barrier": 37,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 2475
+        },
+        "summed_pre_measure_dt": 1990,
+        "summed_total_dt": 2475,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_reset_zero_12_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "reset_zero",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 60,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 26,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 52,
+        "operation_counts": {
+          "delay": 37,
+          "barrier": 37,
+          "reset": 12,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 13,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 485
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_reset_one_12_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "reset_one",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 61,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 26,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 52,
+        "operation_counts": {
+          "barrier": 37,
+          "delay": 25,
+          "x": 13,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 13,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 485
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "left_s1_idle_12_scale1",
+      "side": "left",
+      "initial_system": 1,
+      "arm": "idle",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 62,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 14,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 28,
+        "operation_counts": {
+          "delay": 25,
+          "barrier": 13,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 1,
+        "block_durations_dt": {
+          "1": 1815
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    },
+    {
+      "case_id": "right_s1_reset_zero_12_scale1",
+      "side": "right",
+      "initial_system": 1,
+      "arm": "reset_zero",
+      "steps": 12,
+      "idle_scale": 1.0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "cycle_dt": 110,
+      "modeled_wait_dt": 1320,
+      "modeled_wait_us": 5.28,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 63,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 26,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 52,
+        "operation_counts": {
+          "delay": 37,
+          "barrier": 37,
+          "reset": 12,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "schedule": {
+        "dynamic_blocks": 13,
+        "block_durations_dt": {
+          "1": 120,
+          "2": 110,
+          "3": 110,
+          "4": 110,
+          "5": 110,
+          "6": 110,
+          "7": 110,
+          "8": 110,
+          "9": 110,
+          "10": 110,
+          "11": 110,
+          "12": 110,
+          "13": 485
+        },
+        "summed_pre_measure_dt": 1330,
+        "summed_total_dt": 1815,
+        "unknown_reset_block_latency": true
+      }
+    }
+  ],
+  "batches": [
+    {
+      "start": 0,
+      "stop": 64,
+      "job_id": "dbf8c4fgdj9s73fn1t40",
+      "status": "collected",
+      "observations": [
+        {
+          "outcome_counts": {
+            "00": 2010,
+            "01": 38
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1904,
+            "00": 141,
+            "10": 2,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 274,
+            "01": 1772,
+            "11": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1782,
+            "00": 265,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2037,
+            "01": 9,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1722,
+            "00": 322,
+            "11": 3,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2000,
+            "01": 46,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2034,
+            "01": 9,
+            "10": 5
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1850,
+            "00": 197,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2013,
+            "01": 34,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2032,
+            "10": 2,
+            "01": 14
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2038,
+            "01": 7,
+            "10": 3
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1843,
+            "00": 204,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 97,
+            "01": 1945,
+            "11": 6
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2037,
+            "10": 3,
+            "01": 8
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1937,
+            "11": 1,
+            "00": 108,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2002,
+            "01": 46
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 5,
+            "00": 2041,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 2010,
+            "00": 36,
+            "11": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1615,
+            "00": 433
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1907,
+            "00": 139,
+            "10": 1,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1977,
+            "00": 70,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2001,
+            "01": 47
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1933,
+            "00": 113,
+            "10": 1,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2044,
+            "01": 3,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2001,
+            "01": 47
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 1999,
+            "01": 48,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2039,
+            "10": 3,
+            "01": 6
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1779,
+            "00": 268,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2011,
+            "01": 37
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1996,
+            "11": 2,
+            "00": 50
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1743,
+            "00": 302,
+            "10": 1,
+            "11": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2005,
+            "01": 43
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2041,
+            "01": 4,
+            "10": 3
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 2035,
+            "00": 11,
+            "11": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1928,
+            "00": 116,
+            "11": 4
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1921,
+            "00": 127
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1687,
+            "00": 354,
+            "11": 5,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2041,
+            "01": 5,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2001,
+            "01": 47
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1886,
+            "00": 160,
+            "10": 1,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2038,
+            "10": 6,
+            "01": 4
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 2022,
+            "00": 24,
+            "11": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2017,
+            "01": 31
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 1991,
+            "01": 55,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 583,
+            "01": 1457,
+            "11": 8
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1762,
+            "00": 285,
+            "11": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2032,
+            "01": 13,
+            "10": 3
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2039,
+            "01": 7,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1830,
+            "00": 216,
+            "11": 1,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2002,
+            "01": 44,
+            "10": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2034,
+            "01": 13,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2040,
+            "01": 7,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2038,
+            "01": 9,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 1998,
+            "01": 49,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1911,
+            "00": 137
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 1994,
+            "01": 53,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1678,
+            "00": 368,
+            "11": 1,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "00": 2002,
+            "01": 45,
+            "10": 1
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1973,
+            "00": 73,
+            "11": 2
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1933,
+            "00": 111,
+            "11": 4
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 2008,
+            "00": 37,
+            "11": 3
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1942,
+            "00": 102,
+            "11": 4
+          }
+        },
+        {
+          "outcome_counts": {
+            "01": 1986,
+            "00": 61,
+            "11": 1
+          }
+        }
+      ],
+      "collected_at_utc": "2026-10-25T23:18:35.959541+00:00",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-10-25T22:43:29.354385Z",
+          "finished": "2026-10-25T23:18:35.401707Z",
+          "running": "2026-10-25T22:44:02.357228Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 7,
+          "value": 0.107837,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.107837,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 7
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 3642047744
+      }
+    }
+  ]
+}
