@@ -1,0 +1,349 @@
+{
+  "run": "ibm_phoenix_20261025T150619_925833Z",
+  "job_ids": [
+    "dbf1lrfsstms73fcv5j0"
+  ],
+  "assessment": {
+    "passed": false,
+    "failed_sites_1based": [
+      10
+    ],
+    "sites": [
+      {
+        "site_1based": 1,
+        "physical_qubit": 49,
+        "zero_population": 0.00439453125,
+        "one_population": 0.991455078125,
+        "mixture_population": 0.491455078125,
+        "predicted_mixture": 0.4979248046875,
+        "mixture_residual": -0.0064697265625,
+        "mixture_residual_se": 0.007862350055721787,
+        "zero_error_upper_bound": 0.008808604555052843,
+        "one_error_upper_bound": 0.014118177632076567,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 2,
+        "physical_qubit": 48,
+        "zero_population": 0.004150390625,
+        "one_population": 0.98828125,
+        "mixture_population": 0.4912109375,
+        "predicted_mixture": 0.4962158203125,
+        "mixture_residual": -0.0050048828125,
+        "mixture_residual_se": 0.007873409273230764,
+        "zero_error_upper_bound": 0.00848276628447773,
+        "one_error_upper_bound": 0.017999182245060898,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 3,
+        "physical_qubit": 58,
+        "zero_population": 0.004150390625,
+        "one_population": 0.991455078125,
+        "mixture_population": 0.481201171875,
+        "predicted_mixture": 0.497802734375,
+        "mixture_residual": -0.0166015625,
+        "mixture_residual_se": 0.007857054284763404,
+        "zero_error_upper_bound": 0.00848276628447773,
+        "one_error_upper_bound": 0.014118177632076567,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 4,
+        "physical_qubit": 57,
+        "zero_population": 0.00341796875,
+        "one_population": 0.989501953125,
+        "mixture_population": 0.50732421875,
+        "predicted_mixture": 0.4964599609375,
+        "mixture_residual": 0.0108642578125,
+        "mixture_residual_se": 0.007866326540907345,
+        "zero_error_upper_bound": 0.007491341741540544,
+        "one_error_upper_bound": 0.016519284444601094,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 5,
+        "physical_qubit": 56,
+        "zero_population": 0.001708984375,
+        "one_population": 0.992919921875,
+        "mixture_population": 0.5009765625,
+        "predicted_mixture": 0.497314453125,
+        "mixture_residual": 0.003662109375,
+        "mixture_residual_se": 0.007847494018662759,
+        "zero_error_upper_bound": 0.0050612024201829526,
+        "one_error_upper_bound": 0.012283430368479198,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 6,
+        "physical_qubit": 66,
+        "zero_population": 0.005615234375,
+        "one_population": 0.98974609375,
+        "mixture_population": 0.5029296875,
+        "predicted_mixture": 0.4976806640625,
+        "mixture_residual": 0.0052490234375,
+        "mixture_residual_se": 0.007874543360984533,
+        "zero_error_upper_bound": 0.010409897815936932,
+        "one_error_upper_bound": 0.016221535922838894,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 7,
+        "physical_qubit": 76,
+        "zero_population": 0.000244140625,
+        "one_population": 0.993896484375,
+        "mixture_population": 0.479736328125,
+        "predicted_mixture": 0.4970703125,
+        "mixture_residual": -0.017333984375,
+        "mixture_residual_se": 0.007831668742748902,
+        "zero_error_upper_bound": 0.0026917209384373017,
+        "one_error_upper_bound": 0.0110394652934748,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 8,
+        "physical_qubit": 86,
+        "zero_population": 0.013916015625,
+        "one_population": 0.990234375,
+        "mixture_population": 0.506103515625,
+        "predicted_mixture": 0.5020751953125,
+        "mixture_residual": 0.0040283203125,
+        "mixture_residual_se": 0.007903738648317797,
+        "zero_error_upper_bound": 0.02063091783453106,
+        "one_error_upper_bound": 0.015624110472033634,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 9,
+        "physical_qubit": 85,
+        "zero_population": 0.001220703125,
+        "one_population": 0.994140625,
+        "mixture_population": 0.502197265625,
+        "predicted_mixture": 0.4976806640625,
+        "mixture_residual": 0.0045166015625,
+        "mixture_residual_se": 0.00784085035564825,
+        "zero_error_upper_bound": 0.0043182888283943436,
+        "one_error_upper_bound": 0.010725372050777405,
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "site_1based": 10,
+        "physical_qubit": 95,
+        "zero_population": 0.025390625,
+        "one_population": 0.99365234375,
+        "mixture_population": 0.50634765625,
+        "predicted_mixture": 0.509521484375,
+        "mixture_residual": -0.003173828125,
+        "mixture_residual_se": 0.007933223033496046,
+        "zero_error_upper_bound": 0.033945174254355774,
+        "one_error_upper_bound": 0.011352252329085846,
+        "passed": false,
+        "reasons": [
+          "zero-control error upper bound exceeds threshold"
+        ]
+      }
+    ],
+    "max_baseline_error": 0.03,
+    "family_alpha": 0.05,
+    "nominal_z_cutoff": 3.0233414397391534,
+    "interpretation": "Diagnostic screening of preparation/readout, with nominal family-adjusted mixture tests. Passing does not certify 0.02 accuracy or reservoir-reset performance."
+  },
+  "focus": [
+    {
+      "site_1based": 5,
+      "physical_qubit": 56,
+      "zero_population": 0.001708984375,
+      "one_population": 0.992919921875,
+      "mixture_population": 0.5009765625,
+      "predicted_mixture": 0.497314453125,
+      "mixture_residual": 0.003662109375,
+      "mixture_residual_se": 0.007847494018662759,
+      "zero_error_upper_bound": 0.0050612024201829526,
+      "one_error_upper_bound": 0.012283430368479198,
+      "passed": true,
+      "reasons": [],
+      "focus": true,
+      "nominal_standardized_residual": 0.4666597217265591
+    },
+    {
+      "site_1based": 7,
+      "physical_qubit": 76,
+      "zero_population": 0.000244140625,
+      "one_population": 0.993896484375,
+      "mixture_population": 0.479736328125,
+      "predicted_mixture": 0.4970703125,
+      "mixture_residual": -0.017333984375,
+      "mixture_residual_se": 0.007831668742748902,
+      "zero_error_upper_bound": 0.0026917209384373017,
+      "one_error_upper_bound": 0.0110394652934748,
+      "passed": true,
+      "reasons": [],
+      "focus": true,
+      "nominal_standardized_residual": -2.213319401570578
+    },
+    {
+      "site_1based": 10,
+      "physical_qubit": 95,
+      "zero_population": 0.025390625,
+      "one_population": 0.99365234375,
+      "mixture_population": 0.50634765625,
+      "predicted_mixture": 0.509521484375,
+      "mixture_residual": -0.003173828125,
+      "mixture_residual_se": 0.007933223033496046,
+      "zero_error_upper_bound": 0.033945174254355774,
+      "one_error_upper_bound": 0.011352252329085846,
+      "passed": false,
+      "reasons": [
+        "zero-control error upper bound exceeds threshold"
+      ],
+      "focus": false,
+      "nominal_standardized_residual": -0.40006793097828036
+    }
+  ],
+  "mixture_history": [
+    {
+      "site_1based": 1,
+      "physical_qubit": 49,
+      "earlier_control_mixture": 0.501953125,
+      "earlier_control_se": 0.011051157527957666,
+      "prefix_zero_mixture": 0.48486328125,
+      "prefix_zero_se": 0.007813821515629286,
+      "fresh_mixture": 0.491455078125,
+      "fresh_mixture_se": 0.007812312756205378,
+      "fresh_minus_prefix": 0.006591796875,
+      "nominal_independent_shot_se_of_difference": 0.011049345558850098
+    },
+    {
+      "site_1based": 2,
+      "physical_qubit": 48,
+      "earlier_control_mixture": 0.49462890625,
+      "earlier_control_se": 0.011050604197394315,
+      "prefix_zero_mixture": 0.48779296875,
+      "prefix_zero_se": 0.007801558875646027,
+      "fresh_mixture": 0.4912109375,
+      "fresh_mixture_se": 0.007812246614289886,
+      "fresh_minus_prefix": 0.00341796875,
+      "nominal_independent_shot_se_of_difference": 0.011040630328593341
+    },
+    {
+      "site_1based": 3,
+      "physical_qubit": 58,
+      "earlier_control_mixture": 0.4853515625,
+      "earlier_control_se": 0.01104649814597867,
+      "prefix_zero_mixture": 0.492919921875,
+      "prefix_zero_se": 0.007817754705446635,
+      "fresh_mixture": 0.481201171875,
+      "fresh_mixture_se": 0.007807929410252683,
+      "fresh_minus_prefix": -0.01171875,
+      "nominal_independent_shot_se_of_difference": 0.011049029383164016
+    },
+    {
+      "site_1based": 4,
+      "physical_qubit": 57,
+      "earlier_control_mixture": 0.4970703125,
+      "earlier_control_se": 0.011051052133795909,
+      "prefix_zero_mixture": 0.49560546875,
+      "prefix_zero_se": 0.007805287794259212,
+      "fresh_mixture": 0.50732421875,
+      "fresh_mixture_se": 0.00781261551134653,
+      "fresh_minus_prefix": 0.01171875,
+      "nominal_independent_shot_se_of_difference": 0.011043526550850695
+    },
+    {
+      "site_1based": 5,
+      "physical_qubit": 56,
+      "earlier_control_mixture": 0.482421875,
+      "earlier_control_se": 0.011044410274010845,
+      "prefix_zero_mixture": 0.46875,
+      "prefix_zero_se": 0.007798550384463101,
+      "fresh_mixture": 0.5009765625,
+      "fresh_mixture_se": 0.007813438945980194,
+      "fresh_minus_prefix": 0.0322265625,
+      "nominal_independent_shot_se_of_difference": 0.011039348543350268
+    },
+    {
+      "site_1based": 6,
+      "physical_qubit": 66,
+      "earlier_control_mixture": 0.486328125,
+      "earlier_control_se": 0.011047109670112808,
+      "prefix_zero_mixture": 0.489013671875,
+      "prefix_zero_se": 0.00781607358406268,
+      "fresh_mixture": 0.5029296875,
+      "fresh_mixture_se": 0.007813319720999037,
+      "fresh_minus_prefix": 0.013916015625,
+      "nominal_independent_shot_se_of_difference": 0.011051650163393469
+    },
+    {
+      "site_1based": 7,
+      "physical_qubit": 76,
+      "earlier_control_mixture": 0.47265625,
+      "earlier_control_se": 0.01103470386850181,
+      "prefix_zero_mixture": 0.4697265625,
+      "prefix_zero_se": 0.007791084313298664,
+      "fresh_mixture": 0.479736328125,
+      "fresh_mixture_se": 0.007807034547472657,
+      "fresh_minus_prefix": 0.010009765625,
+      "nominal_independent_shot_se_of_difference": 0.011029541386764914
+    },
+    {
+      "site_1based": 8,
+      "physical_qubit": 86,
+      "earlier_control_mixture": 0.50390625,
+      "earlier_control_se": 0.011050904580280779,
+      "prefix_zero_mixture": 0.488525390625,
+      "prefix_zero_se": 0.0078125300369286,
+      "fresh_mixture": 0.506103515625,
+      "fresh_mixture_se": 0.007812871679610195,
+      "fresh_minus_prefix": 0.017578125,
+      "nominal_independent_shot_se_of_difference": 0.0110488275151695
+    },
+    {
+      "site_1based": 9,
+      "physical_qubit": 85,
+      "earlier_control_mixture": 0.490234375,
+      "earlier_control_se": 0.011049133784402181,
+      "prefix_zero_mixture": 0.501220703125,
+      "prefix_zero_se": 0.0078106074406263755,
+      "fresh_mixture": 0.502197265625,
+      "fresh_mixture_se": 0.007813378402271804,
+      "fresh_minus_prefix": 0.0009765625,
+      "nominal_independent_shot_se_of_difference": 0.011047826512425672
+    },
+    {
+      "site_1based": 10,
+      "physical_qubit": 95,
+      "earlier_control_mixture": 0.52001953125,
+      "earlier_control_se": 0.011042380020012241,
+      "prefix_zero_mixture": 0.50146484375,
+      "prefix_zero_se": 0.0078112383447000305,
+      "fresh_mixture": 0.50634765625,
+      "fresh_mixture_se": 0.0078128241726757,
+      "fresh_minus_prefix": 0.0048828125,
+      "nominal_independent_shot_se_of_difference": 0.011047880612626921
+    }
+  ],
+  "verification": {
+    "raw_counts_and_saved_assessment_reproduced": true,
+    "archive_crcs_and_json_and_qpy_hash_verified": true,
+    "original_run_files_sha256": {
+      "ControlReport.md": "65f4c1b2f81195779d3ee5412f1c621d678941925b5eb9f417abd1c8fa2e9842",
+      "backend_snapshot.json": "7a97fab9fc3a1c04b045d71af6a018855ee3884900e7088e5991648469f0fc93",
+      "hardware_results.json": "d1de88a111b31902d59c5d8f94bb41d55125ec27af8fb3db086bed5c11f5336f",
+      "manifest.json": "43c82b17d7614189c9c1c29282cfa8fb48f11f0fa70895b8ae2e4ecdb23cc36b",
+      "results_bundle.zip": "1436b2f91b92c0c2fd5fe8e5fa7db36006a1945e0486a956a4ac432b1d9fb5a8",
+      "selected_path.json": "e32bc2556a3193bb333c0a865604df34ab009ce747551cda915a44b0649c6980",
+      "source.json": "bb14fbd519dddf92d3d5c066955439f3c11fc3abfd8b8a8375d345aa4651a05f"
+    },
+    "original_files_unchanged": true
+  },
+  "interpretation": "One baseline screen fails because its confidence upper bound exceeds the threshold; all mixture-response tests pass. This is not evidence that the true baseline error exceeds 3%, not a proof of evolved-state accuracy, and not validation of a static mitigation model across different execution occasions."
+}

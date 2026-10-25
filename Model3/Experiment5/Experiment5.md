@@ -768,3 +768,67 @@ analysis, after pulling/extracting the JSON files and retaining the bundle:
 .venv/bin/python Model3/Experiment5/analyze_preparation_diagnostic.py \
   --run-directory Model3/Experiment5/hardware_runs/<run-name>
 ```
+
+## Isolate boundary collisions and reset sequences
+
+`run_boundary_diagnostic.py` follows up the preparation/readout controls using
+two-qubit boundary circuits. Its default reference is the collected control
+run `ibm_phoenix_20261025T150619_925833Z`. The physical pairs are retained:
+left system/bath **49/39**, right system/bath **95/105**. No system-chain bonds
+are evolved. Each circuit measures **both** its active system and bath qubits.
+
+For each side the default evaluates ten circuits:
+
+- System 0 and system 1 baselines with bath 0: two circuits.
+- Pump from system 0 and loss from system 1, at 1, 12 and 72 collisions:
+  six circuits, resetting the bath after every collision.
+- Two 72-reset controls with the same bath preparation as the pump/loss
+  cases, with the exchange gate omitted. These leave the system ideally in
+  its initial state and test effects associated with bath pulses, resets
+  and waiting together.
+
+This gives **20 circuits × 2048 shots = 40,960 shots**, one batch. The original
+cosine sequence supplies the collision angles. These are repeated
+**conditional** pump/loss branches, not stochastic reservoir sampling and not
+a new steady-state schedule. For gate half-angle theta_k, ideal excitation
+survival under loss is `product(cos(theta_k)**2)`; ideal pumping from zero gives
+one minus that product. The ideal bath population after reset is zero.
+
+Run from Windows PowerShell at the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_boundary_diagnostic.py --account-file .\IBMRuntime\apikey.json
+```
+
+`--sides right` selects only the right pair, `--steps 1 12` shortens the tested
+sequences, and `--shots` changes the shots per circuit. Reset-only controls
+use the largest requested count. `--compile-only` resolves the target and
+saves native circuits without submitting. Native circuits are validated by
+the installed Runtime ISA validator, including the synchronization barriers
+that make the system wait for bath resets before readout.
+
+The reset-only and collision circuits differ in duration, so their difference
+is not an isolated CZ error estimate. Compare measured bath populations with
+the fresh baseline bath readout before attributing any apparent excitation to
+reset failure. Isolated-pair readout context and the added synchronization
+also differ from the original full-chain circuit. No automatic readout
+correction or causal noise attribution is applied.
+
+Results go to `hardware_runs/ibm_phoenix_boundary_<timestamp>/`, retaining
+source, shuffled case order, manifest, raw counts, original native QPY and
+calibration snapshot. `results_bundle.zip` includes those files plus PNG/PDF,
+CSV, JSON and a Markdown analysis report. Bring back the complete bundle.
+Analysis files are also written under `analysis/hardware/<run-name>/boundary/`.
+
+Resume interrupted hardware collection using the original circuits and job IDs:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_boundary_diagnostic.py --resume ".\Model3\Experiment5\hardware_runs\<boundary-run-name>\manifest.json" --account-file .\IBMRuntime\apikey.json
+```
+
+Offline analysis after pulling results:
+
+```bash
+.venv/bin/python Model3/Experiment5/run_boundary_diagnostic.py \
+  --analyze-only Model3/Experiment5/hardware_runs/<boundary-run-name>
+```
