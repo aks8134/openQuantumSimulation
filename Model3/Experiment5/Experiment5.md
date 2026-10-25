@@ -832,3 +832,91 @@ Offline analysis after pulling results:
 .venv/bin/python Model3/Experiment5/run_boundary_diagnostic.py \
   --analyze-only Model3/Experiment5/hardware_runs/<boundary-run-name>
 ```
+
+## System survival: idle-duration sweeps versus bath resets
+
+`run_reset_survival.py` follows up the isolated boundary result in
+`ibm_phoenix_boundary_20261025T215447_981524Z`. It retains system/bath pairs
+**49/39** and **95/105**. There are no exchange gates or full-chain Trotter
+steps, and the saved cosine schedule is not changed.
+
+For each endpoint, the default tests both initial system states, 0 and 1:
+
+- Fresh zero/one baselines, with bath initially zero.
+- Bath resets at **12, 36 and 72 cycles**, with the bath prepared in zero.
+- The same reset lengths, applying bath X before each reset.
+- Idle-only circuits at **0.5, 1 and 2 times** the target-model duration of
+  those reset sequences. Both system and bath idle; neither is reset within
+  the idle-only circuit.
+
+This gives **64 circuits × 2048 shots = 131,072 shots**, one batch with the
+default batch size of 256. Both active qubits are measured at the end; the
+system is classical bit 0 and the bath is bit 1. PUB order is randomized with
+seed 29; actual hardware dispatch order is not verified. Runtime initialization
+is enabled, while dynamical decoupling and twirling are disabled, as in the
+previous diagnostics.
+
+Run from Windows PowerShell at the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_reset_survival.py --account-file .\IBMRuntime\apikey.json
+```
+
+`--steps`, `--shots`, `--idle-scales` and `--batch-size` are configurable. The
+idle scales must include 1. For example, `--idle-scales 1` retains the equal
+model-time comparison only, reducing the default to **40 circuits / 81,920
+shots**. The default three-scale sweep is preferred because actual reset
+latency is uncertain. An alternative collected preparation/population or
+boundary run can be supplied with `--reference-run`.
+
+Timing is read afresh from the backend target, including `dt`, instruction
+durations, minimum lengths and alignment constraints. Instructions are built
+directly on physical qubits using native X, delay, reset, barriers and final
+measurements. No optimizer moves the initial X toward the final readout. Both
+initial system states have the same padded preparation slot. The reset-zero
+arm reserves an idle slot of the same model duration as the reset-one arm's X.
+Explicit barriers and system delays keep readout after the tested sequence.
+The Runtime dynamic ASAP scheduling analysis checks each circuit and records
+its block durations and summed preparation-to-measurement time. Equal-scale
+idle circuits must agree exactly with reset circuits in this model.
+
+**This is model-time matching, not verified wall-clock matching.**
+[IBM's dynamic scheduling documentation](https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/transpiler-passes-scheduling-alap-schedule-analysis)
+explains that resets terminate scheduling blocks, and the interval before the
+next block is nondeterministic. That extra latency is not supplied by the
+target's reset duration. The additional idle scales provide an empirical
+duration sweep; even their range is not guaranteed to contain the actual reset
+duration. A reset-minus-idle difference at scale 1 cannot alone establish
+reset crosstalk. Compare the complete survival curves and their uncertainty.
+Retaining both system states also helps distinguish excitation loss from
+apparent excitation of an initially empty system.
+
+The runner saves native QPY, source provenance, per-circuit timing and gate
+counts, fresh calibration, shuffled case order and all raw counts under
+`hardware_runs/ibm_phoenix_reset_survival_<timestamp>/`. Its results bundle
+also includes population figures, CSV/JSON tables and a Markdown report.
+Analysis is written to `analysis/hardware/<run-name>/reset_survival/`. The
+analyzer verifies source/QPY hashes, exact native circuit contents, physical
+measurement mapping, model-time consistency, complete batches and shot counts.
+It applies no readout inversion or causal classification. Its reset-minus-idle
+comparisons use scale 1 and include nominal shot SE; comparisons sharing an
+idle control are correlated. Population plots use pointwise 95% Wilson
+intervals, and difference tables include pointwise 95% Newcombe intervals.
+These omit drift and timing uncertainty and are not simultaneous bounds.
+
+Resume the original job after interrupted collection:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_reset_survival.py --resume ".\Model3\Experiment5\hardware_runs\<reset-survival-run-name>\manifest.json" --account-file .\IBMRuntime\apikey.json
+```
+
+Offline analysis after pulling results needs no account or backend:
+
+```bash
+.venv/bin/python Model3/Experiment5/run_reset_survival.py \
+  --analyze-only Model3/Experiment5/hardware_runs/<reset-survival-run-name>
+```
+
+`--compile-only` fetches the target and saves the circuits without submitting.
+Local tests instead inject a synthetic backend and mock Runtime; those tests
+make no hardware queries or submissions.

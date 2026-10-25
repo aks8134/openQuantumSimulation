@@ -1,0 +1,1250 @@
+{
+  "run": "ibm_phoenix_boundary_20261025T215447_981524Z",
+  "job_ids": [
+    "dbf7la7sstms73fd957g"
+  ],
+  "cases": [
+    {
+      "case_id": "left_baseline_pump_0",
+      "side": "left",
+      "kind": "baseline",
+      "direction": "pump",
+      "steps": 0,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 0,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 1,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 2,
+        "operation_counts": {
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.00146484375,
+      "bath_population": 0.0029296875,
+      "system_shot_se": 0.0008453146775885286,
+      "bath_shot_se": 0.0011945782974836464,
+      "system_error": 0.00146484375,
+      "bath_error": 0.0029296875,
+      "covariance_of_mean": [
+        [
+          7.14556904146598e-07,
+          -2.096499474268747e-09
+        ],
+        [
+          -2.096499474268747e-09,
+          1.427017308818927e-06
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_loss_72",
+      "side": "left",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 72,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 2.1672546227728907e-24,
+      "ideal_bath_population": 0.0,
+      "pub_index": 1,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 929,
+        "two_qubit_depth": 144,
+        "two_qubit_gates": 144,
+        "operations": 1501,
+        "operation_counts": {
+          "rz": 706,
+          "sx": 576,
+          "barrier": 144,
+          "cz": 144,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.037109375,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.004178028304300205,
+      "bath_shot_se": 0.00048828125,
+      "system_error": 0.037109375,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          1.7455920511533647e-05,
+          -8.851886669134709e-09
+        ],
+        [
+          -8.851886669134709e-09,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_loss_12",
+      "side": "left",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 12,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 2.9583370740462127e-08,
+      "ideal_bath_population": 0.0,
+      "pub_index": 2,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 152,
+        "two_qubit_depth": 24,
+        "two_qubit_gates": 24,
+        "operations": 246,
+        "operation_counts": {
+          "rz": 111,
+          "sx": 96,
+          "barrier": 24,
+          "cz": 24,
+          "reset": 12,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.01123046875,
+      "bath_population": 0.00244140625,
+      "system_shot_se": 0.0023290969043108494,
+      "bath_shot_se": 0.0010907627843154137,
+      "system_error": 0.011230439166629259,
+      "bath_error": 0.00244140625,
+      "covariance_of_mean": [
+        [
+          5.424692389670383e-06,
+          2.2514074909786042e-07
+        ],
+        [
+          2.2514074909786042e-07,
+          1.1897634516475138e-06
+        ]
+      ]
+    },
+    {
+      "case_id": "left_baseline_loss_0",
+      "side": "left",
+      "kind": "baseline",
+      "direction": "loss",
+      "steps": 0,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 3,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 2,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 3,
+        "operation_counts": {
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.98095703125,
+      "bath_population": 0.00244140625,
+      "system_shot_se": 0.003020879473748135,
+      "bath_shot_se": 0.0010907627843154137,
+      "system_error": -0.01904296875,
+      "bath_error": 0.00244140625,
+      "covariance_of_mean": [
+        [
+          9.12571279491281e-06,
+          2.2712077637911425e-08
+        ],
+        [
+          2.2712077637911425e-08,
+          1.1897634516475138e-06
+        ]
+      ]
+    },
+    {
+      "case_id": "right_reset_only_pump_72",
+      "side": "right",
+      "kind": "reset_only",
+      "direction": "pump",
+      "steps": 72,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 4,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 145,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 146,
+        "operation_counts": {
+          "barrier": 144,
+          "x": 72,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.03076171875,
+      "bath_population": 0.0,
+      "system_shot_se": 0.0038164682754455222,
+      "bath_shot_se": 0.0,
+      "system_error": 0.03076171875,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          1.456543009748212e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_pump_72",
+      "side": "left",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 72,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 5,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 865,
+        "two_qubit_depth": 144,
+        "two_qubit_gates": 144,
+        "operations": 1514,
+        "operation_counts": {
+          "rz": 720,
+          "sx": 576,
+          "barrier": 144,
+          "cz": 144,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.94580078125,
+      "bath_population": 0.00146484375,
+      "system_shot_se": 0.005004231889467268,
+      "bath_shot_se": 0.0008453146775885286,
+      "system_error": -0.05419921875,
+      "bath_error": 0.00146484375,
+      "covariance_of_mean": [
+        [
+          2.5042336803561137e-05,
+          3.878524027397182e-08
+        ],
+        [
+          3.878524027397182e-08,
+          7.14556904146598e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_loss_1",
+      "side": "right",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 1,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.22752572738338603,
+      "ideal_bath_population": 0.0,
+      "pub_index": 6,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 15,
+        "two_qubit_depth": 2,
+        "two_qubit_gates": 2,
+        "operations": 24,
+        "operation_counts": {
+          "rz": 10,
+          "sx": 8,
+          "barrier": 2,
+          "cz": 2,
+          "measure": 2,
+          "x": 1,
+          "reset": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.2607421875,
+      "bath_population": 0.001953125,
+      "system_shot_se": 0.00970386380365774,
+      "bath_shot_se": 0.0009758466324633553,
+      "system_error": 0.03321646011661397,
+      "bath_error": 0.001953125,
+      "covariance_of_mean": [
+        [
+          9.416497271993886e-05,
+          -1.0249552985313874e-08
+        ],
+        [
+          -1.0249552985313874e-08,
+          9.522766500900708e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_pump_1",
+      "side": "left",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 1,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.7724742726166139,
+      "ideal_bath_population": 0.0,
+      "pub_index": 7,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 13,
+        "two_qubit_depth": 2,
+        "two_qubit_gates": 2,
+        "operations": 23,
+        "operation_counts": {
+          "rz": 10,
+          "sx": 8,
+          "barrier": 2,
+          "cz": 2,
+          "measure": 2,
+          "reset": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.75048828125,
+      "bath_population": 0.001953125,
+      "system_shot_se": 0.009564417164640899,
+      "bath_shot_se": 0.0009758466324633553,
+      "system_error": -0.021985991366613944,
+      "bath_error": 0.001953125,
+      "covariance_of_mean": [
+        [
+          9.147807569927743e-05,
+          -2.3900094006663717e-07
+        ],
+        [
+          -2.3900094006663717e-07,
+          9.522766500900708e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_pump_1",
+      "side": "right",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 1,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.7724742726166139,
+      "ideal_bath_population": 0.0,
+      "pub_index": 8,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 13,
+        "two_qubit_depth": 2,
+        "two_qubit_gates": 2,
+        "operations": 23,
+        "operation_counts": {
+          "rz": 10,
+          "sx": 8,
+          "barrier": 2,
+          "cz": 2,
+          "measure": 2,
+          "reset": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.78564453125,
+      "bath_population": 0.0,
+      "system_shot_se": 0.009070294923997184,
+      "bath_shot_se": 0.0,
+      "system_error": 0.013170258633386056,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          8.227025000828909e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "left_reset_only_pump_72",
+      "side": "left",
+      "kind": "reset_only",
+      "direction": "pump",
+      "steps": 72,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 9,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 145,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 146,
+        "operation_counts": {
+          "barrier": 144,
+          "x": 72,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.00634765625,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.0017553551965941204,
+      "bath_shot_se": 0.00048828125,
+      "system_error": 0.00634765625,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          3.0812718662099835e-06,
+          -1.514138509194095e-09
+        ],
+        [
+          -1.514138509194095e-09,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_baseline_loss_0",
+      "side": "right",
+      "kind": "baseline",
+      "direction": "loss",
+      "steps": 0,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 10,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 2,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 3,
+        "operation_counts": {
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.99609375,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.0013787045332498418,
+      "bath_shot_se": 0.00048828125,
+      "system_error": -0.00390625,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          1.9008261900036638e-06,
+          9.31777544119443e-10
+        ],
+        [
+          9.31777544119443e-10,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_pump_72",
+      "side": "right",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 72,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 11,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 865,
+        "two_qubit_depth": 144,
+        "two_qubit_gates": 144,
+        "operations": 1514,
+        "operation_counts": {
+          "rz": 720,
+          "sx": 576,
+          "barrier": 144,
+          "cz": 144,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.95166015625,
+      "bath_population": 0.0,
+      "system_shot_se": 0.00474061452919596,
+      "bath_shot_se": 0.0,
+      "system_error": -0.04833984375,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          2.2473426114423833e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_loss_1",
+      "side": "left",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 1,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.22752572738338603,
+      "ideal_bath_population": 0.0,
+      "pub_index": 12,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 15,
+        "two_qubit_depth": 2,
+        "two_qubit_gates": 2,
+        "operations": 24,
+        "operation_counts": {
+          "rz": 10,
+          "sx": 8,
+          "barrier": 2,
+          "cz": 2,
+          "measure": 2,
+          "x": 1,
+          "reset": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.24365234375,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.009488271605676318,
+      "bath_shot_se": 0.00048828125,
+      "system_error": 0.01612661636661397,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          9.002729806308346e-05,
+          -5.811962431445026e-08
+        ],
+        [
+          -5.811962431445026e-08,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_pump_12",
+      "side": "left",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 12,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.9999999704166292,
+      "ideal_bath_population": 0.0,
+      "pub_index": 13,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 145,
+        "two_qubit_depth": 24,
+        "two_qubit_gates": 24,
+        "operations": 254,
+        "operation_counts": {
+          "rz": 120,
+          "sx": 96,
+          "barrier": 24,
+          "cz": 24,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.974609375,
+      "bath_population": 0.0009765625,
+      "system_shot_se": 0.0034769069382722417,
+      "bath_shot_se": 0.0006903652756455057,
+      "system_error": -0.025390595416629247,
+      "bath_error": 0.0009765625,
+      "covariance_of_mean": [
+        [
+          1.2088881857405655e-05,
+          1.211310807355276e-08
+        ],
+        [
+          1.211310807355276e-08,
+          4.7660421381709515e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_pump_12",
+      "side": "right",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 12,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.9999999704166292,
+      "ideal_bath_population": 0.0,
+      "pub_index": 14,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 145,
+        "two_qubit_depth": 24,
+        "two_qubit_gates": 24,
+        "operations": 254,
+        "operation_counts": {
+          "rz": 120,
+          "sx": 96,
+          "barrier": 24,
+          "cz": 24,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.98974609375,
+      "bath_population": 0.0009765625,
+      "system_shot_se": 0.002226627907861244,
+      "bath_shot_se": 0.0006903652756455057,
+      "system_error": -0.010253876666629247,
+      "bath_error": 0.0009765625,
+      "covariance_of_mean": [
+        [
+          4.957871840066542e-06,
+          4.891832106627076e-09
+        ],
+        [
+          4.891832106627076e-09,
+          4.7660421381709515e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_baseline_pump_0",
+      "side": "right",
+      "kind": "baseline",
+      "direction": "pump",
+      "steps": 0,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 15,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 1,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 2,
+        "operation_counts": {
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.0244140625,
+      "bath_population": 0.0,
+      "system_shot_se": 0.0034110954372740063,
+      "bath_shot_se": 0.0,
+      "system_error": 0.0244140625,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          1.1635572082191545e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "left_reset_only_loss_72",
+      "side": "left",
+      "kind": "reset_only",
+      "direction": "loss",
+      "steps": 72,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 16,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 75,
+        "operation_counts": {
+          "barrier": 144,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.8154296875,
+      "bath_population": 0.0,
+      "system_shot_se": 0.008574627488270552,
+      "bath_shot_se": 0.0,
+      "system_error": -0.1845703125,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          7.352423656260495e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "right_reset_only_loss_72",
+      "side": "right",
+      "kind": "reset_only",
+      "direction": "loss",
+      "steps": 72,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 17,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 75,
+        "operation_counts": {
+          "barrier": 144,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.880859375,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.007160186033375111,
+      "bath_shot_se": 0.00048828125,
+      "system_error": -0.119140625,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          5.126826403254e-05,
+          2.8419215095643013e-08
+        ],
+        [
+          2.8419215095643013e-08,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_loss_72",
+      "side": "right",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 72,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 2.1672546227728937e-24,
+      "ideal_bath_population": 0.0,
+      "pub_index": 18,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 924,
+        "two_qubit_depth": 144,
+        "two_qubit_gates": 144,
+        "operations": 1489,
+        "operation_counts": {
+          "rz": 694,
+          "sx": 576,
+          "barrier": 144,
+          "cz": 144,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.08544921875,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.006178727463278244,
+      "bath_shot_se": 0.00048828125,
+      "system_error": 0.08544921875,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          3.8176673065468806e-05,
+          2.181524175169646e-07
+        ],
+        [
+          2.181524175169646e-07,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_loss_12",
+      "side": "right",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 12,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 2.9583370740462127e-08,
+      "ideal_bath_population": 0.0,
+      "pub_index": 19,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 154,
+        "two_qubit_depth": 24,
+        "two_qubit_gates": 24,
+        "operations": 250,
+        "operation_counts": {
+          "rz": 115,
+          "sx": 96,
+          "barrier": 24,
+          "cz": 24,
+          "reset": 12,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.0361328125,
+      "bath_population": 0.0,
+      "system_shot_se": 0.00412477782030123,
+      "bath_shot_se": 0.0,
+      "system_error": 0.03613278291662926,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          1.701379206684897e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "contrasts": [
+    {
+      "label": "left: reset-only loss minus baseline",
+      "case_a": "left_reset_only_loss_72",
+      "case_b": "left_baseline_loss_0",
+      "difference": -0.16552734375,
+      "difference_ci95": [
+        -0.18364174883920795,
+        -0.1479204988680597
+      ],
+      "nominal_shot_se": 0.009091201755407135,
+      "fisher_two_sided_p": 1.323739990950691e-77,
+      "holm_p_eight_contrasts": 1.0589919927605528e-76
+    },
+    {
+      "label": "left: reset-only pump minus baseline",
+      "case_a": "left_reset_only_pump_72",
+      "case_b": "left_baseline_pump_0",
+      "difference": 0.0048828125,
+      "difference_ci95": [
+        0.0010141266098766706,
+        0.009468532387903846
+      ],
+      "nominal_shot_se": 0.0019482886773670327,
+      "fisher_two_sided_p": 0.021027178788171758,
+      "holm_p_eight_contrasts": 0.042054357576343515
+    },
+    {
+      "label": "left: collision pump, 72 minus 12",
+      "case_a": "left_collision_pump_72",
+      "case_b": "left_collision_pump_12",
+      "difference": -0.02880859375,
+      "difference_ci95": [
+        -0.041035088908447856,
+        -0.01693170925540408
+      ],
+      "nominal_shot_se": 0.00609353909160898,
+      "fisher_two_sided_p": 2.8259725994370804e-06,
+      "holm_p_eight_contrasts": 8.477917798311242e-06
+    },
+    {
+      "label": "left: collision loss, 72 minus 12",
+      "case_a": "left_collision_loss_72",
+      "case_b": "left_collision_loss_12",
+      "difference": 0.02587890625,
+      "difference_ci95": [
+        0.016652877658589874,
+        0.03570789747048696
+      ],
+      "nominal_shot_se": 0.004783368363528365,
+      "fisher_two_sided_p": 6.015000922561383e-08,
+      "holm_p_eight_contrasts": 2.406000369024553e-07
+    },
+    {
+      "label": "right: reset-only loss minus baseline",
+      "case_a": "right_reset_only_loss_72",
+      "case_b": "right_baseline_loss_0",
+      "difference": -0.115234375,
+      "difference_ci95": [
+        -0.13010785699499994,
+        -0.10138541399855745
+      ],
+      "nominal_shot_se": 0.007291713805583956,
+      "fisher_two_sided_p": 7.541331844432467e-65,
+      "holm_p_eight_contrasts": 5.278932291102727e-64
+    },
+    {
+      "label": "right: reset-only pump minus baseline",
+      "case_a": "right_reset_only_pump_72",
+      "case_b": "right_baseline_pump_0",
+      "difference": 0.00634765625,
+      "difference_ci95": [
+        -0.0037677243514413483,
+        0.01658301340456727
+      ],
+      "nominal_shot_se": 0.00511869145189214,
+      "fisher_two_sided_p": 0.25220677506689626,
+      "holm_p_eight_contrasts": 0.25220677506689626
+    },
+    {
+      "label": "right: collision pump, 72 minus 12",
+      "case_a": "right_collision_pump_72",
+      "case_b": "right_collision_pump_12",
+      "difference": -0.0380859375,
+      "difference_ci95": [
+        -0.04884840710377794,
+        -0.028053621858125877
+      ],
+      "nominal_shot_se": 0.005237489661516324,
+      "fisher_two_sided_p": 1.2447281377683512e-13,
+      "holm_p_eight_contrasts": 7.468368826610107e-13
+    },
+    {
+      "label": "right: collision loss, 72 minus 12",
+      "case_a": "right_collision_loss_72",
+      "case_b": "right_collision_loss_12",
+      "difference": 0.04931640625,
+      "difference_ci95": [
+        0.03484171348718228,
+        0.06411278608012008
+      ],
+      "nominal_shot_se": 0.007429028545665831,
+      "fisher_two_sided_p": 3.4746403835169524e-11,
+      "holm_p_eight_contrasts": 1.7373201917584762e-10
+    }
+  ],
+  "forward_baseline_diagnostics": [
+    {
+      "case_id": "left_collision_pump_1",
+      "ideal_population": 0.7724742726166139,
+      "raw_population": 0.75048828125,
+      "baseline_forward_prediction": 0.7580973588227186,
+      "residual": -0.007609077572718559,
+      "nominal_residual_se": 0.009846853825766107,
+      "nominal_residual_z": -0.7727420054523411
+    },
+    {
+      "case_id": "left_collision_pump_12",
+      "ideal_population": 0.9999999704166292,
+      "raw_population": 0.974609375,
+      "baseline_forward_prediction": 0.9809570022733195,
+      "residual": -0.0063476272733195005,
+      "nominal_residual_se": 0.004605930319965749,
+      "nominal_residual_z": -1.3781422714546632
+    },
+    {
+      "case_id": "left_collision_pump_72",
+      "ideal_population": 1.0,
+      "raw_population": 0.94580078125,
+      "baseline_forward_prediction": 0.98095703125,
+      "residual": -0.03515625,
+      "nominal_residual_se": 0.005845344266890869,
+      "nominal_residual_z": -6.014401957320396
+    },
+    {
+      "case_id": "left_collision_loss_1",
+      "ideal_population": 0.22752572738338603,
+      "raw_population": 0.24365234375,
+      "baseline_forward_prediction": 0.2243245161772814,
+      "residual": 0.019327827572718587,
+      "nominal_residual_se": 0.00953551810146715,
+      "nominal_residual_z": 2.0269299860848435
+    },
+    {
+      "case_id": "left_collision_loss_12",
+      "ideal_population": 2.9583370740462127e-08,
+      "raw_population": 0.01123046875,
+      "baseline_forward_prediction": 0.0014648727266805203,
+      "residual": 0.00976559602331948,
+      "nominal_residual_se": 0.0024777508453311006,
+      "nominal_residual_z": 3.9413147781670954
+    },
+    {
+      "case_id": "left_collision_loss_72",
+      "ideal_population": 2.1672546227728907e-24,
+      "raw_population": 0.037109375,
+      "baseline_forward_prediction": 0.00146484375,
+      "residual": 0.03564453125,
+      "nominal_residual_se": 0.0042626842969753515,
+      "nominal_residual_z": 8.361991826439525
+    },
+    {
+      "case_id": "right_collision_pump_1",
+      "ideal_population": 0.7724742726166139,
+      "raw_population": 0.78564453125,
+      "baseline_forward_prediction": 0.7750116223179012,
+      "residual": 0.010632908932098784,
+      "nominal_residual_se": 0.009165525307031614,
+      "nominal_residual_z": 1.1600981477778933
+    },
+    {
+      "case_id": "right_collision_pump_12",
+      "ideal_population": 0.9999999704166292,
+      "raw_population": 0.98974609375,
+      "baseline_forward_prediction": 0.9960937212544395,
+      "residual": -0.0063476275044395125,
+      "nominal_residual_se": 0.0026189115902612147,
+      "nominal_residual_z": -2.4237654787752456
+    },
+    {
+      "case_id": "right_collision_pump_72",
+      "ideal_population": 1.0,
+      "raw_population": 0.95166015625,
+      "baseline_forward_prediction": 0.99609375,
+      "residual": -0.04443359375,
+      "nominal_residual_se": 0.004937028691878092,
+      "nominal_residual_z": -9.000067960532157
+    },
+    {
+      "case_id": "right_collision_loss_1",
+      "ideal_population": 0.22752572738338603,
+      "raw_population": 0.2607421875,
+      "baseline_forward_prediction": 0.24549619018209873,
+      "residual": 0.015245997317901272,
+      "nominal_residual_se": 0.010060144754308938,
+      "nominal_residual_z": 1.5154848851823073
+    },
+    {
+      "case_id": "right_collision_loss_12",
+      "ideal_population": 2.9583370740462127e-08,
+      "raw_population": 0.0361328125,
+      "baseline_forward_prediction": 0.024414091245560435,
+      "residual": 0.011718721254439565,
+      "nominal_residual_se": 0.005352510014993118,
+      "nominal_residual_z": 2.189388010786306
+    },
+    {
+      "case_id": "right_collision_loss_72",
+      "ideal_population": 2.1672546227728937e-24,
+      "raw_population": 0.08544921875,
+      "baseline_forward_prediction": 0.0244140625,
+      "residual": 0.06103515625,
+      "nominal_residual_se": 0.007057779052057407,
+      "nominal_residual_z": 8.647926748600566
+    }
+  ],
+  "statistical_methods": {
+    "case_intervals": "Pointwise 95% Wilson",
+    "contrast_intervals": "Pointwise 95% Newcombe independent proportions",
+    "hypothesis_tests": "Two-sided Fisher exact, Holm adjustment across the eight explicitly listed contrasts",
+    "assumptions": "Independent stationary shots and independent circuits; excludes drift/context/model uncertainty. No readout inversion."
+  },
+  "verification": {
+    "source_integrity": "matches_original_CRLF_line_endings",
+    "isa_qpy_sha256_verified": true,
+    "original_files_sha256": {
+      "source.json": "bb14fbd519dddf92d3d5c066955439f3c11fc3abfd8b8a8375d345aa4651a05f",
+      "manifest.json": "65c959e6dde5141bb701306aacd983a355d983fe192f1e46d91f8863779a1960"
+    }
+  },
+  "preserved_files_sha256": {
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_boundary_20261025T215447_981524Z/backend_snapshot.json": "9160dcc694852d1e6e4ec41e882b0eb8dda948a122a5ea58235773c0656ce929",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_boundary_20261025T215447_981524Z/hardware_results.json": "9ed306ca4de2d7add475a83bb3bba5bc94f27bb4a2533fc40d7e5f7d33ceec7a",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_boundary_20261025T215447_981524Z/manifest.json": "65c959e6dde5141bb701306aacd983a355d983fe192f1e46d91f8863779a1960",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_boundary_20261025T215447_981524Z/results_bundle.zip": "a5de14d79658940fc2be9cc9893e036524e814bfdd1be56a25be08934dd503c9",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/hardware_runs/ibm_phoenix_boundary_20261025T215447_981524Z/source.json": "bb14fbd519dddf92d3d5c066955439f3c11fc3abfd8b8a8375d345aa4651a05f",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/analysis/hardware/ibm_phoenix_boundary_20261025T215447_981524Z/boundary/Analysis.md": "8e3a7b44a054f17f4cae3453203d8b590189a3384e429f42919d80b7afd2d1ab",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/analysis/hardware/ibm_phoenix_boundary_20261025T215447_981524Z/boundary/analysis.json": "9ed306ca4de2d7add475a83bb3bba5bc94f27bb4a2533fc40d7e5f7d33ceec7a",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/analysis/hardware/ibm_phoenix_boundary_20261025T215447_981524Z/boundary/boundary_controls.csv": "7806e535efb46f3f33a26c46c802b17539aae1d235d4f58036d31790fc52cba1",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/analysis/hardware/ibm_phoenix_boundary_20261025T215447_981524Z/boundary/boundary_controls.pdf": "4478c40f2225e38cc2de1d38ac1ce0173bcbcb72a4d41eef07aec9d0efd52c2b",
+    "/storage/home/aks8134/OpenQuantumSystem/Model3/Experiment5/analysis/hardware/ibm_phoenix_boundary_20261025T215447_981524Z/boundary/boundary_controls.png": "d775289eb1b97b66dc3970c0bea82a07dd8fc9a5cbf882c5164263f134b1480b"
+  }
+}
