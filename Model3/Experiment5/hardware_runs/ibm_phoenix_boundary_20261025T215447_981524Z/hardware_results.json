@@ -1,0 +1,1079 @@
+{
+  "experiment": "Model3/Experiment5/boundary_diagnostic",
+  "run_directory": "C:\\Users\\aks8134\\Documents\\Quantum Research\\openQuantumSimulation\\Model3\\Experiment5\\hardware_runs\\ibm_phoenix_boundary_20261025T215447_981524Z",
+  "configuration": {
+    "backend": "ibm_phoenix",
+    "physical_path": [
+      39,
+      49,
+      48,
+      58,
+      57,
+      56,
+      66,
+      76,
+      86,
+      85,
+      95,
+      105
+    ],
+    "reference": {
+      "mode": "isolated_boundary_reference",
+      "reference_run": "ibm_phoenix_20261025T150619_925833Z",
+      "reference_manifest_sha256": "57c20d63410e89f421e32071caf6948f909de38327322c1375361179a098044a",
+      "reference_source_sha256": "ddf05c05c5c8726feffe4e15c61261b16126fc72e4fe3dc6071c492647c48475",
+      "source_integrity": "exact_bytes",
+      "reference_job_ids": [
+        "dbf1lrfsstms73fcv5j0"
+      ],
+      "physical_path": [
+        39,
+        49,
+        48,
+        58,
+        57,
+        56,
+        66,
+        76,
+        86,
+        85,
+        95,
+        105
+      ],
+      "focus_qubits": [],
+      "interpretation": "Reference supplies physical endpoint pairs and the compensated collision-angle schedule. These isolated repetitions are not full-chain evolution."
+    },
+    "steps": [
+      1,
+      12,
+      72
+    ],
+    "sides": [
+      "left",
+      "right"
+    ],
+    "shots": 2048,
+    "batch_size": 256,
+    "order_seed": 29,
+    "seed_transpiler": 11,
+    "optimization_level": 3,
+    "source_sha256": "ddf05c05c5c8726feffe4e15c61261b16126fc72e4fe3dc6071c492647c48475",
+    "total_circuits": 20,
+    "total_shots": 40960,
+    "isa_sha256": "43645c4c1c056e9403057901b8f989130e21fefc091b3e0217b2a75c2a0192ef"
+  },
+  "job_ids": [
+    "dbf7la7sstms73fd957g"
+  ],
+  "cases": [
+    {
+      "case_id": "left_baseline_pump_0",
+      "side": "left",
+      "kind": "baseline",
+      "direction": "pump",
+      "steps": 0,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 0,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 1,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 2,
+        "operation_counts": {
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.00146484375,
+      "bath_population": 0.0029296875,
+      "system_shot_se": 0.0008453146775885286,
+      "bath_shot_se": 0.0011945782974836464,
+      "system_error": 0.00146484375,
+      "bath_error": 0.0029296875,
+      "covariance_of_mean": [
+        [
+          7.14556904146598e-07,
+          -2.096499474268747e-09
+        ],
+        [
+          -2.096499474268747e-09,
+          1.427017308818927e-06
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_loss_72",
+      "side": "left",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 72,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 2.1672546227728907e-24,
+      "ideal_bath_population": 0.0,
+      "pub_index": 1,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 929,
+        "two_qubit_depth": 144,
+        "two_qubit_gates": 144,
+        "operations": 1501,
+        "operation_counts": {
+          "rz": 706,
+          "sx": 576,
+          "barrier": 144,
+          "cz": 144,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.037109375,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.004178028304300205,
+      "bath_shot_se": 0.00048828125,
+      "system_error": 0.037109375,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          1.7455920511533647e-05,
+          -8.851886669134709e-09
+        ],
+        [
+          -8.851886669134709e-09,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_loss_12",
+      "side": "left",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 12,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 2.9583370740462127e-08,
+      "ideal_bath_population": 0.0,
+      "pub_index": 2,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 152,
+        "two_qubit_depth": 24,
+        "two_qubit_gates": 24,
+        "operations": 246,
+        "operation_counts": {
+          "rz": 111,
+          "sx": 96,
+          "barrier": 24,
+          "cz": 24,
+          "reset": 12,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.01123046875,
+      "bath_population": 0.00244140625,
+      "system_shot_se": 0.0023290969043108494,
+      "bath_shot_se": 0.0010907627843154137,
+      "system_error": 0.011230439166629259,
+      "bath_error": 0.00244140625,
+      "covariance_of_mean": [
+        [
+          5.424692389670383e-06,
+          2.2514074909786042e-07
+        ],
+        [
+          2.2514074909786042e-07,
+          1.1897634516475138e-06
+        ]
+      ]
+    },
+    {
+      "case_id": "left_baseline_loss_0",
+      "side": "left",
+      "kind": "baseline",
+      "direction": "loss",
+      "steps": 0,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 3,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 2,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 3,
+        "operation_counts": {
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.98095703125,
+      "bath_population": 0.00244140625,
+      "system_shot_se": 0.003020879473748135,
+      "bath_shot_se": 0.0010907627843154137,
+      "system_error": -0.01904296875,
+      "bath_error": 0.00244140625,
+      "covariance_of_mean": [
+        [
+          9.12571279491281e-06,
+          2.2712077637911425e-08
+        ],
+        [
+          2.2712077637911425e-08,
+          1.1897634516475138e-06
+        ]
+      ]
+    },
+    {
+      "case_id": "right_reset_only_pump_72",
+      "side": "right",
+      "kind": "reset_only",
+      "direction": "pump",
+      "steps": 72,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 4,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 145,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 146,
+        "operation_counts": {
+          "barrier": 144,
+          "x": 72,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.03076171875,
+      "bath_population": 0.0,
+      "system_shot_se": 0.0038164682754455222,
+      "bath_shot_se": 0.0,
+      "system_error": 0.03076171875,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          1.456543009748212e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_pump_72",
+      "side": "left",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 72,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 5,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 865,
+        "two_qubit_depth": 144,
+        "two_qubit_gates": 144,
+        "operations": 1514,
+        "operation_counts": {
+          "rz": 720,
+          "sx": 576,
+          "barrier": 144,
+          "cz": 144,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.94580078125,
+      "bath_population": 0.00146484375,
+      "system_shot_se": 0.005004231889467268,
+      "bath_shot_se": 0.0008453146775885286,
+      "system_error": -0.05419921875,
+      "bath_error": 0.00146484375,
+      "covariance_of_mean": [
+        [
+          2.5042336803561137e-05,
+          3.878524027397182e-08
+        ],
+        [
+          3.878524027397182e-08,
+          7.14556904146598e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_loss_1",
+      "side": "right",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 1,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.22752572738338603,
+      "ideal_bath_population": 0.0,
+      "pub_index": 6,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 15,
+        "two_qubit_depth": 2,
+        "two_qubit_gates": 2,
+        "operations": 24,
+        "operation_counts": {
+          "rz": 10,
+          "sx": 8,
+          "barrier": 2,
+          "cz": 2,
+          "measure": 2,
+          "x": 1,
+          "reset": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.2607421875,
+      "bath_population": 0.001953125,
+      "system_shot_se": 0.00970386380365774,
+      "bath_shot_se": 0.0009758466324633553,
+      "system_error": 0.03321646011661397,
+      "bath_error": 0.001953125,
+      "covariance_of_mean": [
+        [
+          9.416497271993886e-05,
+          -1.0249552985313874e-08
+        ],
+        [
+          -1.0249552985313874e-08,
+          9.522766500900708e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_pump_1",
+      "side": "left",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 1,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.7724742726166139,
+      "ideal_bath_population": 0.0,
+      "pub_index": 7,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 13,
+        "two_qubit_depth": 2,
+        "two_qubit_gates": 2,
+        "operations": 23,
+        "operation_counts": {
+          "rz": 10,
+          "sx": 8,
+          "barrier": 2,
+          "cz": 2,
+          "measure": 2,
+          "reset": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.75048828125,
+      "bath_population": 0.001953125,
+      "system_shot_se": 0.009564417164640899,
+      "bath_shot_se": 0.0009758466324633553,
+      "system_error": -0.021985991366613944,
+      "bath_error": 0.001953125,
+      "covariance_of_mean": [
+        [
+          9.147807569927743e-05,
+          -2.3900094006663717e-07
+        ],
+        [
+          -2.3900094006663717e-07,
+          9.522766500900708e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_pump_1",
+      "side": "right",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 1,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.7724742726166139,
+      "ideal_bath_population": 0.0,
+      "pub_index": 8,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 13,
+        "two_qubit_depth": 2,
+        "two_qubit_gates": 2,
+        "operations": 23,
+        "operation_counts": {
+          "rz": 10,
+          "sx": 8,
+          "barrier": 2,
+          "cz": 2,
+          "measure": 2,
+          "reset": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.78564453125,
+      "bath_population": 0.0,
+      "system_shot_se": 0.009070294923997184,
+      "bath_shot_se": 0.0,
+      "system_error": 0.013170258633386056,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          8.227025000828909e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "left_reset_only_pump_72",
+      "side": "left",
+      "kind": "reset_only",
+      "direction": "pump",
+      "steps": 72,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 9,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 145,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 146,
+        "operation_counts": {
+          "barrier": 144,
+          "x": 72,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.00634765625,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.0017553551965941204,
+      "bath_shot_se": 0.00048828125,
+      "system_error": 0.00634765625,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          3.0812718662099835e-06,
+          -1.514138509194095e-09
+        ],
+        [
+          -1.514138509194095e-09,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_baseline_loss_0",
+      "side": "right",
+      "kind": "baseline",
+      "direction": "loss",
+      "steps": 0,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 10,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 2,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 3,
+        "operation_counts": {
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.99609375,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.0013787045332498418,
+      "bath_shot_se": 0.00048828125,
+      "system_error": -0.00390625,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          1.9008261900036638e-06,
+          9.31777544119443e-10
+        ],
+        [
+          9.31777544119443e-10,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_pump_72",
+      "side": "right",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 72,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 11,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 865,
+        "two_qubit_depth": 144,
+        "two_qubit_gates": 144,
+        "operations": 1514,
+        "operation_counts": {
+          "rz": 720,
+          "sx": 576,
+          "barrier": 144,
+          "cz": 144,
+          "reset": 72,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.95166015625,
+      "bath_population": 0.0,
+      "system_shot_se": 0.00474061452919596,
+      "bath_shot_se": 0.0,
+      "system_error": -0.04833984375,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          2.2473426114423833e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_loss_1",
+      "side": "left",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 1,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.22752572738338603,
+      "ideal_bath_population": 0.0,
+      "pub_index": 12,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 15,
+        "two_qubit_depth": 2,
+        "two_qubit_gates": 2,
+        "operations": 24,
+        "operation_counts": {
+          "rz": 10,
+          "sx": 8,
+          "barrier": 2,
+          "cz": 2,
+          "measure": 2,
+          "x": 1,
+          "reset": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.24365234375,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.009488271605676318,
+      "bath_shot_se": 0.00048828125,
+      "system_error": 0.01612661636661397,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          9.002729806308346e-05,
+          -5.811962431445026e-08
+        ],
+        [
+          -5.811962431445026e-08,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "left_collision_pump_12",
+      "side": "left",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 12,
+      "initial_system": 0,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 0.9999999704166292,
+      "ideal_bath_population": 0.0,
+      "pub_index": 13,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 145,
+        "two_qubit_depth": 24,
+        "two_qubit_gates": 24,
+        "operations": 254,
+        "operation_counts": {
+          "rz": 120,
+          "sx": 96,
+          "barrier": 24,
+          "cz": 24,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.974609375,
+      "bath_population": 0.0009765625,
+      "system_shot_se": 0.0034769069382722417,
+      "bath_shot_se": 0.0006903652756455057,
+      "system_error": -0.025390595416629247,
+      "bath_error": 0.0009765625,
+      "covariance_of_mean": [
+        [
+          1.2088881857405655e-05,
+          1.211310807355276e-08
+        ],
+        [
+          1.211310807355276e-08,
+          4.7660421381709515e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_pump_12",
+      "side": "right",
+      "kind": "collision",
+      "direction": "pump",
+      "steps": 12,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.9999999704166292,
+      "ideal_bath_population": 0.0,
+      "pub_index": 14,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 145,
+        "two_qubit_depth": 24,
+        "two_qubit_gates": 24,
+        "operations": 254,
+        "operation_counts": {
+          "rz": 120,
+          "sx": 96,
+          "barrier": 24,
+          "cz": 24,
+          "reset": 12,
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.98974609375,
+      "bath_population": 0.0009765625,
+      "system_shot_se": 0.002226627907861244,
+      "bath_shot_se": 0.0006903652756455057,
+      "system_error": -0.010253876666629247,
+      "bath_error": 0.0009765625,
+      "covariance_of_mean": [
+        [
+          4.957871840066542e-06,
+          4.891832106627076e-09
+        ],
+        [
+          4.891832106627076e-09,
+          4.7660421381709515e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_baseline_pump_0",
+      "side": "right",
+      "kind": "baseline",
+      "direction": "pump",
+      "steps": 0,
+      "initial_system": 0,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 0.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 15,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 1,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 2,
+        "operation_counts": {
+          "measure": 2
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.0244140625,
+      "bath_population": 0.0,
+      "system_shot_se": 0.0034110954372740063,
+      "bath_shot_se": 0.0,
+      "system_error": 0.0244140625,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          1.1635572082191545e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "left_reset_only_loss_72",
+      "side": "left",
+      "kind": "reset_only",
+      "direction": "loss",
+      "steps": 72,
+      "initial_system": 1,
+      "physical_site": 49,
+      "physical_bath": 39,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 16,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        49,
+        39
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 75,
+        "operation_counts": {
+          "barrier": 144,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.8154296875,
+      "bath_population": 0.0,
+      "system_shot_se": 0.008574627488270552,
+      "bath_shot_se": 0.0,
+      "system_error": -0.1845703125,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          7.352423656260495e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case_id": "right_reset_only_loss_72",
+      "side": "right",
+      "kind": "reset_only",
+      "direction": "loss",
+      "steps": 72,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 1.0,
+      "ideal_bath_population": 0.0,
+      "pub_index": 17,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 74,
+        "two_qubit_depth": 0,
+        "two_qubit_gates": 0,
+        "operations": 75,
+        "operation_counts": {
+          "barrier": 144,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.880859375,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.007160186033375111,
+      "bath_shot_se": 0.00048828125,
+      "system_error": -0.119140625,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          5.126826403254e-05,
+          2.8419215095643013e-08
+        ],
+        [
+          2.8419215095643013e-08,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_loss_72",
+      "side": "right",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 72,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 2.1672546227728937e-24,
+      "ideal_bath_population": 0.0,
+      "pub_index": 18,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 924,
+        "two_qubit_depth": 144,
+        "two_qubit_gates": 144,
+        "operations": 1489,
+        "operation_counts": {
+          "rz": 694,
+          "sx": 576,
+          "barrier": 144,
+          "cz": 144,
+          "reset": 72,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.08544921875,
+      "bath_population": 0.00048828125,
+      "system_shot_se": 0.006178727463278244,
+      "bath_shot_se": 0.00048828125,
+      "system_error": 0.08544921875,
+      "bath_error": 0.00048828125,
+      "covariance_of_mean": [
+        [
+          3.8176673065468806e-05,
+          2.181524175169646e-07
+        ],
+        [
+          2.181524175169646e-07,
+          2.384185791015625e-07
+        ]
+      ]
+    },
+    {
+      "case_id": "right_collision_loss_12",
+      "side": "right",
+      "kind": "collision",
+      "direction": "loss",
+      "steps": 12,
+      "initial_system": 1,
+      "physical_site": 95,
+      "physical_bath": 105,
+      "ideal_system_population": 2.9583370740462127e-08,
+      "ideal_bath_population": 0.0,
+      "pub_index": 19,
+      "shots": 2048,
+      "final_logical_to_physical": [
+        95,
+        105
+      ],
+      "metrics": {
+        "depth": 154,
+        "two_qubit_depth": 24,
+        "two_qubit_gates": 24,
+        "operations": 250,
+        "operation_counts": {
+          "rz": 115,
+          "sx": 96,
+          "barrier": 24,
+          "cz": 24,
+          "reset": 12,
+          "measure": 2,
+          "x": 1
+        },
+        "active_qubits": 2,
+        "allocated_qubits": 120,
+        "classical_bits": 2
+      },
+      "system_population": 0.0361328125,
+      "bath_population": 0.0,
+      "system_shot_se": 0.00412477782030123,
+      "bath_shot_se": 0.0,
+      "system_error": 0.03613278291662926,
+      "bath_error": 0.0,
+      "covariance_of_mean": [
+        [
+          1.701379206684897e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "verification": {
+    "source_integrity": "exact_bytes",
+    "isa_qpy_sha256_verified": true,
+    "original_files_sha256": {
+      "source.json": "ddf05c05c5c8726feffe4e15c61261b16126fc72e4fe3dc6071c492647c48475",
+      "manifest.json": "a4cb9aeaa7c27bb6f603deb2e79a390ebecdb49716fd422f2f248f17d2f8dd7f"
+    }
+  },
+  "scope": "Isolated conditional pump/loss and reset controls; not the physical randomized chain or a steady-state validation. Raw measurements include preparation/readout errors."
+}
