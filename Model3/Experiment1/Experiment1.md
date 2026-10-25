@@ -116,6 +116,87 @@ against the physical stationary state and decreases under step refinement.
 Symmetric unitary splitting does not make this a second-order physical-time
 solver. This experiment runs classically and produces no hardware jobs.
 
+## Efficient exact XX reference and automatic steady-state check
+
+For larger XX chains, `exact.py --solver covariance` evolves the same exact
+Lindblad populations and excitation currents using only $N\times N$ matrices.
+It supports $\Delta=0$ and exact evolution only. The existing density-matrix
+solver remains the default, including for dilation comparisons and interacting
+XXZ models. The covariance mode constructs no many-body density matrix,
+Liouvillian or circuit and uses no trajectory sampling or measurement shots.
+
+For the current hardware parameters and initial half-filled product mixture,
+run from the repository root in Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment1\exact.py --solver covariance --n-qubits 10 --J 1 --gamma 1 --p-left 0.9 --p-right 0.1 --exchange-prefactor 0.5 --initial-states half_mixed --t-final 200 --num-times 401 --steady-tolerance 0.02 --until-steady --output-dir .\Model3\Experiment1\results\N10_covariance_J1_G1
+```
+
+Here `--t-final 200` is the maximum observation time, not a guarantee or a
+Trotter schedule. The 401 requested observations resolve the stopping time
+to a grid spacing of 0.5. Exact matrix exponentials evaluate the continuous
+evolution at these absolute times. Remove `--until-steady` to retain the
+entire requested time series. Arbitrary increasing absolute times can still
+be supplied with `--times`.
+
+`--initial-states half_mixed` matches the hardware's nominal preparation:
+$C(0)=I/2$, zero initial current, and no initial coherences. Omit this option
+to retain Experiment1's original three preparations (all zero, all one and
+one excitation at the left boundary). Custom bitstrings and `half_mixed`
+can be supplied together. Automatic stopping requires **every selected
+preparation** to pass.
+
+The physical targets for $N=10$, $J=\Gamma=1$, $c=1/2$, $p_L=0.9$, $p_R=0.1$ are
+
+$$
+(n_{1,*},\ldots,n_{10,*})=(0.58,0.5,\ldots,0.5,0.42),
+\qquad I_{j,*}=0.32.
+$$
+
+For a steady-state check define $D(t)=C(t)-C_*$ and
+
+$$
+d(t)=\max\left\{\max_j|n_j(t)-n_{j,*}|,
+\max_j\frac{|I_j(t)-I_{j,*}|}{|J|}\right\},
+\qquad
+B(t)=\max\{1,4c\}\,\|D(t)\|_F.
+$$
+
+Because $A+A^\dagger=-G\preceq0$, the propagator is a contraction:
+$\|e^{sA}\|_2\le1$ for $s\ge0$. Therefore
+
+$$
+D(t+s)=e^{sA}D(t)e^{sA^\dagger},
+\qquad
+d(t+s)\le B(t+s)\le B(t),\qquad s\ge0.
+$$
+
+The observable inequalities use $n_j=C_{jj}$ and
+$I_j/|J|=4c\,\operatorname{sgn}(J)\operatorname{Im}C_{j,j+1}$.
+Thus `--until-steady` stops at the first requested observation where
+$B(t)\le\epsilon$ for all preparations. This conservative bound controls
+future **local populations and currents** for the exact generator, up to
+numerical precision. It does not claim a full many-body state distance.
+Actual local errors are also recorded; their first passing time can be
+earlier than the bound's passing time. If the cap is reached first, the
+output explicitly reports `time_cap_reached_without_bound`.
+
+Outputs use a `covariance_exact_...` prefix, with an initial-state suffix
+when explicitly selected. They include:
+
+- PNG/PDF plots of actual populations, excitation currents and convergence.
+  Only the first/middle/last sites and bonds are drawn for clarity; all sites
+  and bonds enter the checks and saved data.
+- NPZ arrays containing the complex covariance trajectory, stationary
+  covariance, populations, magnetizations, currents and error bounds.
+- CSV for every recorded time/site/bond, JSON diagnostics and a Markdown report.
+
+The Lyapunov stationary residual, covariance Hermiticity and eigenvalue
+range, continuity equation and analytic stationary populations/currents are
+checked. There is no finite-Trotter-step bias in this reference. The hardware
+cosine schedule approximates these continuous-time dynamics and still has
+its separate sampling and device errors.
+
 ## Run
 
 From the repository root:

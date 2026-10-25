@@ -704,3 +704,67 @@ To regenerate the analysis offline after pulling results:
 
 This reads saved counts and references only. It can verify the original QPY
 inside `results_bundle.zip` if that file was not extracted separately.
+
+## Fresh preparation/readout evaluation on the same chain
+
+`run_preparation_diagnostic.py` follows up the population offsets seen before
+any evolution in `ibm_phoenix_prefix_20261024T162033_596311Z`. It reuses that
+run's physical path and measures **all ten system sites**, highlighting physical
+qubits **56 and 76** (sites 5 and 7). It refreshes the backend target and saves
+its calibration snapshot; it does not rerank the chain. Since these circuits
+contain no exchange gates, an old full-evolution quality threshold is not used
+to prevent measuring the same qubits again.
+
+The default evaluates exactly three controls:
+
+- All zero: deterministic zero preparation followed by final Z readout.
+- All one: X preparation followed by final Z readout.
+- Original initial mixture: the half-mixture preparation, including its
+  unconditioned initial measurements, followed by final Z readout.
+
+Each uses **4096 shots**, giving **3 circuits, 12,288 shots and one batch**.
+There are no Trotter steps, two-qubit gates, bath collisions or bath resets.
+This evaluates preparation/readout consistency; it is not a reset diagnostic.
+
+Run on hardware from Windows PowerShell at the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_preparation_diagnostic.py --account-file .\IBMRuntime\apikey.json
+```
+
+`--shots` changes the shots per control. `--reference-run` can select another
+collected population/prefix run, with `--focus-qubits` selecting physical
+system qubits to highlight on that chain. All sites are still screened.
+`--compile-only` saves circuits without submission, while querying the target.
+
+The run directory is `hardware_runs/ibm_phoenix_<timestamp>/`. It retains the
+source, manifest with reference provenance and physical mapping, QPY circuits,
+calibration, raw counts, `hardware_results.json` and `ControlReport.md`.
+The detailed report and PNG/PDF/CSV/JSON analysis go to
+`analysis/hardware/<run-name>/preparation/`. The updated `results_bundle.zip`
+includes those reports/figures plus the original compiled QPY and raw results.
+Bring back this bundle after execution. No evolution run is automatically
+launched, whether the controls pass or fail.
+
+For each site's intended population p, the stationary local-response model
+predicts `(1-p)*zero + p*one`. The mixture test includes the uncertainty in
+all three controls. For p=0.5 this is simply `(zero + one)/2`. Baseline Wilson
+upper bounds use the existing 0.03 screen, while mixture residuals use the
+existing nominal family-adjusted test. These diagnostics do not certify the
+0.02 evolved-state accuracy target or separate preparation, readout, timing,
+crosstalk and device drift. No automatic mitigation is applied.
+
+Recover interrupted hardware collection with the original manifest:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_preparation_diagnostic.py --resume ".\Model3\Experiment5\hardware_runs\<run-name>\manifest.json" --account-file .\IBMRuntime\apikey.json
+```
+
+Saved job IDs are collected without resubmitting those circuits. A submission
+interrupted before saving its ID requires recovering that ID first. Offline
+analysis, after pulling/extracting the JSON files and retaining the bundle:
+
+```bash
+.venv/bin/python Model3/Experiment5/analyze_preparation_diagnostic.py \
+  --run-directory Model3/Experiment5/hardware_runs/<run-name>
+```

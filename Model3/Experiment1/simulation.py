@@ -260,7 +260,7 @@ def save_results(result, output_dir, stem, parameters):
     plt.close(figure)
 
 
-def main(default_mode="all"):
+def main(default_mode="all", arguments=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--n-qubits", type=int, default=3)
     parser.add_argument("--times", type=float, nargs="+")
@@ -274,10 +274,22 @@ def main(default_mode="all"):
     parser.add_argument("--delta", type=float, default=0.0)
     parser.add_argument("--exchange-prefactor", type=float, choices=(0.25, 0.5), default=0.5)
     parser.add_argument("--mode", choices=("all", "exact", "unsplit", "lie", "strang"), default=default_mode)
+    parser.add_argument("--solver", choices=("density-matrix", "covariance"), default="density-matrix",
+                        help="covariance: efficient exact XX populations/currents; requires --mode exact and delta=0")
+    parser.add_argument("--initial-states", nargs="+",
+                        help="covariance only: N-bit strings or half_mixed; default all-zero/all-one/left excitation")
+    parser.add_argument("--steady-tolerance", type=float, default=.02,
+                        help="covariance local population/current-over-|J| accuracy, default 0.02")
+    parser.add_argument("--until-steady", action="store_true",
+                        help="covariance only: stop at first observation where all preparations meet the future error bound")
     parser.add_argument("--skip-unsplit", action="store_true", help="omit the additional unsplit reference in lie/strang mode")
     parser.add_argument("--controls", action="store_true", help="also run equal-reservoir and reversed-bias controls")
     parser.add_argument("--output-dir", type=Path, default=Path(__file__).parent / "results")
-    args = parser.parse_args()
+    args = parser.parse_args(arguments)
+    if args.solver == "covariance" and (args.mode != "exact" or args.delta != 0):
+        parser.error("--solver covariance requires --mode exact and --delta 0; use exact.py or specify --mode exact")
+    if args.solver != "covariance" and (args.until_steady or args.initial_states is not None):
+        parser.error("--until-steady and --initial-states require --solver covariance")
     if args.times is None and (args.num_times < 2 or not np.isfinite(args.t_final) or args.t_final <= 0):
         parser.error("require --num-times >= 2 and finite --t-final > 0")
     times = args.times if args.times is not None else np.linspace(0, args.t_final, args.num_times)
@@ -296,10 +308,18 @@ def main(default_mode="all"):
                           gamma=args.gamma, p_left=p_left, p_right=p_right,
                           exchange_prefactor=args.exchange_prefactor, max_dt=args.max_dt)
         try:
-            print(f"Starting N={args.n_qubits}, mode={args.mode}, pL={p_left:g}, pR={p_right:g}, "
-                  f"max_dt={args.max_dt:g}", flush=True)
-            result = run_experiment(times, **parameters, methods=methods,
-                                    progress=lambda message: print(message, flush=True))
+            if args.solver == "covariance":
+                from Model3.Experiment1 import covariance
+                print(f"Starting exact covariance reference: N={args.n_qubits}, pL={p_left:g}, pR={p_right:g}", flush=True)
+                covariance_parameters = {key: value for key, value in parameters.items() if key != "max_dt"}
+                result = covariance.run_experiment(times, **covariance_parameters,
+                    initial_states=args.initial_states, steady_tolerance=args.steady_tolerance,
+                    until_steady=args.until_steady, progress=lambda message: print(message, flush=True))
+            else:
+                print(f"Starting N={args.n_qubits}, mode={args.mode}, pL={p_left:g}, pR={p_right:g}, "
+                      f"max_dt={args.max_dt:g}", flush=True)
+                result = run_experiment(times, **parameters, methods=methods,
+                                        progress=lambda message: print(message, flush=True))
         except ValueError as error:
             parser.error(str(error))
         print(f"Reservoirs: pL={p_left:g}, pR={p_right:g}; H prefactor={args.exchange_prefactor:g} J")
@@ -307,6 +327,14 @@ def main(default_mode="all"):
         print(json.dumps(result["diagnostics"], indent=2))
         stem = (f"{args.mode}_N{args.n_qubits}_pL{p_left:g}_pR{p_right:g}"
                 f"_J{args.J:g}_D{args.delta:g}_G{args.gamma:g}_c{args.exchange_prefactor:g}")
+        if args.solver == "covariance":
+            stem = "covariance_"+stem
+            if args.initial_states is not None:
+                stem += "_init-"+"-".join(args.initial_states)
+            print("Steady-state check: " + json.dumps(result["steady_state"], indent=2), flush=True)
+            covariance.save_results(result, args.output_dir, stem, covariance_parameters)
+            print(f"Saved exact covariance observables, convergence report and plots: {args.output_dir / stem}")
+            continue
         print("Saving arrays, diagnostics and plot: starting", flush=True)
         save_results(result, args.output_dir, stem, parameters)
         print(f"Saved density matrices, observables, diagnostics and plot: {args.output_dir / stem}")
