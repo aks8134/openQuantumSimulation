@@ -32,6 +32,8 @@ def main():
         source['schedule']['jump_choices']=choices[:,:len(dts)].tolist()
         source['final_covariances_real_gauge']=state.tolist()
         source['provenance']['saved_trajectory_indices']=list(range(R))
+        full_count=source['provenance']['full_replay_trajectories']
+        source['provenance']['full_replay_storage']=f'Computed in memory; hash is canonical sorted JSON. Full R={full_count} covariance dump not retained to avoid bulky artifacts.'
         source['provenance']['prefix_extension']=dict(seed=seed,template_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
             note='Same per-path SeedSequence streams and channel as validated full replay; original 128 paths independently reproduced. No new schedule selection.')
         populations=np.diagonal(state[0],axis1=-2,axis2=-1).mean(axis=0)

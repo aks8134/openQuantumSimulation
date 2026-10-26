@@ -1,0 +1,58 @@
+{
+  "scope": "Offline choice from saved calibration, not a prediction of population accuracy; live filters checked by runner.",
+  "snapshot_sha256": "ae85cbb53670c2fdcd0cb89f64cfdf09a77caa7c7ab2cac88fd7c5cdd8b96e09",
+  "snapshot_captured_at_utc": "2026-10-26T00:50:25.557967+00:00",
+  "current_path": [
+    39,
+    49,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    95,
+    105
+  ],
+  "alternative_path": [
+    49,
+    39,
+    38,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    84
+  ],
+  "metrics": {
+    "current": {
+      "worst_cz_error": 0.0019192177672865685,
+      "gate_use_weighted_cz_error_sum": 1.1423805994305913,
+      "worst_system_readout_error": 0.011474609375,
+      "system_readout_error_sum": 0.068359375,
+      "minimum_t1_seconds": 9.784703910082518e-05,
+      "minimum_t2_seconds": 0.00012299037249912745,
+      "minimum_system_t1_seconds": 0.00017479906537617206,
+      "minimum_system_t2_seconds": 0.00016001039220722116
+    },
+    "alternative": {
+      "worst_cz_error": 0.0019122779571196236,
+      "gate_use_weighted_cz_error_sum": 1.1279856446968204,
+      "worst_system_readout_error": 0.010986328125,
+      "system_readout_error_sum": 0.05859375,
+      "minimum_t1_seconds": 0.00017479906537617206,
+      "minimum_t2_seconds": 0.00012816294000141983,
+      "minimum_system_t1_seconds": 0.00017479906537617206,
+      "minimum_system_t2_seconds": 0.00016001039220722116
+    }
+  },
+  "selection": "Exhaustive path search with system T1/T2 minima and worst readout no worse than current chain, overall coherence floors no worse, and worst CZ capped at current value; rank survivors using existing quality_path score. All 380 complete paths under initial stricter node/edge filters examined.",
+  "source_schedule_sha256": "5c87e03cca8d4b799bf347392b4c1515fdbc1299a95c0ed629a3dd5e9e9a8d1f",
+  "steps": 48
+}

@@ -1,14 +1,18 @@
-"""Paired 72/48-step Z-population comparison; submission only on explicit CLI use.
+"""Paired schedule or mapping Z-population comparison; explicit CLI submission.
 
 Defaults: 1024 paths x 8 shots for each schedule, three 2048-shot controls,
-22528 shots total in five pair-preserving batches. No new schedule search.
+22528 shots total in five pair-preserving batches. Mapping mode uses the
+identical candidate schedule on two paths, with three controls per path:
+2054 circuits and 28672 shots at these defaults. No new schedule search.
 """
 from __future__ import annotations
 
 import argparse
+import copy
 from datetime import datetime,timezone
 import hashlib
 import io
+import importlib.metadata
 import json
 from pathlib import Path
 import sys
@@ -21,7 +25,7 @@ DIRECTORY=Path(__file__).resolve().parent
 ROOT=DIRECTORY.parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from library.reservoir_scaling import atomic_json
-from Model3.Experiment5 import circuit_depth as circuits,run_hardware as hardware,control_quality
+from Model3.Experiment5 import circuit_depth as circuits,run_hardware as hardware,control_quality,quality_path
 from Model3.Experiment5.analyze_hardware import moments,serializable,source_integrity
 from Model3.Experiment5.analyze_populations import population_error
 
@@ -36,6 +40,12 @@ def parse_arguments(arguments=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--input-bundle',type=Path,default=DEFAULT_INPUT)
     p.add_argument('--backend',default='ibm_phoenix')
+    p.add_argument('--comparison',choices=['schedule','mapping'],default='schedule',
+        help='mapping uses the same candidate schedule and branch paths on two chains')
+    p.add_argument('--alternative-path',type=int,nargs='+',
+        help='second connected bath-system-bath chain for --comparison mapping')
+    p.add_argument('--verify-previous-run',type=Path,
+        help='verify every previous native QPY chunk locally before any new backend connection or submission')
     p.add_argument('--account-file',type=Path)
     p.add_argument('--trajectory-count',type=int,default=1024)
     p.add_argument('--shots',type=int,default=8)
@@ -53,10 +63,14 @@ def parse_arguments(arguments=None):
     a=p.parse_args(arguments)
     if (min(a.trajectory_count,a.shots,a.control_shots,a.batch_size)<2 or min(a.order_seed,a.seed_transpiler)<0
             or not a.backend.strip()):raise ValueError('need >=2 trajectories/shots/control-shots/batch-size and nonnegative seeds')
+    if not (a.resume or a.analyze_only):
+        if a.comparison=='mapping' and (a.alternative_path is None or len(set(a.alternative_path))!=len(a.alternative_path) or min(a.alternative_path)<0):
+            raise ValueError('mapping comparison requires a distinct nonnegative --alternative-path')
+        if a.comparison!='mapping' and a.alternative_path is not None:raise ValueError('alternative-path requires mapping comparison')
     return a
 
 
-def validate_sources(sources):
+def validate_sources(sources,comparison='schedule'):
     if set(sources)!={'baseline','candidate'}:raise ValueError('need baseline and candidate inputs')
     for source in sources.values():
         hardware.require_validated_source(source)
@@ -70,6 +84,10 @@ def validate_sources(sources):
     for key in ['physics','sampling_policy','order','system_formula','seed_trajectories','trajectories']:
         if a['configuration'].get(key)!=b['configuration'].get(key):raise ValueError('paired physics or trajectory streams differ')
     if a['preparation']['populations']!=b['preparation']['populations']:raise ValueError('paired preparations differ')
+    if comparison=='mapping':
+        if a!=b:raise ValueError('mapping comparison requires identical sources, schedules and ideal paths')
+        return
+    if comparison!='schedule':raise ValueError('unknown comparison mode')
     count=len(b['schedule']['step_dts'])
     if count>=len(a['schedule']['step_dts']):raise ValueError('candidate must have fewer steps')
     if any(x[:count]!=y for x,y in zip(a['schedule']['jump_choices'],b['schedule']['jump_choices'])):
@@ -93,7 +111,11 @@ def load_inputs(path):
 def plan(cfg,sources):
     rng=np.random.default_rng(cfg['order_seed']);count=cfg['trajectory_count'];n=len(sources['baseline']['preparation']['populations'])
     controls={'all_zero':[0.]*n,'all_one':[1.]*n,'initial_mixture':sources['baseline']['preparation']['populations']}
-    def control(name):return [dict(case_id=name,kind='control',control=name,basis='z',shots=cfg['control_shots'],expected_populations=controls[name])]
+    def control(name):
+        if cfg.get('comparison','schedule')=='mapping':
+            return [dict(case_id=f'{label}_{name}',kind='control',control=name,schedule=label,basis='z',
+                shots=cfg['control_shots'],expected_populations=controls[name]) for label in rng.permutation(['baseline','candidate'])]
+        return [dict(case_id=name,kind='control',control=name,basis='z',shots=cfg['control_shots'],expected_populations=controls[name])]
     units=[control('all_zero')]
     for k,index in enumerate(rng.permutation(count)):
         if k==count//2:units.append(control('all_one'))
@@ -111,9 +133,21 @@ def plan(cfg,sources):
     return records,batches
 
 
+def record_path(cfg,record):
+    if cfg.get('comparison','schedule')=='mapping':return cfg['physical_paths'][record['schedule']]
+    return cfg['physical_path']
+
+
 def verify_plan(manifest,sources):
     if manifest.get('experiment')!=EXPERIMENT:raise ValueError('need paired schedule manifest')
     cfg=manifest['configuration'];R=cfg['trajectory_count']
+    if cfg.get('comparison','schedule')=='mapping':
+        validate_sources(sources,'mapping')
+        paths=cfg['physical_paths'];size=len(sources['baseline']['preparation']['populations'])+2
+        if set(paths)!={'baseline','candidate'} or paths['baseline']==paths['candidate'] or paths['candidate']==paths['baseline'][::-1]:
+            raise ValueError('need two different physical chains, not a reversal')
+        if cfg['physical_path']!=paths['baseline']:raise ValueError('baseline path changed')
+        if any(len(path)!=size or len(set(path))!=size or min(path)<0 for path in paths.values()):raise ValueError('invalid comparison chains')
     if R<2 or R>sources['baseline']['configuration']['trajectories'] or min(cfg['shots'],cfg['control_shots'],cfg['batch_size'])<2:
         raise ValueError('invalid saved workload')
     expected,batches=plan(cfg,sources)
@@ -121,7 +155,7 @@ def verify_plan(manifest,sources):
     for a,b in zip(expected,manifest['circuits']):
         if any(b.get(k)!=v for k,v in a.items()):raise ValueError('paired case order/settings changed')
         if b.get('final_logical_to_physical') is not None:
-            desired=cfg['physical_path'][1:-1]+[cfg['physical_path'][0],cfg['physical_path'][-1]]
+            path=record_path(cfg,b);desired=path[1:-1]+[path[0],path[-1]]
             if b['final_logical_to_physical']!=desired:raise ValueError('compiled chain mapping changed')
     for a,b in zip(batches,manifest['batches']):
         if a['start']!=b['start'] or a['stop']!=b['stop']:raise ValueError('paired batch coverage changed')
@@ -134,12 +168,12 @@ def read_sources(folder,cfg):
     for label in ['baseline','candidate']:
         raw=(folder/f'{label}.json').read_bytes()
         integrity[label]=source_integrity(raw,cfg['source_sha256'][label]);sources[label]=json.loads(raw)
-    validate_sources(sources)
+    validate_sources(sources,cfg.get('comparison','schedule'))
     return sources,integrity
 
 
 def compiled_batch(folder,manifest,batch,sources,backend=None):
-    cfg=manifest['configuration'];path=cfg['physical_path'];mapping=path[1:-1]+[path[0],path[-1]]
+    cfg=manifest['configuration']
     filename=folder/f"circuits_{batch['start']:06d}_{batch['stop']:06d}.qpy"
     records=manifest['circuits'][batch['start']:batch['stop']]
     if batch.get('compiled'):
@@ -148,6 +182,7 @@ def compiled_batch(folder,manifest,batch,sources,backend=None):
         pubs=qpy.load(io.BytesIO(raw))
         if len(pubs)!=len(records):raise ValueError('compiled batch length mismatch')
         for pub,record in zip(pubs,records):
+            path=record_path(cfg,record)
             if pub.metadata.get('comparison_case_id')!=record['case_id'] or circuits.metrics(pub)!=record['metrics']:
                 raise ValueError('compiled case metadata/metrics mismatch')
             measured=[(pub.find_bit(x.qubits[0]).index,pub.find_bit(x.clbits[0]).index)
@@ -159,8 +194,10 @@ def compiled_batch(folder,manifest,batch,sources,backend=None):
         if backend is None:raise ValueError('backend required to compile a missing batch')
         pubs=[]
         for record in records:
+            path=record_path(cfg,record);mapping=path[1:-1]+[path[0],path[-1]]
             if record['kind']=='control':
-                source={**sources['baseline'],'preparation':{**sources['baseline']['preparation'],'populations':record['expected_populations']}}
+                source=sources[record.get('schedule','baseline')]
+                source={**source,'preparation':{**source['preparation'],'populations':record['expected_populations']}}
                 logical=circuits.build_body(source,0,steps=0)
             else:logical=circuits.build_body(sources[record['schedule']],record['trajectory'])
             native=transpile(logical,backend=backend,initial_layout=mapping,optimization_level=cfg['optimization_level'],seed_transpiler=cfg['seed_transpiler'])
@@ -201,7 +238,8 @@ def analyze(folder):
             total+=shots
             if record['kind']=='control':
                 controls.append(dict(control=record['control'],populations=population.tolist(),expected_populations=record['expected_populations'],
-                    shots=shots,physical_sites=cfg['physical_path'][1:-1],pub_index=record['pub_index']))
+                    shots=shots,physical_sites=record_path(cfg,record)[1:-1],pub_index=record['pub_index'],
+                    **({'mapping':record['schedule']} if cfg.get('comparison')=='mapping' else {})))
             else:
                 if record['trajectory'] in paths[record['schedule']]:raise ValueError('duplicate paired path')
                 paths[record['schedule']][record['trajectory']]=(population,covariance)
@@ -221,15 +259,20 @@ def analyze(folder):
             across_path_se=np.sqrt(np.maximum(0.,np.diag(covariance))),fixed_paths_shot_se=np.sqrt(np.maximum(0.,np.diag(shot_cov))),
             errors_vs_physical=population_error(mean,physical),errors_vs_own_ideal=population_error(mean,ideal),
             ideal_error_vs_physical=population_error(ideal,physical))
-        records=[r for r in manifest['circuits'] if r.get('schedule')==label]
+        records=[r for r in manifest['circuits'] if r.get('schedule')==label and r['kind']=='trajectory']
         summaries[label]['resources']=dict(steps=len(source['schedule']['step_dts']),
             cz_counts=sorted({r['metrics']['operation_counts'].get('cz',0) for r in records}),
             reset_counts=sorted({r['metrics']['operation_counts'].get('reset',0) for r in records}),
             depth_range=[min(r['metrics']['depth'] for r in records),max(r['metrics']['depth'] for r in records)])
     paired=residuals['candidate']-residuals['baseline']
     paired_cov=np.cov(paired,rowvar=False,ddof=1)/R
+    assessment=control_quality.assess_controls(controls) if cfg.get('comparison')!='mapping' else None
+    if assessment is None:
+        per_mapping={label:control_quality.assess_controls([c for c in controls if c['mapping']==label]) for label in sources}
+        assessment=dict(passed=all(a['passed'] for a in per_mapping.values()),by_mapping=per_mapping,
+            failed_sites_1based={label:a['failed_sites_1based'] for label,a in per_mapping.items()})
     return dict(experiment=EXPERIMENT,run_directory=str(folder.resolve()),configuration=cfg,job_ids=jobs,
-        schedules=summaries,controls=controls,control_assessment=control_quality.assess_controls(controls),
+        schedules=summaries,controls=controls,control_assessment=assessment,
         paired_residual_difference=paired.mean(axis=0),paired_residual_se=np.sqrt(np.maximum(0.,np.diag(paired_cov))),
         verification=dict(source_integrity=integrity,compiled_batches_verified=qpy_checked,compiled_batches_not_available=missing,
                           raw_counts_reconstructed=True),
@@ -244,13 +287,15 @@ def save(report,output):
     output=Path(output)
     if output.resolve().is_relative_to(Path(report['run_directory']).resolve()):raise ValueError('analysis must be outside raw run')
     output.mkdir(parents=True,exist_ok=True)
+    mapping_comparison=report['configuration'].get('comparison')=='mapping'
     fig,axes=plt.subplots(1,2,figsize=(12,4.5),layout='constrained');rows=[]
     for ax,(label,summary) in zip(axes,report['schedules'].items()):
         sites=np.arange(1,len(summary['hardware_populations'])+1)
         ax.errorbar(sites,summary['hardware_populations'],yerr=2*summary['across_path_se'],fmt='o-',capsize=3,label='Hardware ±2 across-path SE')
         ax.plot(sites,summary['ideal_same_paths'],'s--',label='Ideal: same saved paths')
         ax.plot(sites,summary['physical_stationary'],'k:',label='Physical stationary target')
-        ax.set(xlabel='Site',ylabel='Excitation population',title=f"{label}: {summary['resources']['steps']} steps",xticks=sites)
+        name=('current chain' if label=='baseline' else 'alternative chain') if mapping_comparison else label
+        ax.set(xlabel='Site',ylabel='Excitation population',title=f"{name}: {summary['resources']['steps']} steps",xticks=sites)
         ax.grid(alpha=.2);ax.legend(fontsize=8)
         for j,site in enumerate(sites):rows.append(dict(schedule=label,site=int(site),hardware=float(summary['hardware_populations'][j]),
             ideal_same_paths=float(summary['ideal_same_paths'][j]),physical_target=float(summary['physical_stationary'][j]),
@@ -259,17 +304,26 @@ def save(report,output):
     plt.close(fig)
     with (output/'populations.csv').open('w',newline='',encoding='utf-8') as stream:
         writer=csv.DictWriter(stream,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
-    text=['# Paired schedule population comparison','',f"Jobs: {', '.join(report['job_ids'])}. Total shots: {report['configuration']['total_shots']}.",'',
+    text=['# Paired '+('mapping' if mapping_comparison else 'schedule')+' population comparison','',f"Jobs: {', '.join(report['job_ids'])}. Total shots: {report['configuration']['total_shots']}.",'',
         '![Population profiles](populations.png)','',
         '| Schedule | Steps | CZ count | Hardware max error vs physical | Hardware max error vs own ideal | Ideal max error vs physical |',
         '|---|---:|---|---:|---:|---:|']
     for label,s in report['schedules'].items():text.append(f"| {label} | {s['resources']['steps']} | {s['resources']['cz_counts']} | {s['errors_vs_physical']['maximum']:.6f} | {s['errors_vs_own_ideal']['maximum']:.6f} | {s['ideal_error_vs_physical']['maximum']:.6f} |")
-    text+=['','Primary comparison: all-site population error to the physical stationary target (target 0.02). '
+    primary=('Primary mapping comparison: hardware discrepancy from the common ideal saved paths. '
+        'Also report population error to the physical stationary target; 0.02 is not certified by this workload. ' if mapping_comparison else
+        'Primary comparison: all-site population error to the physical stationary target (target 0.02). ')
+    text+=['',primary+
         'Own-ideal errors separate finite-path preparation bias from device discrepancy. Report both; do not infer improvement merely from circuit depth. '
         'Means use the same paths and shots. Controls are interleaved for context; they do not automatically stop the experiment or apply mitigation.','',
         f"Preparation-control screen passed: **{report['control_assessment']['passed']}**. Failed sites: {report['control_assessment']['failed_sites_1based']}.",'',
         report['scope'],'','Compiled QPY batches are retained locally. The small results bundle omits them; verification states which batches were available. '
         'Retain those local files for later circuit inspection. No permanent settling or noisy-hardware accuracy is certified by the input large-ensemble checks.','']
+    if mapping_comparison:
+        text+=['','Mapping test: baseline is the current chain; candidate is the alternative chain. Both use the identical candidate schedule, preparation and branch paths. '
+            'The primary mapping comparison is discrepancy from that common ideal; physical-target errors remain a secondary reported outcome. '
+            'Per-chain controls are diagnostic context, not an automatic stopping rule or mitigation.','',
+            f"Physical paths: `{report['configuration']['physical_paths']}`.",'',
+            'Sampling precision here does not certify the original 0.02 error budget. Paired estimates condition on the saved branch paths and omit drift.','']
     (output/'Analysis.md').write_text('\n'.join(text),encoding='utf-8')
     atomic_json(output/'analysis.json',serializable(report))
 
@@ -286,18 +340,41 @@ def bundle(folder,output=None):
 def main(options,*,backend=None,service=None,sampler_factory=None):
     if options.analyze_only:
         report=analyze(options.analyze_only)
-        output=options.analysis_output_directory or DIRECTORY/'analysis/hardware'/options.analyze_only.name/'schedule_comparison'
+        kind='mapping_comparison' if report['configuration'].get('comparison')=='mapping' else 'schedule_comparison'
+        output=options.analysis_output_directory or DIRECTORY/'analysis/hardware'/options.analyze_only.name/kind
         save(report,output);print(f"Analysis: {output/'Analysis.md'}");return report
+    previous_verification=None
+    if options.verify_previous_run:
+        previous=analyze(options.verify_previous_run)
+        if previous['verification']['compiled_batches_not_available']:
+            raise ValueError('previous native QPY chunks are missing; verify on the original execution machine with its circuits_*.qpy files')
+        previous_verification=dict(run=options.verify_previous_run.name,
+            manifest_sha256=sha((options.verify_previous_run/'manifest.json').read_bytes()),
+            compiled_batches=previous['verification']['compiled_batches_verified'])
+        print('Previous native QPY chunks verified locally:',len(previous_verification['compiled_batches']),flush=True)
     if options.resume:
         folder=options.resume.resolve().parent;manifest=json.loads(options.resume.read_bytes());cfg=manifest['configuration']
         sources,_=read_sources(folder,cfg);verify_plan(manifest,sources)
     else:
         sources,raw,metadata,input_hash=load_inputs(options.input_bundle)
+        if options.comparison=='mapping':
+            selected_raw=raw['candidate'];selected_source=sources['candidate']
+            sources={label:copy.deepcopy(selected_source) for label in ['baseline','candidate']}
+            raw={label:selected_raw for label in sources}
+            metadata=copy.deepcopy(metadata)
+            metadata['comparison']='mapping';metadata['original_input_source']='candidate'
+            metadata['sources']={label:dict(file=label+'.json',sha256=sha(selected_raw)) for label in sources}
         if options.backend!=metadata['backend']:raise ValueError('backend must match paired input chain')
         if options.trajectory_count>sources['baseline']['configuration']['trajectories']:raise ValueError('trajectory count exceeds saved paired inputs')
         cfg=dict(backend=options.backend,physical_path=metadata['physical_path'],source_sha256={k:sha(v) for k,v in raw.items()},
             input_bundle_sha256=input_hash,trajectory_count=options.trajectory_count,shots=options.shots,control_shots=options.control_shots,
             batch_size=options.batch_size,order_seed=options.order_seed,seed_transpiler=options.seed_transpiler,optimization_level=options.optimization_level)
+        cfg['comparison']=options.comparison
+        if previous_verification is not None:cfg['previous_qpy_verification']=previous_verification
+        cfg['software_versions']={name:importlib.metadata.version(name) for name in ['qiskit','qiskit-ibm-runtime','numpy']}
+        if options.comparison=='mapping':
+            cfg['physical_paths']=dict(baseline=metadata['physical_path'],candidate=options.alternative_path)
+            cfg['sampling_scope']='Fixed common saved paths; mapping diagnostic only. No 0.02 sampling or hardware accuracy certification.'
         records,batches=plan(cfg,sources);cfg.update(total_circuits=len(records),total_shots=sum(r['shots'] for r in records))
         manifest=dict(experiment=EXPERIMENT,status='planned',configuration=cfg,circuits=records,batches=batches)
         verify_plan(manifest,sources)
@@ -306,15 +383,31 @@ def main(options,*,backend=None,service=None,sampler_factory=None):
         if backend is None:
             service=service or hardware.make_service(options);backend=service.backend(cfg['backend'],use_fractional_gates=False)
         if backend.name!=cfg['backend']:raise ValueError('backend differs from saved paired run')
-        circuits.chain_layout(backend,sources['baseline']['configuration']['physics']['n_qubits'],'boundary',cfg['physical_path'])
+        for path in cfg.get('physical_paths',{'baseline':cfg['physical_path']}).values():
+            circuits.chain_layout(backend,sources['baseline']['configuration']['physics']['n_qubits'],'boundary',path)
     if not options.resume:
         refresh=getattr(backend,'refresh',None)
         if callable(refresh):refresh()
+        if cfg.get('comparison')=='mapping':
+            nodes,edges=quality_path.calibration(backend,{7},80e-6,60e-6,.005,.02)
+            weights=quality_path.gate_weights(sources['baseline'],list(range(cfg['trajectory_count'])))
+            cfg['path_calibration']={}
+            for label,path in cfg['physical_paths'].items():
+                if not set(path)<=nodes.keys() or any(tuple(sorted(pair)) not in edges for pair in zip(path,path[1:])):
+                    raise ValueError(f'{label} chain fails current coherence/CZ/readout filters; no jobs submitted')
+                _,cfg['path_calibration'][label]=quality_path.score(path,nodes,edges,weights)
+            print('Current calibration metrics for both chains:',cfg['path_calibration'],flush=True)
         stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ')
-        folder=options.output_directory/f"{cfg['backend']}_comparison_{stamp}";folder.mkdir(parents=True,exist_ok=False)
+        name='mapping_comparison' if cfg.get('comparison')=='mapping' else 'comparison'
+        folder=options.output_directory/f"{cfg['backend']}_{name}_{stamp}";folder.mkdir(parents=True,exist_ok=False)
         for label,value in raw.items():(folder/f'{label}.json').write_bytes(value)
         atomic_json(folder/'input_manifest.json',metadata)
-        hardware.save_backend_snapshot(backend,cfg['physical_path'],manifest['circuits'],folder)
+        active=sorted({q for path in cfg['physical_paths'].values() for q in path}) if cfg.get('comparison')=='mapping' else cfg['physical_path']
+        hardware.save_backend_snapshot(backend,active,manifest['circuits'],folder)
+        if cfg.get('comparison')=='mapping':
+            snapshot=json.loads((folder/'backend_snapshot.json').read_bytes())
+            snapshot.update(physical_path=None,physical_paths=cfg['physical_paths'],active_qubits=active)
+            atomic_json(folder/'backend_snapshot.json',snapshot)
         atomic_json(folder/'manifest.json',manifest)
     print(f"Paired experiment: {cfg['total_circuits']} circuits, {cfg['total_shots']} shots, {len(manifest['batches'])} batches. {folder}",flush=True)
     sampler=None
@@ -362,7 +455,8 @@ def main(options,*,backend=None,service=None,sampler_factory=None):
         print('Compile only: no jobs submitted. Resume this manifest to execute.',flush=True);return manifest
     manifest['status']='collected';atomic_json(folder/'manifest.json',manifest)
     report=analyze(folder);atomic_json(folder/'hardware_results.json',serializable(report))
-    output=options.analysis_output_directory or DIRECTORY/'analysis/hardware'/folder.name/'schedule_comparison'
+    kind='mapping_comparison' if cfg.get('comparison')=='mapping' else 'schedule_comparison'
+    output=options.analysis_output_directory or DIRECTORY/'analysis/hardware'/folder.name/kind
     save(report,output);bundle(folder,output)
     print(f"Analysis: {output/'Analysis.md'}\nBring back: {folder/'results_bundle.zip'}\nRetain local circuits_*.qpy files; they are omitted from the small results bundle.",flush=True)
     return report

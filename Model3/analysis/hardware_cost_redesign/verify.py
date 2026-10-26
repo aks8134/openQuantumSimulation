@@ -154,7 +154,7 @@ def main(arguments=None):
             if seed==a.seeds[0] and replay['run_status']=='passed':
                 compact=export(replay,list(range(128)),sha)
                 # Hash refers to canonical transient bytes; retain exact compact paths and audit summaries.
-                compact['provenance']['full_replay_storage']='Computed in memory; hash is canonical sorted JSON. Full R=8192 covariance dump not retained to avoid bulky artifacts.'
+                compact['provenance']['full_replay_storage']=f'Computed in memory; hash is canonical sorted JSON. Full R={a.trajectories} covariance dump not retained to avoid bulky artifacts.'
                 output=a.output.parent/f'{label}_seed{seed}_paths128.json'
                 physics.atomic_json(output,compact)
                 result['compact_inputs'][label]=output.name

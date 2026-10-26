@@ -64,6 +64,67 @@ class ComparisonTests(unittest.TestCase):
         for args in [['--shots','1'],['--batch-size','1'],['--trajectory-count','1'],['--order-seed','-1']]:
             with self.subTest(args=args),self.assertRaises(ValueError):runner.parse_arguments(args)
 
+    def test_mapping_mode_keeps_common_ideal_and_separate_native_paths_controls(self):
+        with tempfile.TemporaryDirectory() as folder,contextlib.redirect_stdout(io.StringIO()), \
+             patch.object(hardware,'make_service',side_effect=AssertionError('no account')):
+            options,backend=self.setup(folder,'--comparison','mapping','--alternative-path','1','2','3','4','5')
+            sampler,jobs=self.sampler()
+            report=runner.main(options,backend=backend,sampler_factory=Mock(return_value=sampler))
+            self.assertEqual(report['configuration']['total_circuits'],10)
+            self.assertEqual(report['configuration']['total_shots'],128)
+            self.assertEqual(len(jobs),5)
+            a,b=(report['schedules'][k] for k in ['baseline','candidate'])
+            np.testing.assert_array_equal(a['per_path_ideal_populations'],b['per_path_ideal_populations'])
+            np.testing.assert_allclose(report['paired_residual_difference'],0,atol=1e-15)
+            self.assertEqual(a['resources']['steps'],1);self.assertEqual(b['resources']['steps'],1)
+            self.assertEqual(a['resources']['cz_counts'],[6]);self.assertEqual(b['resources']['cz_counts'],[6])
+            self.assertEqual(len(report['controls']),6)
+            self.assertEqual(set(report['control_assessment']['by_mapping']),{'baseline','candidate'})
+            directory=Path(report['run_directory']);manifest=json.loads((directory/'manifest.json').read_bytes())
+            sources,_=runner.read_sources(directory,manifest['configuration'])
+            self.assertEqual(sources['baseline'],sources['candidate'])
+            for batch in manifest['batches']:
+                pubs=runner.compiled_batch(directory,manifest,batch,sources)
+                for pub,record in zip(pubs,manifest['circuits'][batch['start']:batch['stop']]):
+                    expected=[1,2,3,0,4] if record['schedule']=='baseline' else [2,3,4,1,5]
+                    self.assertEqual(record['final_logical_to_physical'],expected)
+                    self.assertEqual(pub.layout.final_index_layout(filter_ancillas=True),expected)
+                    self.assertEqual(pub.metadata['physical_sites'],expected[:3])
+            forbidden=Mock(side_effect=AssertionError('no resubmission'))
+            offline=runner.parse_arguments(['--analyze-only',str(directory),'--analysis-output-directory',str(Path(folder)/'offline')])
+            runner.main(offline,sampler_factory=forbidden);forbidden.assert_not_called()
+            for p in directory.glob('*.qpy'):p.unlink()
+            portable=runner.analyze(directory)
+            self.assertEqual(len(portable['verification']['compiled_batches_not_available']),5)
+            guarded=runner.parse_arguments(['--verify-previous-run',str(directory)])
+            with self.assertRaisesRegex(ValueError,'QPY chunks are missing'):
+                runner.main(guarded,sampler_factory=forbidden)
+            forbidden.assert_not_called()
+            bad=copy.deepcopy(sources);bad['candidate']['schedule']['step_dts'][0]*=1.01
+            bad['candidate']['times'][-1]*=1.01
+            with self.assertRaisesRegex(ValueError,'identical sources'):runner.validate_sources(bad,'mapping')
+
+    def test_mapping_cli_and_plan_reject_invalid_chains(self):
+        for args in [['--comparison','mapping'],['--alternative-path','0','1'],
+                     ['--comparison','mapping','--alternative-path','0','0']]:
+            with self.subTest(args=args),self.assertRaises(ValueError):runner.parse_arguments(args)
+        sources,_,meta,_=runner.load_inputs(runner.DEFAULT_INPUT)
+        sources['baseline']=copy.deepcopy(sources['candidate'])
+        cfg=dict(comparison='mapping',trajectory_count=1024,shots=8,control_shots=2048,batch_size=512,order_seed=29,
+            physical_path=meta['physical_path'],physical_paths=dict(baseline=meta['physical_path'],
+                candidate=[49,39,38,48,58,57,56,66,76,86,85,84]))
+        records,batches=runner.plan(cfg,sources)
+        cfg.update(total_circuits=len(records),total_shots=sum(r['shots'] for r in records))
+        manifest=dict(experiment=runner.EXPERIMENT,configuration=cfg,circuits=records,batches=batches)
+        runner.verify_plan(manifest,sources)
+        self.assertEqual(len(records),2054);self.assertEqual(cfg['total_shots'],28672)
+        self.assertEqual([b['stop']-b['start'] for b in batches],[512,512,512,512,6])
+        for batch in batches:
+            for i in {r.get('trajectory') for r in records[batch['start']:batch['stop']] if r['kind']=='trajectory'}:
+                self.assertEqual(sum(r.get('trajectory')==i for r in records[batch['start']:batch['stop']]),2)
+        cfg['physical_paths']['candidate']=cfg['physical_path'][::-1]
+        with self.assertRaisesRegex(ValueError,'reversal'):runner.verify_plan(manifest,sources)
+
     def test_compile_only_saves_native_chunks_without_submission(self):
         with tempfile.TemporaryDirectory() as folder,contextlib.redirect_stdout(io.StringIO()), \
              patch.object(hardware,'make_service',side_effect=AssertionError('no account')):

@@ -1,0 +1,7 @@
+Recorded during this offline audit, separately from audit.py:
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MPLCONFIGDIR=/tmp/model3_boundary_analysis/mpl .venv/bin/python -m unittest discover -s tests -p 'test_model3*.py' -q
+
+----------------------------------------------------------------------
+Ran 183 tests in 83.384s
+
+OK
