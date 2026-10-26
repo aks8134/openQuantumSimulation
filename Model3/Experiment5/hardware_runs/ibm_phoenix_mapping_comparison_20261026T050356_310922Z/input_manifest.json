@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "experiment": "Model3/paired_schedule_inputs",
+  "backend": "ibm_phoenix",
+  "physical_path": [
+    39,
+    49,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    95,
+    105
+  ],
+  "trajectory_count": 1024,
+  "seed_trajectories": 29,
+  "sources": {
+    "baseline": {
+      "file": "baseline.json",
+      "sha256": "5c87e03cca8d4b799bf347392b4c1515fdbc1299a95c0ed629a3dd5e9e9a8d1f"
+    },
+    "candidate": {
+      "file": "candidate.json",
+      "sha256": "5c87e03cca8d4b799bf347392b4c1515fdbc1299a95c0ed629a3dd5e9e9a8d1f"
+    }
+  },
+  "comparison": "mapping",
+  "original_input_source": "candidate"
+}
