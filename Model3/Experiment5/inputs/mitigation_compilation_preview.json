@@ -1,0 +1,320 @@
+{
+  "scope": "One representative saved trajectory compiled on a reconstructed saved CZ target. No fresh calibration, IBM connection, simulator or execution. Not a binary reproduction of original QPY or a measured duration.",
+  "source_sha256": "5c87e03cca8d4b799bf347392b4c1515fdbc1299a95c0ed629a3dd5e9e9a8d1f",
+  "snapshot_sha256": "623f107b4643356b23b9c1908ff368164841fa41b83d3eff8671845f02a3c301",
+  "physical_path": [
+    49,
+    39,
+    38,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    84
+  ],
+  "trajectory": 0,
+  "records": [
+    {
+      "arm": "twirled",
+      "factor": 1.5,
+      "variant": 2,
+      "metrics": {
+        "depth": 1198,
+        "two_qubit_depth": 374,
+        "two_qubit_gates": 1440,
+        "operations": 7663,
+        "operation_counts": {
+          "rz": 2720,
+          "sx": 2644,
+          "cz": 1440,
+          "x": 791,
+          "barrier": 490,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.5,
+      "variant": 3,
+      "metrics": {
+        "depth": 1170,
+        "two_qubit_depth": 364,
+        "two_qubit_gates": 1440,
+        "operations": 7678,
+        "operation_counts": {
+          "rz": 2730,
+          "sx": 2644,
+          "cz": 1440,
+          "x": 796,
+          "barrier": 490,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.25,
+      "variant": 0,
+      "metrics": {
+        "depth": 1025,
+        "two_qubit_depth": 302,
+        "two_qubit_gates": 1200,
+        "operations": 6971,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2501,
+          "cz": 1200,
+          "x": 558,
+          "barrier": 250,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.0,
+      "variant": 3,
+      "metrics": {
+        "depth": 795,
+        "two_qubit_depth": 192,
+        "two_qubit_gates": 960,
+        "operations": 6219,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2233,
+          "cz": 960,
+          "x": 314,
+          "reset": 48,
+          "measure": 20,
+          "barrier": 10
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.25,
+      "variant": 1,
+      "metrics": {
+        "depth": 987,
+        "two_qubit_depth": 292,
+        "two_qubit_gates": 1200,
+        "operations": 6914,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2477,
+          "cz": 1200,
+          "x": 525,
+          "barrier": 250,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.0,
+      "variant": 1,
+      "metrics": {
+        "depth": 797,
+        "two_qubit_depth": 192,
+        "two_qubit_gates": 960,
+        "operations": 6231,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2261,
+          "cz": 960,
+          "x": 298,
+          "reset": 48,
+          "measure": 20,
+          "barrier": 10
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.0,
+      "variant": 0,
+      "metrics": {
+        "depth": 803,
+        "two_qubit_depth": 192,
+        "two_qubit_gates": 960,
+        "operations": 6238,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2257,
+          "cz": 960,
+          "x": 309,
+          "reset": 48,
+          "measure": 20,
+          "barrier": 10
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.5,
+      "variant": 0,
+      "metrics": {
+        "depth": 1219,
+        "two_qubit_depth": 380,
+        "two_qubit_gates": 1440,
+        "operations": 7675,
+        "operation_counts": {
+          "rz": 2750,
+          "sx": 2644,
+          "cz": 1440,
+          "x": 773,
+          "barrier": 490,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.5,
+      "variant": 1,
+      "metrics": {
+        "depth": 1173,
+        "two_qubit_depth": 372,
+        "two_qubit_gates": 1440,
+        "operations": 7615,
+        "operation_counts": {
+          "rz": 2729,
+          "sx": 2644,
+          "cz": 1440,
+          "x": 734,
+          "barrier": 490,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.25,
+      "variant": 3,
+      "metrics": {
+        "depth": 1012,
+        "two_qubit_depth": 300,
+        "two_qubit_gates": 1200,
+        "operations": 6936,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2472,
+          "cz": 1200,
+          "x": 552,
+          "barrier": 250,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "raw",
+      "factor": 1.0,
+      "variant": null,
+      "metrics": {
+        "depth": 758,
+        "two_qubit_depth": 192,
+        "two_qubit_gates": 960,
+        "operations": 6020,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2198,
+          "cz": 960,
+          "x": 150,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.25,
+      "variant": 2,
+      "metrics": {
+        "depth": 1041,
+        "two_qubit_depth": 310,
+        "two_qubit_gates": 1200,
+        "operations": 6980,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2535,
+          "cz": 1200,
+          "x": 533,
+          "barrier": 250,
+          "reset": 48,
+          "measure": 20
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.0,
+      "variant": 2,
+      "metrics": {
+        "depth": 807,
+        "two_qubit_depth": 192,
+        "two_qubit_gates": 960,
+        "operations": 6223,
+        "operation_counts": {
+          "sx": 2644,
+          "rz": 2258,
+          "cz": 960,
+          "x": 293,
+          "reset": 48,
+          "measure": 20,
+          "barrier": 10
+        },
+        "active_qubits": 12,
+        "allocated_qubits": 120,
+        "classical_bits": 20
+      }
+    }
+  ]
+}

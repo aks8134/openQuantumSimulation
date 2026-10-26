@@ -1,0 +1,15 @@
+{
+  "scope": "Local tests, exact small-system density matrices, saved-target compilation and mocked Runtime only. No IBM service or hardware job.",
+  "tests": 194,
+  "seconds": 101.414,
+  "passed": true,
+  "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MPLCONFIGDIR=/tmp/model3_boundary_analysis/mpl .venv/bin/python -m unittest discover -s tests -p 'test_model3*.py' -q",
+  "test_output": "----------------------------------------------------------------------\nRan 194 tests in 101.414s\n\nOK",
+  "code_sha256": {
+    "Model3/Experiment5/mitigation.py": "d255f1a3c5b9a3e50a55483a98822ec95170f4f39d4fc380c67bba89bcec2588",
+    "Model3/Experiment5/run_mitigation.py": "460bf80aff01fcc61e042c1ea2d5b07d9b81a6f20f5b31198449f3ba0bc09913",
+    "Model3/Experiment5/analyze_readout_mitigation.py": "985e07a0fc24ce0881dd4fb58094ba50b0101b8622a2f5303c85b27832a3b839",
+    "tests/test_model3_mitigation.py": "aade4e83795b8930f6f4f6d2d2a8e9ba71cb34d16bb905c749e078034d960da8",
+    "Model3/analysis/offline_audit/compile_mitigation_preview.py": "c8b17500368b59c5dac340a935f730d65e303239ba214f1f20d5d2177572a524"
+  }
+}
