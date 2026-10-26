@@ -920,3 +920,113 @@ Offline analysis after pulling results needs no account or backend:
 `--compile-only` fetches the target and saves the circuits without submitting.
 Local tests instead inject a synthetic backend and mock Runtime; those tests
 make no hardware queries or submissions.
+
+## One paired hardware comparison: current 72 versus candidate 48
+
+`run_schedule_comparison.py` executes the single coordinated population
+comparison selected by the [offline redesign analysis](../analysis/hardware_cost_redesign/Report.md).
+The current 72-step cosine schedule and the 48-step warped cosine retain
+N=10, J=gamma=1, p_L=0.9, p_R=0.1 and the half-mixed initial state. Their
+classical total tolerance remains 0.02, with mean/sampling allocations of
+0.016/0.004 and 0.0165/0.0035 respectively. Input validation belongs to the
+original large classical ensembles; it does not certify noisy hardware
+accuracy or the smaller hardware ensemble's full sampling allowance.
+
+The runner includes a self-contained compressed input bundle,
+`inputs/paired_cosine72_vs48_seed29_R1024.zip`. It needs no old replay files,
+search results or account access to load those inputs. Its exact 1024-path
+ideal population errors are 0.015767 for the baseline and 0.017810 for the
+candidate. Both use seed 29 and identical branch-choice prefixes. The
+48-step circuit has 960 CZ gates and 48 bath resets, versus 1440 and 72.
+
+The fixed physical path is `[39,49,48,58,57,56,66,76,86,85,95,105]`: the first
+and last qubits are the two boundary baths. The default workload is:
+
+| Component | Circuits | Shots/circuit | Shots |
+|---|---:|---:|---:|
+| Current 72-step schedule | 1024 | 8 | 8192 |
+| Candidate 48-step schedule | 1024 | 8 | 8192 |
+| Zero, one and initial-mixture controls | 3 | 2048 | 6144 |
+| Total | 2051 | mixed | 22528 |
+
+Only terminal Z populations are measured. There are no XY/YX settings or
+hardware current estimates. Preparation measurements remain in the circuit
+and are ignored in the final population estimator. Runtime initialization is
+enabled; dynamical decoupling and gate/measurement twirling are disabled.
+
+Run from Windows PowerShell at the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_schedule_comparison.py --account-file .\IBMRuntime\apikey.json
+```
+
+The defaults are explicit in `--help`: `--trajectory-count 1024 --shots 8
+--control-shots 2048 --batch-size 512 --optimization-level 3
+--seed-transpiler 11 --order-seed 29`. Smaller trajectory subsets are allowed
+for smoke tests but are not independently sampling-validated. The first 128
+candidate paths already have ideal population error 0.030124, so they should
+not replace the planned 1024-path comparison as a 0.02 accuracy test.
+
+The PUB plan shuffles trajectory pairs and randomizes baseline/candidate order
+within each pair. Both members remain in the same batch. All-zero, all-one
+and mixture controls are placed at the beginning, middle and end. Requested
+PUB order does not guarantee the hardware's actual execution order.
+
+With a 512-circuit cap, pair preservation produces **five sequential jobs**
+containing 511, 512, 511, 512 and 5 circuits. The last small batch is part of
+the same experiment. A single Sampler is reused; per-PUB shot overrides give
+the controls their 2048 shots without changing evolution circuits' 8 shots.
+Control screening is reported after collection, and does not automatically
+stop the comparison or apply readout correction.
+
+Compilation uses the live backend target at user invocation, the same fixed
+layout and optimization settings for both schedules. It proceeds one batch
+at a time, reporting progress every 16 circuits. Each batch's native QPY,
+metrics and hash are saved before submission; its job ID is saved immediately
+after submission. A completed batch is not submitted again on resume. If
+compilation is interrupted, completed batches remain saved and only the
+unfinished batch may need recompilation. An interrupted submission with no
+saved job ID requires finding that job on IBM Quantum and entering its ID in
+the manifest, preventing an automatic duplicate job.
+
+Results are saved under
+`hardware_runs/ibm_phoenix_comparison_<timestamp>/`. Keep that folder locally.
+It includes both source inputs, shuffled plan, raw counts, live calibration
+snapshot, job metadata and `circuits_<start>_<stop>.qpy` chunks. QPY is already
+Git-ignored and can be substantially larger than the numerical results.
+
+The printed **results_bundle.zip** contains the source inputs, manifest,
+counts, calibration and analysis, while omitting the large QPY chunks. Bring
+back that bundle for numerical analysis; retain the local QPY files for
+later circuit inspection. Offline analysis verifies available QPY hashes and
+mapping and explicitly reports when compiled files were not transferred.
+This keeps routine result transfers smaller without deleting compiled data.
+
+Plots, CSV and Markdown/JSON reports also go to
+`analysis/hardware/<run-name>/schedule_comparison/`. They compare all ten
+hardware populations with each schedule's own finite-ensemble ideal and the
+physical stationary target. The primary accuracy target is maximum all-site
+population error 0.02. Paired residual differences and nominal across-path
+uncertainties are retained; these omit drift and are not simultaneous bounds.
+
+Recover interrupted execution or execute a previously compiled manifest:
+
+```powershell
+.\.venv\Scripts\python.exe .\Model3\Experiment5\run_schedule_comparison.py --resume ".\Model3\Experiment5\hardware_runs\<comparison-run-name>\manifest.json" --account-file .\IBMRuntime\apikey.json
+```
+
+`--compile-only` obtains the target and saves all native chunks without
+submitting jobs. A fully collected resume and `--analyze-only` work without
+an IBM connection. Offline reanalysis (Bash):
+
+```bash
+.venv/bin/python Model3/Experiment5/run_schedule_comparison.py \
+  --analyze-only Model3/Experiment5/hardware_runs/<comparison-run-name>
+```
+
+The input bundle can be reproduced entirely offline with
+`Model3/analysis/hardware_cost_redesign/prepare_pair_inputs.py`. It regenerates
+the 1024 per-path streams and covariances and independently reproduces the
+original compact inputs' first 128 paths before extending them. Tests use
+small local targets and mocked Runtime only; no assistant hardware job is
+needed to prepare or test this runner.

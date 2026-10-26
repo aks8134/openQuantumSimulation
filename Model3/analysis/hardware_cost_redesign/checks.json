@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "branches_checked": 1948,
+  "maximum_mean_vs_explicit_branch_difference": 2.220446049250313e-16,
+  "minimum_covariance_eigenvalue": 0.18237577053181203,
+  "maximum_covariance_eigenvalue": 0.817624229468183,
+  "compact_inputs_validated": 3,
+  "search_hashes_verified": true,
+  "package_versions": {
+    "numpy": "2.5.2",
+    "scipy": "1.18.1",
+    "qiskit": "2.5.2",
+    "qiskit-ibm-runtime": "0.49.0"
+  },
+  "scope": "Offline physicality and independent four-branch averaging across candidate preparation and full forward validation; no hardware execution."
+}
