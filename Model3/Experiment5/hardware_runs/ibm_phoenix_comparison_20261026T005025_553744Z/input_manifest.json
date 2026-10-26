@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "experiment": "Model3/paired_schedule_inputs",
+  "backend": "ibm_phoenix",
+  "physical_path": [
+    39,
+    49,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    95,
+    105
+  ],
+  "trajectory_count": 1024,
+  "seed_trajectories": 29,
+  "sources": {
+    "baseline": {
+      "file": "baseline.json",
+      "sha256": "83d9215334dced75ecf89a886cb09caeb0b5a675465deebbe03751430e51b69d",
+      "steps": 72,
+      "ideal_populations": [
+        0.5953455734509646,
+        0.48996672207706404,
+        0.5070463758419336,
+        0.4842328639393264,
+        0.5058733347748535,
+        0.49093270306539694,
+        0.5152942968920752,
+        0.49086189639499717,
+        0.5079859869904818,
+        0.40492522052313074
+      ],
+      "ideal_population_error": 0.01576713606067076,
+      "full_replay_trajectories": 8192
+    },
+    "candidate": {
+      "file": "candidate.json",
+      "sha256": "5c87e03cca8d4b799bf347392b4c1515fdbc1299a95c0ed629a3dd5e9e9a8d1f",
+      "steps": 48,
+      "ideal_populations": [
+        0.5876720775851756,
+        0.48294165209575685,
+        0.4987861355038299,
+        0.4925313585513214,
+        0.5085329044968027,
+        0.4928558611155343,
+        0.5118543297082905,
+        0.5032114155905509,
+        0.5178097830398748,
+        0.40379284591432907
+      ],
+      "ideal_population_error": 0.01780978303987485,
+      "full_replay_trajectories": 16384
+    }
+  }
+}
