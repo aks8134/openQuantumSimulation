@@ -31,6 +31,60 @@ def probabilities(circuit,sites):
 
 
 class MitigationTests(unittest.TestCase):
+    def test_complete_controls_per_job_plan_and_budget(self):
+        with tempfile.TemporaryDirectory() as folder,contextlib.redirect_stdout(io.StringIO()), \
+             patch.object(hardware,'make_service',side_effect=AssertionError('no account')):
+            options=runner.parse_arguments(['--controls-per-batch','--output-directory',folder])
+            manifest=runner.main(options)
+            self.assertEqual(manifest['configuration']['total_circuits'],862)
+            self.assertEqual(manifest['configuration']['total_shots'],90112)
+            self.assertEqual([b['stop']-b['start'] for b in manifest['batches']],[431,431])
+            for batch in manifest['batches']:
+                records=manifest['circuits'][batch['start']:batch['stop']]
+                self.assertEqual(sum(r['kind']=='control' for r in records),15)
+                self.assertEqual(sum(r['kind']=='trajectory' and r['arm']=='raw' for r in records),32)
+                for arm in ('raw','twirled'):
+                    for name in ('all_zero','all_one','initial_mixture'):
+                        self.assertEqual(sum(r['shots'] for r in records if r['kind']=='control' and r['arm']==arm and r['control']==name),2048)
+            self.assertEqual(len({r['case_id'] for r in manifest['circuits']}),862)
+        with self.assertRaises(ValueError):runner.parse_arguments(['--controls-per-batch','--batch-size','40'])
+
+    def test_job_local_correction_precedes_averaging_and_preserves_calibration_uncertainty(self):
+        values=np.empty((4,4,1));values[:2]=.26;values[2:]=.68
+        covariance=np.full((4,4,1,1),.001)
+        ideal=np.array([[.2],[.2],[.8],[.8]])
+        def calibration(a,b):
+            return {arm:{'all_zero':[{'0':100*(100-a),'1':100*a}], 'all_one':[{'0':100*(100-b),'1':100*b}],
+                'initial_mixture':[{'0':5000,'1':5000}]} for arm in ('raw','twirled')}
+        locals_=[calibration(10,90),calibration(20,80)]
+        pooled={arm:{name:sum([local[arm][name] for local in locals_],[]) for name in locals_[0][arm]} for arm in locals_[0]}
+        groups=[[0,1],[2,3]];target=np.array([.5]);factors=[1,1.25,1.5]
+        statistics=mit.estimates(values,covariance,pooled,factors,ideal,target,replicates=100,groups=groups)
+        self.assertAlmostEqual(statistics['profiles']['raw_spam_corrected']['populations'][0],.4571428571428572)
+        combined=runner.combine_job_calibrations(statistics,values,covariance,locals_,groups,factors,ideal,target,
+            replicates=100,seed=29,job_ids=['job0','job1'])
+        for name in ('raw_spam_corrected','twirled_spam_corrected','zne_spam_corrected'):
+            self.assertAlmostEqual(combined['profiles'][name]['populations'][0],.5)
+            self.assertGreater(combined['profiles'][name]['fixed_path_delta_method_se'][0],0)
+        self.assertEqual([r['trajectory_count'] for r in combined['job_local_controls']],[2,2])
+        self.assertTrue(all('_bootstrap_samples' not in r for r in combined['job_local_controls']))
+
+    def test_execute_with_complete_local_controls_recorded_calibration_and_portable_analysis(self):
+        with tempfile.TemporaryDirectory() as folder,contextlib.redirect_stdout(io.StringIO()), \
+             patch.object(hardware,'make_service',side_effect=AssertionError('no account')), \
+             patch.object(runner.quality_path,'calibration',side_effect=AssertionError('record-only must not reject quality')):
+            options,backend=self.options(folder,'--controls-per-batch','--batch-size','23','--execute','--calibration-policy','record-only')
+            sampler,jobs=self.sampler()
+            report=runner.main(options,backend=backend,sampler_factory=Mock(return_value=sampler))
+            self.assertEqual(len(jobs),1);self.assertEqual(report['configuration']['total_circuits'],23)
+            self.assertEqual(len(report['statistics']['job_local_controls']),1)
+            for profile in report['statistics']['profiles'].values():np.testing.assert_allclose(profile['populations'],.5)
+            directory=Path(report['run_directory'])
+            for path in directory.glob('*.qpy'):path.unlink()
+            portable=runner.analyze(directory,replicates=100)
+            self.assertEqual(len(portable['statistics']['job_local_controls']),1)
+            self.assertEqual(len(portable['verification']['compiled_batches_not_available']),1)
+
     def options(self,folder,*extra):
         original,backend=comparison_fixtures.ComparisonTests().setup(folder)
         args=['--input-bundle',str(original.input_bundle),'--backend',backend.name,'--physical-path','0','1','2','3','4',

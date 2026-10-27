@@ -43,6 +43,9 @@ def parse_arguments(arguments=None):
     p.add_argument('--shots',type=int,default=256,help='total shots per trajectory per arm/noise factor')
     p.add_argument('--randomizations',type=int,default=4,help='even count; balanced terminal X masks')
     p.add_argument('--control-shots',type=int,default=2048,help='total per preparation per raw/twirled treatment')
+    p.add_argument('--controls-per-batch',action='store_true',help='complete zero/one/mixture controls and local calibration inside every job')
+    p.add_argument('--calibration-policy',choices=('screen','record-only'),default='screen',
+        help='screen applies chain quality thresholds; record-only retains the specified chain and records its calibration')
     p.add_argument('--fold-factors',type=float,nargs='+',default=[1.,1.25,1.5])
     p.add_argument('--batch-size',type=int,default=512);p.add_argument('--seed',type=int,default=29)
     p.add_argument('--seed-transpiler',type=int,default=11);p.add_argument('--optimization-level',type=int,choices=range(4),default=3)
@@ -63,6 +66,8 @@ def parse_arguments(arguments=None):
         if len(factors)<3 or factors[0]!=1 or any(not np.isfinite(f) or f<1 or f>3 for f in factors) or any(b<=a for a,b in zip(factors,factors[1:])):
             raise ValueError('need >=3 strictly increasing factors starting at 1, each <=3')
         if a.batch_size<max(1+a.randomizations*len(factors),1+a.randomizations):raise ValueError('batch too small to keep a whole matched trajectory group')
+        if a.controls_per_batch and a.batch_size<3*(1+a.randomizations)+2*(1+a.randomizations*len(factors)):
+            raise ValueError('batch needs complete controls and at least two matched trajectories')
         if not a.backend.strip() or min(a.physical_path)<0 or len(set(a.physical_path))!=len(a.physical_path):raise ValueError('invalid backend/path')
     return a
 
@@ -72,23 +77,41 @@ def plan(cfg):
     masks=mit.balanced_masks(n,K,cfg['seed']);base=2*n*cfg['steps']
     folds=[mit.fold_count(f,base) for f in cfg['fold_factors']]
     actual=[1+2*k/base for k in folds];mit.zne_weights(actual)
-    def control(name):
+    def control(name,prefix=''):
         expected={'all_zero':[0.]*n,'all_one':[1.]*n,'initial_mixture':[.5]*n}[name]
         rows=[dict(kind='control',control=name,arm='raw',randomization=None,measurement_mask=0,
-            shots=cfg['control_shots'],expected_populations=expected,case_id=f'raw_{name}')]
+            shots=cfg['control_shots'],expected_populations=expected,case_id=f'{prefix}raw_{name}')]
         rows.extend(dict(kind='control',control=name,arm='twirled',randomization=v,measurement_mask=masks[v],
-            shots=cfg['control_shots']//K,expected_populations=expected,case_id=f'twirled_{name}_{v}') for v in range(K))
+            shots=cfg['control_shots']//K,expected_populations=expected,case_id=f'{prefix}twirled_{name}_{v}') for v in range(K))
         return [rows[i] for i in rng.permutation(len(rows))]
-    units=[control('all_zero')]
-    for pos,index in enumerate(rng.permutation(R)):
-        if pos==R//2:units.append(control('all_one'))
+    def trajectory(index):
         rows=[dict(kind='trajectory',trajectory=int(index),arm='raw',factor_index=0,requested_factor=1.,actual_factor=1.,
             folds=0,randomization=None,measurement_mask=0,shots=cfg['shots'],case_id=f'raw_{index}')]
         for k,(f,c,x) in enumerate(zip(cfg['fold_factors'],folds,actual)):
             for v in range(K):rows.append(dict(kind='trajectory',trajectory=int(index),arm='twirled',factor_index=k,
                 requested_factor=f,actual_factor=x,folds=c,randomization=v,measurement_mask=masks[v],shots=cfg['shots']//K,
                 case_id=f'twirled_{index}_{k}_{v}'))
-        units.append([rows[i] for i in rng.permutation(len(rows))])
+        return [rows[i] for i in rng.permutation(len(rows))]
+    if cfg.get('controls_per_batch',False):
+        capacity=(cfg['batch_size']-3*(1+K))//(1+K*len(folds))
+        if capacity<2:raise ValueError('batch needs complete controls and at least two matched trajectories')
+        groups=np.array_split(rng.permutation(R),(R+capacity-1)//capacity)
+        if any(len(g)<2 for g in groups):raise ValueError('need at least two paths per job; increase batch-size or adjust trajectory-count')
+        records=[];batches=[]
+        for job,indices in enumerate(groups):
+            start=len(records);prefix=f'job{job}_'
+            units=control('all_zero',prefix)
+            for pos,index in enumerate(indices):
+                if pos==len(indices)//2:units.extend(control('all_one',prefix))
+                units.extend(trajectory(index))
+            units.extend(control('initial_mixture',prefix))
+            records.extend(dict(row,pub_index=start+i) for i,row in enumerate(units))
+            batches.append(dict(start=start,stop=len(records),status='not_submitted',job_id=None,compiled=False))
+        return records,batches
+    units=[control('all_zero')]
+    for pos,index in enumerate(rng.permutation(R)):
+        if pos==R//2:units.append(control('all_one'))
+        units.append(trajectory(index))
     units.append(control('initial_mixture'));records=[];batches=[];start=0
     for unit in units:
         if len(records)-start+len(unit)>cfg['batch_size']:
@@ -101,6 +124,7 @@ def plan(cfg):
 def verify_manifest(manifest,source):
     if manifest.get('experiment')!=EXPERIMENT:raise ValueError('not a mitigation manifest')
     cfg=manifest['configuration'];hardware.require_validated_source(source)
+    if cfg.get('calibration_policy','screen') not in ('screen','record-only'):raise ValueError('unknown calibration policy')
     if cfg['sampler_options']!=SAMPLER_OPTIONS:raise ValueError('saved Runtime options differ from explicit manual mitigation protocol')
     n=source['configuration']['physics']['n_qubits']
     if (cfg['trajectory_count']>source['configuration']['trajectories'] or cfg['steps']!=len(source['schedule']['step_dts'])
@@ -198,13 +222,52 @@ def compiled_batch(folder,manifest,batch,source,backend=None):
     return pubs
 
 
+def combine_job_calibrations(statistics,values,covariances,controls_by_job,groups,factors,ideal,target,*,replicates,seed,job_ids):
+    """Calibrate each job separately, then average with its trajectory weight.
+
+    Independent local bootstrap draws preserve shared calibration uncertainty
+    across noise factors inside a job. Job weights are fixed, matching the
+    stratified trajectory bootstrap. No pooled response inversion is used.
+    """
+    local=[];draws=[];ideal_draws=[];fractions=[]
+    for k,(indices,controls) in enumerate(zip(groups,controls_by_job)):
+        part=mit.estimates(values[indices],covariances[indices],controls,factors,ideal[indices],target,
+            replicates=replicates,seed=int(np.random.SeedSequence([seed,k,9183]).generate_state(1)[0]),return_samples=True)
+        draws.append(part.pop('_bootstrap_samples'));ideal_draws.append(part.pop('_bootstrap_ideal'))
+        fractions.append(len(indices)/len(values));local.append(part)
+    names=list(statistics['profiles'])
+    samples={name:sum(f*d[name] for f,d in zip(fractions,draws)) for name in names}
+    bootstrap_ideal=sum(f*d for f,d in zip(fractions,ideal_draws))
+    mean_ideal=ideal.mean(axis=0)
+    for name in names:
+        point=sum(f*s['profiles'][name]['populations'] for f,s in zip(fractions,local))
+        shot_se=np.sqrt(sum(f*f*s['profiles'][name]['fixed_path_delta_method_se']**2 for f,s in zip(fractions,local)))
+        error=abs(point-mean_ideal);physical=abs(point-target)
+        statistics['profiles'][name]=dict(populations=point,bootstrap_ci95=np.quantile(samples[name],[.025,.975],axis=0),
+            fixed_path_delta_method_se=shot_se,outside_probability_range=bool(np.any((point<0)|(point>1))),
+            ideal_mae=float(error.mean()),ideal_maximum=float(error.max()),physical_mae=float(physical.mean()),physical_maximum=float(physical.max()))
+    for comparison in statistics['comparisons']:
+        name,reference= comparison['method'],comparison['reference']
+        metric=comparison['metric'];reducer=np.mean if metric=='ideal_mae' else np.max
+        differences=reducer(abs(samples[name]-bootstrap_ideal),axis=1)-reducer(abs(samples[reference]-bootstrap_ideal),axis=1)
+        comparison.update(difference=statistics['profiles'][name][metric]-statistics['profiles'][reference][metric],
+            bootstrap_ci95=np.quantile(differences,[.025,.975]))
+    statistics['calibration_scope']='job_local: each job corrected before trajectory-weighted averaging; pooled calibration and mixture fields are diagnostics only'
+    statistics['job_local_controls']=[dict(job_id=job_id,trajectory_count=len(indices),weight=f,
+        calibration=part['calibration'],heldout_mixture=part['heldout_mixture'],profiles=part['profiles'])
+        for job_id,indices,f,part in zip(job_ids,groups,fractions,local)]
+    statistics['bootstrap']['scope']+=' SPAM inversion uses independent job-local calibration draws, shared across factors inside each job.'
+    return statistics
+
+
 def analyze(folder,*,replicates=2000,seed=29):
     manifest=json.loads((folder/'manifest.json').read_bytes());source,integrity=read_source(folder,manifest);cfg=manifest['configuration']
     if manifest['status']!='collected':raise ValueError('need completely collected mitigation results')
     n=len(cfg['physical_path'])-2;R=cfg['trajectory_count'];L=len(cfg['fold_factors']);K=cfg['randomizations']
     paths={};controls={arm:{name:[] for name in ('all_zero','all_one','initial_mixture')} for arm in ('raw','twirled')}
-    verified=[];missing=[];jobs=[];shots=0;groups=[]
+    verified=[];missing=[];jobs=[];shots=0;groups=[];controls_by_job=[]
     for batch in manifest['batches']:
+        local_controls={arm:{name:[] for name in ('all_zero','all_one','initial_mixture')} for arm in ('raw','twirled')}
         records=manifest['circuits'][batch['start']:batch['stop']]
         groups.append([r['trajectory'] for r in records if r['kind']=='trajectory' and r['arm']=='raw'])
         if batch['status']!='collected' or not batch.get('job_id') or not batch.get('compiled') or len(batch.get('observations',[]))!=len(records):raise ValueError('incomplete mitigation batch')
@@ -215,10 +278,13 @@ def analyze(folder,*,replicates=2000,seed=29):
             counts=mit.undo_measurement_twirl(obs['outcome_counts'],n,record['measurement_mask'])
             if sum(counts.values())!=record['shots']:raise ValueError('shot mismatch')
             shots+=record['shots']
-            if record['kind']=='control':controls[record['arm']][record['control']].append(counts)
+            if record['kind']=='control':
+                controls[record['arm']][record['control']].append(counts)
+                local_controls[record['arm']][record['control']].append(counts)
             else:
                 key=(record['trajectory'],0 if record['arm']=='raw' else record['factor_index']+1)
                 paths.setdefault(key,[]).append(counts)
+        controls_by_job.append(local_controls)
     if shots!=cfg['total_shots'] or len(paths)!=R*(L+1):raise ValueError('missing trajectory/factor data')
     values=np.zeros((R,L+1,n));covariances=np.zeros((R,L+1,n,n))
     for (index,arm),pub_groups in paths.items():
@@ -228,6 +294,9 @@ def analyze(folder,*,replicates=2000,seed=29):
     ideal=np.asarray(source['final_covariances_real_gauge'])[0,:R].diagonal(axis1=-2,axis2=-1)
     target=np.asarray(source['stationary_observables']['populations'])
     statistics=mit.estimates(values,covariances,controls,factors,ideal,target,replicates=replicates,seed=seed,groups=groups)
+    if cfg.get('controls_per_batch',False):
+        statistics=combine_job_calibrations(statistics,values,covariances,controls_by_job,groups,factors,ideal,target,
+            replicates=replicates,seed=seed,job_ids=jobs)
     return dict(experiment=EXPERIMENT,run_directory=str(folder.resolve()),configuration=cfg,job_ids=jobs,
         statistics=statistics,ideal_same_paths=ideal.mean(axis=0),physical_target=target,
         per_path_populations=values,per_path_ideal_populations=ideal,
@@ -274,6 +343,16 @@ def save_analysis(report,output):
         'held-out mixture controls, uncertainty amplification, all raw scale populations and descriptive fit residuals are in analysis.json. '
         'A favorable intercept alone does not validate noise scaling; inspect the scale dependence and uncertainty before interpreting mitigation as improvement.','',
         stats['bootstrap']['scope'],'']
+    if stats.get('job_local_controls'):
+        lines+=['## Preparation controls inside each evolution job','',stats['calibration_scope'],'',
+            '| Job | Readout | Largest corrected-mixture deviation from 0.5 | Site |',
+            '|---|---|---:|---:|']
+        for part in stats['job_local_controls']:
+            for arm,control in part['heldout_mixture'].items():
+                deviations=abs(np.asarray(control['corrected'])-.5);j=int(np.argmax(deviations))
+                lines.append(f"| {part['job_id']} | {arm} | {deviations[j]:.6f} | {j+1} |")
+        lines+=['','Per-job calibration, held-out mixture intervals and evolved populations are saved in analysis.json. '
+            'The mixture is held out of calibration. Same-job controls do not prove absence of within-job drift or state/context-dependent noise.','']
     (output/'Analysis.md').write_text('\n'.join(lines))
 
 
@@ -299,7 +378,7 @@ def main(options,*,backend=None,service=None,sampler_factory=None):
         sources,raw,metadata,input_hash=load_inputs(options.input_bundle);source=sources['candidate'];source_raw=raw['candidate']
         if options.backend!=metadata['backend']:raise ValueError('backend differs from saved input platform')
         cfg={k:getattr(options,k) for k in ('backend','physical_path','trajectory_count','shots','randomizations','control_shots','fold_factors',
-            'batch_size','seed','seed_transpiler','optimization_level')}
+            'batch_size','seed','seed_transpiler','optimization_level','controls_per_batch','calibration_policy')}
         cfg.update(source_sha256=sha(source_raw),input_bundle_sha256=input_hash,steps=len(source['schedule']['step_dts']),
             sampler_options=SAMPLER_OPTIONS,software_versions={k:importlib.metadata.version(k) for k in ('qiskit','qiskit-ibm-runtime','numpy')},
             sampling_scope='Fixed first R saved branch paths, analytically averaged ideal mixture; pilot only, no original sampling-budget certification.')
@@ -328,10 +407,13 @@ def main(options,*,backend=None,service=None,sampler_factory=None):
         refresh=getattr(backend,'refresh',None)
         if callable(refresh):refresh()
         circuits.chain_layout(backend,len(cfg['physical_path'])-2,'boundary',cfg['physical_path'])
-        nodes,edges=quality_path.calibration(backend,{7},80e-6,60e-6,.005,.02)
         path=cfg['physical_path']
-        if not set(path)<=nodes.keys() or any(tuple(sorted(e)) not in edges for e in zip(path,path[1:])):
-            raise ValueError('chain fails current calibration filters; no new job submitted')
+        if cfg.get('calibration_policy','screen')=='screen':
+            nodes,edges=quality_path.calibration(backend,{7},80e-6,60e-6,.005,.02)
+            if not set(path)<=nodes.keys() or any(tuple(sorted(e)) not in edges for e in zip(path,path[1:])):
+                raise ValueError('chain fails current calibration filters; no new job submitted')
+        else:
+            print('Calibration policy: record-only; fixed reference chain retained without quality-threshold rejection.',flush=True)
         snapshot_folder=folder
         if (folder/'backend_snapshot.json').exists():
             snapshot_folder=folder/'resume_calibration'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ')

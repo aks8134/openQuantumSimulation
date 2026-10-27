@@ -11,6 +11,22 @@ There are two independent entry points:
 
 The follow-up [repeated preparation controls](RepeatedPreparationControls.md) test the pilot's mixture discrepancy with complete raw/twirled zero, one and mixture controls repeated inside each job. Its default workload is 60 circuits and 49,152 shots across two jobs, without Trotter evolution.
 
+## Paired evolution confirmation with controls inside each job
+
+To keep the first-order 48-step cosine schedule and the same 64 saved branch trajectories while repeating complete preparation controls in each evolution job, run from the repository root in Windows PowerShell:
+
+```powershell
+python Model3/Experiment5/run_mitigation.py --execute --controls-per-batch --calibration-policy record-only --trajectory-count 64 --shots 256 --control-shots 2048 --randomizations 4 --batch-size 512
+```
+
+This submits **two jobs**, each with **32 matched trajectories and all three preparations under both raw and terminal-twirled readout**. Each trajectory is evaluated raw and at all three twirled CZ factors (1, 1.25, 1.5). The total is **862 circuits and 90,112 shots**: 431 circuits per job, with no matched trajectory split across jobs. These totals include 15 control circuits per job. Job groups are balanced within the requested batch-size maximum. Each job has zero controls near the beginning, one controls around its midpoint, and mixture controls near the end in the requested order; actual hardware dispatch timing is not guaranteed.
+
+With `--controls-per-batch`, exploratory SPAM correction uses each job's own zero/one data before trajectory-weighted averaging. Bootstrap calibration draws are independent across jobs and shared across factors within each job. Per-job held-out mixture checks, calibration, evolved profiles and precision are retained in `analysis.json`; the Markdown report also summarizes local mixture discrepancies. The pooled calibration fields are explicitly marked as diagnostics, and are not used to invert the combined profile. Raw, twirled and ZNE estimates are always retained independently of SPAM correction.
+
+`--calibration-policy record-only` deliberately keeps the current specified mapping, including qubit 76, for this paired comparison. It records the available calibration instead of rejecting the run at the earlier heuristic T1/T2/error cutoffs. Connectivity and native circuit checks remain in force. This is explicit because qubit 76's latest saved T1 was about 52 microseconds, below the older 80-microsecond screen. The default policy without this flag remains `screen`; no automatic remapping is performed.
+
+The new controls mode is opt-in. Previously saved mitigation manifests still regenerate their original plans and use their original analysis. Resume with the newly printed manifest after an interruption; do not use the earlier pilot's manifest to launch this new comparison. The output and transfer paths are the same as for the original pilot, under a fresh `hardware_runs/ibm_phoenix_mitigation_<timestamp>/` folder.
+
 [Pure circuit/statistical helpers](mitigation.py), [tests](../../tests/test_model3_mitigation.py), [reviewable default workload](inputs/mitigation_pilot_summary.json).
 
 ## Existing-data correction

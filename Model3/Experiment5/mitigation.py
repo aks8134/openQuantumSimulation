@@ -136,7 +136,7 @@ def draw_control(groups,n,replicates,rng):
     return output
 
 
-def estimates(values,shot_covariances,controls,factors,ideal_paths,target,*,replicates=2000,seed=29,groups=None):
+def estimates(values,shot_covariances,controls,factors,ideal_paths,target,*,replicates=2000,seed=29,groups=None,return_samples=False):
     """Joint paired-path and calibration bootstrap, not double-resampled shots.
 
     `values` is (paths, arms, sites), raw first and twirled factors next.
@@ -197,7 +197,7 @@ def estimates(values,shot_covariances,controls,factors,ideal_paths,target,*,repl
     # Linearity diagnostics are descriptive; correlated shared calibration is not
     # used as an independent-point chi-square goodness-of-fit test.
     design=np.column_stack([np.ones(len(factors)),factors]);fit=design@np.linalg.lstsq(design,mean[1:],rcond=None)[0]
-    return dict(profiles=output,comparisons=comparisons,linear_zne=dict(factors=factors,weights=w,
+    result=dict(profiles=output,comparisons=comparisons,linear_zne=dict(factors=factors,weights=w,
         intercept_shot_se_amplification=float(np.linalg.norm(w)),raw_scale_populations=mean[1:],
         raw_scale_fixed_path_se=np.sqrt(np.maximum(0,np.diagonal(raw_cov[1:],axis1=-2,axis2=-1))),
         linear_fit_populations=fit,linear_fit_residuals=mean[1:]-fit),
@@ -209,3 +209,9 @@ def estimates(values,shot_covariances,controls,factors,ideal_paths,target,*,repl
         bootstrap=dict(replicates=replicates,seed=seed,group_sizes=[len(g) for g in groups],
             scope='Paired empirical trajectory resampling within observed batches plus joint control-PUB resampling; shot noise already present in path means is not resampled again. Conditional on observed jobs and twirl variants; omits drift and calibration-model bias. Intervals descriptive, not simultaneous. Small-group bootstrap precision can be poor; fixed-path delta-method SEs are also reported.'),
         scope='Marginal SPAM model is conditional on stable local response and includes preparation error. CZ-only extrapolation does not remove intentional reservoir dissipation, finite-step bias, or guarantee removal of reset/idle noise. No clipping or reference fitting.')
+    if return_samples:
+        # Internal draws allow independent job-local calibrations to be combined
+        # without treating one pooled calibration as valid across all jobs.
+        result['_bootstrap_samples']=samples
+        result['_bootstrap_ideal']=bootstrap_ideal
+    return result
