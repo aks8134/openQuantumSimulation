@@ -1,0 +1,32 @@
+{
+  "backend": "ibm_phoenix",
+  "physical_path": [
+    49,
+    39,
+    38,
+    48,
+    58,
+    57,
+    56,
+    66,
+    76,
+    86,
+    85,
+    84
+  ],
+  "jobs": 2,
+  "rounds": 2,
+  "shots": 2048,
+  "randomizations": 4,
+  "steps": 0,
+  "total_circuits": 60,
+  "total_shots": 49152,
+  "reference_run": "ibm_phoenix_mitigation_20261026T184843_413808Z",
+  "source_sha256": "5c87e03cca8d4b799bf347392b4c1515fdbc1299a95c0ed629a3dd5e9e9a8d1f",
+  "circuits_per_job": [
+    30,
+    30
+  ],
+  "status": "planned",
+  "hardware_jobs_submitted": false
+}

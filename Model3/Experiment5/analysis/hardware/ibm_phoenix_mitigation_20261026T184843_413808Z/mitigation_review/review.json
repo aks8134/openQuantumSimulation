@@ -1,0 +1,622 @@
+{
+  "reconstruction_matches_saved_populations": true,
+  "bundle_matches_local_files": true,
+  "verification": {
+    "source_integrity": "exact_bytes",
+    "compiled_batches_verified": [],
+    "compiled_batches_not_available": [
+      "circuits_000000_000504.qpy",
+      "circuits_000504_000847.qpy"
+    ],
+    "raw_counts_reconstructed": true
+  },
+  "comparisons_without_spam": [
+    {
+      "method": "twirled",
+      "reference": "raw",
+      "metric": "mae",
+      "difference": -0.0012655864833225547,
+      "ci95": [
+        -0.004439142023222693,
+        0.002076229303038923
+      ]
+    },
+    {
+      "method": "twirled",
+      "reference": "raw",
+      "metric": "maximum",
+      "difference": -0.031494140625,
+      "ci95": [
+        -0.04065664303914901,
+        -0.017877191964160575
+      ]
+    },
+    {
+      "method": "zne",
+      "reference": "raw",
+      "metric": "mae",
+      "difference": -0.007812457946959426,
+      "ci95": [
+        -0.012930262619485773,
+        0.002301100088041328
+      ]
+    },
+    {
+      "method": "zne",
+      "reference": "raw",
+      "metric": "maximum",
+      "difference": -0.04944366251283128,
+      "ci95": [
+        -0.05492955363651612,
+        -0.015044129817493538
+      ]
+    },
+    {
+      "method": "zne",
+      "reference": "twirled",
+      "metric": "mae",
+      "difference": -0.006546871463636871,
+      "ci95": [
+        -0.010801934524515146,
+        0.002510355015708403
+      ]
+    },
+    {
+      "method": "zne",
+      "reference": "twirled",
+      "metric": "maximum",
+      "difference": -0.017949521887831277,
+      "ci95": [
+        -0.023102542336506632,
+        0.011778507785260859
+      ]
+    }
+  ],
+  "heldout_controls": [
+    {
+      "arm": "raw",
+      "site": 1,
+      "physical_qubit": 39,
+      "zero": 0.00146484375,
+      "one": 0.9892578125,
+      "mixture": 0.49462890625,
+      "predicted_mixture": 0.495361328125,
+      "corrected_mixture": 0.49925852694018785,
+      "corrected_ci95": [
+        0.47764072774648275,
+        0.5217821782178218
+      ],
+      "residual_se": 0.011117209272127193,
+      "approximate_two_sided_p": 0.9474719222030464,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "raw",
+      "site": 2,
+      "physical_qubit": 38,
+      "zero": 0.00048828125,
+      "one": 0.99658203125,
+      "mixture": 0.49951171875,
+      "predicted_mixture": 0.49853515625,
+      "corrected_mixture": 0.5009803921568627,
+      "corrected_ci95": [
+        0.4791768740813327,
+        0.5230392156862745
+      ],
+      "residual_se": 0.011072734259920045,
+      "approximate_two_sided_p": 0.9297214973125141,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "raw",
+      "site": 3,
+      "physical_qubit": 48,
+      "zero": 0.013671875,
+      "one": 0.97216796875,
+      "mixture": 0.4150390625,
+      "predicted_mixture": 0.492919921875,
+      "corrected_mixture": 0.41874681609780945,
+      "corrected_ci95": [
+        0.3957994821332858,
+        0.4411014788373279
+      ],
+      "residual_se": 0.011115532866152035,
+      "approximate_two_sided_p": 2.443726667697736e-12,
+      "holm_p_20_controls_normal_approximation": 4.8874533353954715e-11
+    },
+    {
+      "arm": "raw",
+      "site": 4,
+      "physical_qubit": 58,
+      "zero": 0.00390625,
+      "one": 0.990234375,
+      "mixture": 0.48388671875,
+      "predicted_mixture": 0.4970703125,
+      "corrected_mixture": 0.4866336633663366,
+      "corrected_ci95": [
+        0.46495557749259625,
+        0.5086685192806577
+      ],
+      "residual_se": 0.011120222238305433,
+      "approximate_two_sided_p": 0.23579955064397162,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "raw",
+      "site": 5,
+      "physical_qubit": 57,
+      "zero": 0.001953125,
+      "one": 0.99365234375,
+      "mixture": 0.51318359375,
+      "predicted_mixture": 0.497802734375,
+      "corrected_mixture": 0.5155096011816839,
+      "corrected_ci95": [
+        0.49361461701189613,
+        0.5372124738398231
+      ],
+      "residual_se": 0.011092944837291438,
+      "approximate_two_sided_p": 0.16558076459441418,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "raw",
+      "site": 6,
+      "physical_qubit": 56,
+      "zero": 0.00390625,
+      "one": 0.98681640625,
+      "mixture": 0.4814453125,
+      "predicted_mixture": 0.495361328125,
+      "corrected_mixture": 0.4858420268256334,
+      "corrected_ci95": [
+        0.46412666996536367,
+        0.5081723625557206
+      ],
+      "residual_se": 0.01113668943190356,
+      "approximate_two_sided_p": 0.21145855119894208,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "raw",
+      "site": 7,
+      "physical_qubit": 66,
+      "zero": 0.00341796875,
+      "one": 0.98681640625,
+      "mixture": 0.49072265625,
+      "predicted_mixture": 0.4951171875,
+      "corrected_mixture": 0.4955312810327706,
+      "corrected_ci95": [
+        0.4728715965715976,
+        0.5173611111111112
+      ],
+      "residual_se": 0.011139694515362968,
+      "approximate_two_sided_p": 0.693217111395535,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "raw",
+      "site": 8,
+      "physical_qubit": 76,
+      "zero": 0.0009765625,
+      "one": 0.994140625,
+      "mixture": 0.47607421875,
+      "predicted_mixture": 0.49755859375,
+      "corrected_mixture": 0.4783677482792527,
+      "corrected_ci95": [
+        0.4567779960707269,
+        0.5009852216748768
+      ],
+      "residual_se": 0.011076139207132792,
+      "approximate_two_sided_p": 0.0524162937534941,
+      "holm_p_20_controls_normal_approximation": 0.9434932875628939
+    },
+    {
+      "arm": "raw",
+      "site": 9,
+      "physical_qubit": 86,
+      "zero": 0.0107421875,
+      "one": 0.99169921875,
+      "mixture": 0.49609375,
+      "predicted_mixture": 0.501220703125,
+      "corrected_mixture": 0.49477351916376305,
+      "corrected_ci95": [
+        0.47313365939228164,
+        0.5168990287132924
+      ],
+      "residual_se": 0.011154626866968373,
+      "approximate_two_sided_p": 0.6457849125632361,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "raw",
+      "site": 10,
+      "physical_qubit": 85,
+      "zero": 0.00048828125,
+      "one": 0.99609375,
+      "mixture": 0.51416015625,
+      "predicted_mixture": 0.498291015625,
+      "corrected_mixture": 0.5159391858754291,
+      "corrected_ci95": [
+        0.49434889434889434,
+        0.537819253438114
+      ],
+      "residual_se": 0.011070989311745107,
+      "approximate_two_sided_p": 0.15174395711097416,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 1,
+      "physical_qubit": 39,
+      "zero": 0.0068359375,
+      "one": 0.9892578125,
+      "mixture": 0.49560546875,
+      "predicted_mixture": 0.498046875,
+      "corrected_mixture": 0.4975149105367793,
+      "corrected_ci95": [
+        0.47472745292368684,
+        0.5201602886760203
+      ],
+      "residual_se": 0.011152770020064895,
+      "approximate_two_sided_p": 0.8267234138701374,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 2,
+      "physical_qubit": 38,
+      "zero": 0.00146484375,
+      "one": 0.99609375,
+      "mixture": 0.5048828125,
+      "predicted_mixture": 0.498779296875,
+      "corrected_mixture": 0.5061364752086401,
+      "corrected_ci95": [
+        0.48377541199219565,
+        0.5280242883771166
+      ],
+      "residual_se": 0.011081607054940617,
+      "approximate_two_sided_p": 0.5817852327216654,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 3,
+      "physical_qubit": 48,
+      "zero": 0.01904296875,
+      "one": 0.97314453125,
+      "mixture": 0.4375,
+      "predicted_mixture": 0.49609375,
+      "corrected_mixture": 0.43858751279426816,
+      "corrected_ci95": [
+        0.4156441717791411,
+        0.46153846153846156
+      ],
+      "residual_se": 0.011142861257882818,
+      "approximate_two_sided_p": 1.453050687473964e-07,
+      "holm_p_20_controls_normal_approximation": 2.760796306200532e-06
+    },
+    {
+      "arm": "twirled",
+      "site": 4,
+      "physical_qubit": 58,
+      "zero": 0.0068359375,
+      "one": 0.99365234375,
+      "mixture": 0.49658203125,
+      "predicted_mixture": 0.500244140625,
+      "corrected_mixture": 0.4962889658584859,
+      "corrected_ci95": [
+        0.4745427582797825,
+        0.5183531746031746
+      ],
+      "residual_se": 0.011124375190083273,
+      "approximate_two_sided_p": 0.7420068966284608,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 5,
+      "physical_qubit": 57,
+      "zero": 0.0078125,
+      "one": 0.99560546875,
+      "mixture": 0.4921875,
+      "predicted_mixture": 0.501708984375,
+      "corrected_mixture": 0.4903608502224419,
+      "corrected_ci95": [
+        0.46834660165336894,
+        0.5127962229209255
+      ],
+      "residual_se": 0.011120358569944918,
+      "approximate_two_sided_p": 0.39187555689008613,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 6,
+      "physical_qubit": 56,
+      "zero": 0.00634765625,
+      "one": 0.98974609375,
+      "mixture": 0.5078125,
+      "predicted_mixture": 0.498046875,
+      "corrected_mixture": 0.5099304865938431,
+      "corrected_ci95": [
+        0.4880352947152548,
+        0.5322740814299901
+      ],
+      "residual_se": 0.011144316210762952,
+      "approximate_two_sided_p": 0.3808737583187589,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 7,
+      "physical_qubit": 66,
+      "zero": 0.00732421875,
+      "one": 0.98828125,
+      "mixture": 0.50830078125,
+      "predicted_mixture": 0.497802734375,
+      "corrected_mixture": 0.5107018417122947,
+      "corrected_ci95": [
+        0.48854581673306774,
+        0.5327664887557979
+      ],
+      "residual_se": 0.011139966488089232,
+      "approximate_two_sided_p": 0.3459997192603782,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 8,
+      "physical_qubit": 76,
+      "zero": 0.0048828125,
+      "one": 0.99560546875,
+      "mixture": 0.5009765625,
+      "predicted_mixture": 0.500244140625,
+      "corrected_mixture": 0.5007392804337112,
+      "corrected_ci95": [
+        0.4788380614599899,
+        0.5228951255539144
+      ],
+      "residual_se": 0.011104256551845968,
+      "approximate_two_sided_p": 0.9474107388211986,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 9,
+      "physical_qubit": 86,
+      "zero": 0.01025390625,
+      "one": 0.98876953125,
+      "mixture": 0.5166015625,
+      "predicted_mixture": 0.49951171875,
+      "corrected_mixture": 0.5174650698602794,
+      "corrected_ci95": [
+        0.4955267276935403,
+        0.5398102658688676
+      ],
+      "residual_se": 0.011167851683463017,
+      "approximate_two_sided_p": 0.12594957065002713,
+      "holm_p_20_controls_normal_approximation": 1.0
+    },
+    {
+      "arm": "twirled",
+      "site": 10,
+      "physical_qubit": 85,
+      "zero": 0.001953125,
+      "one": 0.99951171875,
+      "mixture": 0.49755859375,
+      "predicted_mixture": 0.500732421875,
+      "corrected_mixture": 0.4968184043073911,
+      "corrected_ci95": [
+        0.474559686888454,
+        0.5183553597650514
+      ],
+      "residual_se": 0.011052950263268383,
+      "approximate_two_sided_p": 0.7739993076632575,
+      "holm_p_20_controls_normal_approximation": 1.0
+    }
+  ],
+  "jobs": [
+    {
+      "job_id": "dbfqbtfsstms73fef9a0",
+      "trajectories": 38,
+      "running": "2026-10-26T19:23:17.83891Z",
+      "finished": "2026-10-26T19:30:20.851995Z",
+      "controls": [
+        "twirled_all_zero_2",
+        "twirled_all_zero_3",
+        "twirled_all_zero_1",
+        "raw_all_zero",
+        "twirled_all_zero_0",
+        "twirled_all_one_2",
+        "twirled_all_one_1",
+        "twirled_all_one_3",
+        "twirled_all_one_0",
+        "raw_all_one"
+      ],
+      "populations": {
+        "raw": [
+          0.6183182565789473,
+          0.4965049342105263,
+          0.5158305921052632,
+          0.5193256578947368,
+          0.4862253289473684,
+          0.4862253289473684,
+          0.4847861842105263,
+          0.5009251644736842,
+          0.44305098684210525,
+          0.4018297697368421
+        ],
+        "twirled": [
+          0.6119449013157895,
+          0.5223067434210527,
+          0.5150082236842105,
+          0.5025699013157895,
+          0.5245682565789473,
+          0.49136513157894735,
+          0.49897203947368424,
+          0.4769736842105263,
+          0.47563733552631576,
+          0.37921463815789475
+        ],
+        "zne": [
+          0.6013911732456143,
+          0.5055167214912282,
+          0.5001027960526319,
+          0.5085663377192986,
+          0.5452816611842108,
+          0.4856599506578949,
+          0.5038034539473686,
+          0.48716762609649145,
+          0.5049170778508775,
+          0.38500548245614047
+        ]
+      },
+      "ideal_same_paths": [
+        0.5866969503957425,
+        0.4954819529017251,
+        0.4920394846447526,
+        0.5040538681605033,
+        0.5266819624387704,
+        0.5045553786493805,
+        0.5118398186186571,
+        0.5049363040869447,
+        0.5105414234101741,
+        0.3967793317935609
+      ],
+      "ideal_mae": {
+        "raw": 0.023409951641290543,
+        "twirled": 0.018512858079471818,
+        "zne": 0.011800313670143414
+      }
+    },
+    {
+      "job_id": "dbfqllfpc3tc739o3kag",
+      "trajectories": 26,
+      "running": "2026-10-26T20:59:58.162983Z",
+      "finished": "2026-10-26T21:17:16.945458Z",
+      "controls": [
+        "twirled_initial_mixture_3",
+        "twirled_initial_mixture_2",
+        "raw_initial_mixture",
+        "twirled_initial_mixture_1",
+        "twirled_initial_mixture_0"
+      ],
+      "populations": {
+        "raw": [
+          0.6353665865384616,
+          0.5087139423076923,
+          0.5112680288461539,
+          0.5178786057692307,
+          0.47641225961538464,
+          0.4738581730769231,
+          0.49459134615384615,
+          0.4929387019230769,
+          0.4598858173076923,
+          0.3883713942307692
+        ],
+        "twirled": [
+          0.6298076923076923,
+          0.5414663461538461,
+          0.5169771634615384,
+          0.4918870192307692,
+          0.48257211538461536,
+          0.4690504807692308,
+          0.47671274038461536,
+          0.4831730769230769,
+          0.48978365384615385,
+          0.3828125
+        ],
+        "zne": [
+          0.5999098557692308,
+          0.5351562500000002,
+          0.5028796073717952,
+          0.5020282451923079,
+          0.493414463141026,
+          0.4580829326923077,
+          0.4603114983974359,
+          0.5224108573717952,
+          0.5157502003205131,
+          0.44163161057692324
+        ]
+      },
+      "ideal_same_paths": [
+        0.5890159644063364,
+        0.49420119736523327,
+        0.5352335074877094,
+        0.5002835225091407,
+        0.48496212109886055,
+        0.46123807598491884,
+        0.5087791015426493,
+        0.5306838799981771,
+        0.5431664846353497,
+        0.40274161746060744
+      ],
+      "ideal_mae": {
+        "raw": 0.027317771157310884,
+        "twirled": 0.02778012469760056,
+        "zne": 0.022060195533426714
+      }
+    }
+  ],
+  "submitted_metrics": [
+    {
+      "arm": "raw",
+      "factor": 1.0,
+      "circuits": 64,
+      "cz_counts": [
+        960
+      ],
+      "reset_counts": [
+        48
+      ],
+      "depth_min": 750,
+      "depth_max": 759
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.0,
+      "circuits": 256,
+      "cz_counts": [
+        960
+      ],
+      "reset_counts": [
+        48
+      ],
+      "depth_min": 785,
+      "depth_max": 815
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.25,
+      "circuits": 256,
+      "cz_counts": [
+        1200
+      ],
+      "reset_counts": [
+        48
+      ],
+      "depth_min": 987,
+      "depth_max": 1075
+    },
+    {
+      "arm": "twirled",
+      "factor": 1.5,
+      "circuits": 256,
+      "cz_counts": [
+        1440
+      ],
+      "reset_counts": [
+        48
+      ],
+      "depth_min": 1137,
+      "depth_max": 1229
+    }
+  ],
+  "raw_file_sha256": {
+    "backend_snapshot.json": "7ef6baf5a9b4f2972c0cf681e810ea373572ba00f8addd8afc45f9554da4acd3",
+    "hardware_results.json": "2f9ab711039a6a708dc22e038ce46d80648439938362c0ca6f118d92f074e9e6",
+    "manifest.json": "be4d0876a7682d7dc0226294c7fd3c63488935c0bf9a18460d1d5b5f218217ed",
+    "results_bundle.zip": "e926425dbc3f835ed17c52fb0145ebe7fd165171e395f2c5f0e08336326e9693",
+    "source.json": "5c87e03cca8d4b799bf347392b4c1515fdbc1299a95c0ed629a3dd5e9e9a8d1f"
+  },
+  "scope": "Observed jobs and randomizations only; bootstrap intervals are descriptive, not simultaneous. No drift or calibration-model uncertainty is included."
+}

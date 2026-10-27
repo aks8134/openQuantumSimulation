@@ -9,6 +9,8 @@ There are two independent entry points:
 - [analyze_readout_mitigation.py](analyze_readout_mitigation.py): existing-data exploratory marginal SPAM correction, entirely offline.
 - [run_mitigation.py](run_mitigation.py): matched raw/twirled/selectively folded pilot. **Default is an offline plan.** Only explicit `--execute` or `--resume` submits jobs; `--compile-only` queries the backend and compiles without submission.
 
+The follow-up [repeated preparation controls](RepeatedPreparationControls.md) test the pilot's mixture discrepancy with complete raw/twirled zero, one and mixture controls repeated inside each job. Its default workload is 60 circuits and 49,152 shots across two jobs, without Trotter evolution.
+
 [Pure circuit/statistical helpers](mitigation.py), [tests](../../tests/test_model3_mitigation.py), [reviewable default workload](inputs/mitigation_pilot_summary.json).
 
 ## Existing-data correction
