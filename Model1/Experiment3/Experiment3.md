@@ -318,6 +318,58 @@ realizations of the same one-step channel.
 
 ![One N=7 dynamic Lie step](figures/one_step_dynamic_lie_trotter_circuit_7.png)
 
+### Three-step circuit with explicit site and ancilla labels
+
+The separate three-step drawing keeps the same pre-transpilation dynamic
+map and reuses its two reset ancillas and one classical measurement bit.
+For clarity, display wires run in model-site order: `system[i]` is site
+`i`, corresponding to original Qiskit wire `q[N-1-i]`. Thus every
+`H_even[i,j]` or `H_odd[i,j]` label refers directly to the displayed
+`system[i]` and `system[j]` wires. `ancilla_L` is the low encoding qubit,
+`ancilla_H` the high encoding qubit, and `m` is overwritten by the low
+ancilla measurement each step. This is a presentation relabeling, not a
+change to the simulated channel or its physical qubit mapping.
+
+![Three N=7 dynamic Lie steps](figures/dynamic_lie_trotter_3_steps_N7.png)
+
+[Vector PDF](figures/dynamic_lie_trotter_3_steps_N7.pdf). Regenerate without
+simulation, transpilation, or account access:
+
+```bash
+uv run python Model1/Experiment3/draw_dynamic_lie_trotter_steps.py \
+  --n-qubits 7 --steps 3 --dt 0.2
+```
+
+The original one-step figures remain unchanged. `--output-stem` selects
+a different output path (without extension); both PNG and PDF are saved.
+
+To combine the device topology and physical-index labels, logical-to-physical
+table, and the labeled three-step circuit for ten system qubits, use the
+separate plotting-only helper below. It fetches backend metadata and
+transpiles locally; it does not submit a job or simulate a circuit.
+The account must have access to the requested backend.
+
+```powershell
+uv run python .\Model1\Experiment3\draw_transpiled_dynamic_layout.py `
+  --n-qubits 10 `
+  --steps 3 `
+  --dt 0.2 `
+  --backend ibm_phoenix `
+  --optimization-level 3 `
+  --account-file .\IBMRuntime\apikey.json
+```
+
+The default PNG/PDF basename is
+`figures/dynamic_lie_trotter_ibm_phoenix_N10_3_steps_transpiled_layout`.
+Use `--steps 1` for a single-step panel. The backend placement is calculated
+for the complete selected multi-step circuit; the table explicitly reports
+initial placement, not the locations after all routing SWAPs. The lower
+panel is the corresponding compact pre-transpilation circuit, matching the
+earlier figure format, rather than an expanded hardware-gate diagram.
+No initial excitation preparation or final system measurement is added to
+this isolated evolution-block drawing. This helper has not been run against
+`ibm_phoenix` during implementation.
+
 ![N=7 dynamic transpilation metrics](figures/dynamic_lie_transpilation_metrics_7.png)
 
 ![N=7 dynamic Aer results](figures/dynamic_lie_trotter_7.png)

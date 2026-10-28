@@ -807,4 +807,4 @@ Source files:
 - [Shared mean-channel and sampled covariance implementation](../library/reservoir_scaling.py).
 - [Cosine schedule selection](Experiment7/schedules.py).
 - [Experiment1 normalization and three-site physical targets](Experiment1/Experiment1.md).
-- [Variable-schedule results and circuit resources](../report.md).
+- [Model3 experiments, variable-schedule results and circuit resources](report.md).

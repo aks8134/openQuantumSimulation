@@ -131,8 +131,7 @@ def main():
         'the transfer archive matches its local raw files and source hash checks pass. Native QPY files were not transferred, so this review '
         'cannot independently recheck compiled circuit contents. The execution-machine cached report records both QPY batches as verified.', '',
         '![Three preset observable populations with uncertainty](selected_populations.png)', '',
-        'The error bars above are 1.96 times conditional shot/calibration SE for the fixed saved branch ensemble. '
-        'The separate populations.csv contains descriptive trajectory-bootstrap intervals. Neither includes hardware drift or calibration-model bias.', '',
+        ideal_uncertainty_caption(), '',
         '| Method | Same-path ideal MAE | Same-path ideal maximum | Physical-target maximum |',
         '|---|---:|---:|---:|']
     for name, p in profiles.items():
@@ -190,26 +189,59 @@ def main():
     print(json.dumps(serializable(comparisons), indent=2))
 
 
+def ideal_uncertainty_caption():
+    return ('The green band shows the ideal mean plus/minus one sample standard deviation across the saved branch paths '
+        '(SD, ddof=1). It describes the spread of individual ideal trajectories, not uncertainty of the mean or a confidence interval. '
+        'The [companion mean-uncertainty figure](selected_populations_mean_uncertainty.png) instead shows plus/minus 1.96 SE, '
+        'with SE = SD/sqrt(R). Orange dash-dot lines show the deterministic infinite-trajectory mean-channel output. '
+        'Blue error bars remain plus/minus 1.96 conditional shot/calibration SE for the fixed saved paths. '
+        'These are different sources of variation and are not added together. Neither plot includes hardware drift or calibration-model bias. '
+        'All ten ideal means, SDs, SEs and deterministic references are in [ideal_path_uncertainty.csv](ideal_path_uncertainty.csv). '
+        'The separate populations.csv contains descriptive trajectory-bootstrap intervals for measured estimates.')
+
+
 def plot_populations(output, report):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    source=json.loads((Path(report['run_directory'])/'source.json').read_bytes())
+    deterministic=np.asarray(source['mean_channel_observables']['populations'])[0,-1]
+    paths=np.asarray(report['per_path_ideal_populations'],float)
+    R,n=paths.shape
+    if R<2:raise ValueError('need at least two ideal paths for sample SD')
+    ideal=paths.mean(axis=0);sd=paths.std(axis=0,ddof=1);se=sd/np.sqrt(R)
+    np.testing.assert_allclose(ideal,report['ideal_same_paths'],atol=1e-15,rtol=0)
+    rows=[dict(site=j+1,physical_qubit=report['configuration']['physical_path'][j+1],
+        trajectories=R,ideal_mean=ideal[j],ideal_path_sd=sd[j],ideal_mean_se=se[j],
+        ideal_mean_minus_1sd=ideal[j]-sd[j],ideal_mean_plus_1sd=ideal[j]+sd[j],
+        ideal_mean_minus_1_96se=ideal[j]-1.96*se[j],ideal_mean_plus_1_96se=ideal[j]+1.96*se[j],
+        deterministic_mean_channel=deterministic[j],physical_stationary=report['physical_target'][j]) for j in range(n)]
+    with (output/'ideal_path_uncertainty.csv').open('w',newline='') as stream:
+        writer=csv.DictWriter(stream,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
     selected = [0, 4, 8]
     names = ['raw', 'twirled', 'zne']
     labels = ['Raw', 'Twirled', 'ZNE']
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4), layout='constrained')
-    for ax, j in zip(axes, selected):
-        points = [report['statistics']['profiles'][name]['populations'][j] for name in names]
-        errors = [1.96*report['statistics']['profiles'][name]['fixed_path_delta_method_se'][j] for name in names]
-        ax.errorbar(range(3), points, yerr=errors, fmt='o', capsize=4, color='#1565c0', label='Hardware / extrapolated')
-        ax.axhline(report['ideal_same_paths'][j], color='#00897b', linestyle='--', label='Ideal: same 64 paths')
-        ax.axhline(report['physical_target'][j], color='black', linestyle=':', label='Physical stationary')
-        ax.set(xticks=range(3), xticklabels=labels, ylabel='Population',
-               title=f"Site {j+1} (physical {report['configuration']['physical_path'][j+1]})")
-        ax.grid(alpha=.2); ax.legend(fontsize=7)
-    for ext in ('png', 'pdf'):
-        fig.savefig(output / f'selected_populations.{ext}', dpi=180)
-    plt.close(fig)
+    for filename,spread,band_label,title in (
+        ('selected_populations',sd,'Ideal trajectory spread: ±1 SD',f'Ideal {R}-path reference with standard deviation across trajectories'),
+        ('selected_populations_mean_uncertainty',1.96*se,'Ideal mean uncertainty: ±1.96 SE',f'Ideal {R}-path reference with uncertainty of the mean')):
+        fig,axes=plt.subplots(1,3,figsize=(13.8,5.2))
+        fig.subplots_adjust(left=.065,right=.985,bottom=.24,top=.81,wspace=.28)
+        fig.suptitle(title,fontsize=13,y=.98)
+        fig.text(.5,.91,'Blue bars: ±1.96 conditional shot SE; ideal SD and SE are different quantities',ha='center',fontsize=10)
+        for ax,j in zip(axes,selected):
+            ax.axhspan(ideal[j]-spread[j],ideal[j]+spread[j],color='#00897b',alpha=.15,label=band_label)
+            ax.axhline(ideal[j],color='#00897b',linestyle='--',label=f'Ideal mean: same {R} paths')
+            ax.axhline(deterministic[j],color='#e07000',linestyle='-.',label='Deterministic mean-channel output')
+            ax.axhline(report['physical_target'][j],color='black',linestyle=':',label='Physical stationary target')
+            points=[report['statistics']['profiles'][name]['populations'][j] for name in names]
+            errors=[1.96*report['statistics']['profiles'][name]['fixed_path_delta_method_se'][j] for name in names]
+            ax.errorbar(range(3),points,yerr=errors,fmt='o',capsize=4,color='#1565c0',label='Hardware / extrapolated')
+            ax.set(xticks=range(3),xticklabels=labels,ylabel='Population',
+                title=f"Site {j+1} (physical {report['configuration']['physical_path'][j+1]})")
+            ax.grid(alpha=.2)
+        fig.legend(*axes[0].get_legend_handles_labels(),loc='lower center',bbox_to_anchor=(.5,.015),ncol=3,fontsize=9,frameon=False)
+        for ext in ('png','pdf'):fig.savefig(output/f'{filename}.{ext}',dpi=180)
+        plt.close(fig)
 
 
 if __name__ == '__main__':

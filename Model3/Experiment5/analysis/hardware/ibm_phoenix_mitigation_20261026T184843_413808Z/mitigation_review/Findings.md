@@ -4,7 +4,7 @@ Both jobs completed: 847 circuits, 77,824 shots, 64 matched branch trajectories,
 
 ![Three preset observable populations with uncertainty](selected_populations.png)
 
-The error bars above are 1.96 times conditional shot/calibration SE for the fixed saved branch ensemble. The separate populations.csv contains descriptive trajectory-bootstrap intervals. Neither includes hardware drift or calibration-model bias.
+The green band shows the ideal mean plus/minus one sample standard deviation across the saved branch paths (SD, ddof=1). It describes the spread of individual ideal trajectories, not uncertainty of the mean or a confidence interval. The [companion mean-uncertainty figure](selected_populations_mean_uncertainty.png) instead shows plus/minus 1.96 SE, with SE = SD/sqrt(R). Orange dash-dot lines show the deterministic infinite-trajectory mean-channel output. Blue error bars remain plus/minus 1.96 conditional shot/calibration SE for the fixed saved paths. These are different sources of variation and are not added together. Neither plot includes hardware drift or calibration-model bias. All ten ideal means, SDs, SEs and deterministic references are in [ideal_path_uncertainty.csv](ideal_path_uncertainty.csv). The separate populations.csv contains descriptive trajectory-bootstrap intervals for measured estimates.
 
 | Method | Same-path ideal MAE | Same-path ideal maximum | Physical-target maximum |
 |---|---:|---:|---:|
