@@ -239,4 +239,9 @@ pyproject.toml
 /Model*/Experiment*/study/**/*.json
 /Model*/Experiment*/analysis/**/certificates/*.json
 
+# Model2 cosine hardware raw data and transfer archives stay local.
+/Model2/Experiment5/hardware_runs/**/*.json
+/Model2/Experiment5/hardware_runs/**/*.zip
+/Model2/Experiment5/runs/**/*.zip
+
 

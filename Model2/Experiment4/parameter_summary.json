@@ -1,0 +1,142 @@
+{
+  "rate_comparison": [
+    {
+      "ratio": 0.25,
+      "constant_steps": 25,
+      "selected_steps": 25,
+      "family": "constant",
+      "forward_error": 0.012369914032332452,
+      "initial_dt": 3.1628722953922663,
+      "final_dt": 3.1628722953922663,
+      "power": 1.0,
+      "source": "runs/parameter_study_520a41a9e6c1/study.json",
+      "source_sha256": "63089c1d9662f14bc3f0e8f7689c9c0ecb07a5f8d96e9d28069e893b3e7b2f15"
+    },
+    {
+      "ratio": 0.39269908169872414,
+      "constant_steps": 20,
+      "selected_steps": 20,
+      "family": "constant",
+      "forward_error": 0.015625,
+      "initial_dt": 3.141592653589793,
+      "final_dt": 3.141592653589793,
+      "power": 1.0,
+      "source": "runs/parameter_study_520a41a9e6c1/study.json",
+      "source_sha256": "63089c1d9662f14bc3f0e8f7689c9c0ecb07a5f8d96e9d28069e893b3e7b2f15"
+    },
+    {
+      "ratio": 0.5,
+      "constant_steps": 23,
+      "selected_steps": 22,
+      "family": "warped_cosine",
+      "forward_error": 0.014684414653430067,
+      "initial_dt": 2.8865227669503084,
+      "final_dt": 2.1366662381699415,
+      "power": 63.99999999999998,
+      "source": "runs/parameter_study_ab1cf3c6666b/study.json",
+      "source_sha256": "036dfbf8daa0f9d67caa128736376b71bd703d9d454628a17bceb977284a5ad9"
+    },
+    {
+      "ratio": 1.0,
+      "constant_steps": 35,
+      "selected_steps": 35,
+      "family": "constant",
+      "forward_error": 0.0156942189245049,
+      "initial_dt": 2.091986763249585,
+      "final_dt": 2.091986763249585,
+      "power": 1.0,
+      "source": "runs/parameter_study_520a41a9e6c1/study.json",
+      "source_sha256": "63089c1d9662f14bc3f0e8f7689c9c0ecb07a5f8d96e9d28069e893b3e7b2f15"
+    },
+    {
+      "ratio": 2.0,
+      "constant_steps": 45,
+      "selected_steps": 44,
+      "family": "warped_cosine",
+      "forward_error": 0.01573268624896712,
+      "initial_dt": 4.207281841881579,
+      "final_dt": 3.760760459292396,
+      "power": 16.424973388132297,
+      "source": "runs/parameter_study_ab1cf3c6666b/study.json",
+      "source_sha256": "036dfbf8daa0f9d67caa128736376b71bd703d9d454628a17bceb977284a5ad9"
+    },
+    {
+      "ratio": 4.0,
+      "constant_steps": 22,
+      "selected_steps": 22,
+      "family": "constant",
+      "forward_error": 0.015934569779918528,
+      "initial_dt": 2.8819554704165125,
+      "final_dt": 2.8819554704165125,
+      "power": 1.0,
+      "source": "runs/parameter_study_520a41a9e6c1/study.json",
+      "source_sha256": "63089c1d9662f14bc3f0e8f7689c9c0ecb07a5f8d96e9d28069e893b3e7b2f15"
+    },
+    {
+      "ratio": 8.0,
+      "constant_steps": 27,
+      "selected_steps": 26,
+      "family": "warped_cosine",
+      "forward_error": 0.015625111871879815,
+      "initial_dt": 3.716171399530734,
+      "final_dt": 3.4560418751693667,
+      "power": 8.931266269046441,
+      "source": "runs/parameter_study_520a41a9e6c1/study.json",
+      "source_sha256": "63089c1d9662f14bc3f0e8f7689c9c0ecb07a5f8d96e9d28069e893b3e7b2f15"
+    }
+  ],
+  "sampling": [
+    {
+      "ratio": 0.5,
+      "steps": 22,
+      "R": 32768,
+      "maximum_sampled_error": 0.016840134541870833,
+      "maximum_sampling_distance": 0.002477666875301876,
+      "maximum_two_SE": 0.003034265167978207,
+      "directory": "runs/parameter_validation_4067e085d3c0"
+    },
+    {
+      "ratio": 2.0,
+      "steps": 44,
+      "R": 16384,
+      "maximum_sampled_error": 0.018873023425078017,
+      "maximum_sampling_distance": 0.003140337176110952,
+      "maximum_two_SE": 0.002735542268160186,
+      "directory": "runs/parameter_validation_515961587af3"
+    },
+    {
+      "ratio": 0.39269908169872414,
+      "steps": 20,
+      "R": 131072,
+      "maximum_sampled_error": 0.018337249755859375,
+      "maximum_sampling_distance": 0.002849578857421875,
+      "maximum_two_SE": 0.0023486447469220715,
+      "directory": "runs/parameter_validation_d0de232cb42f"
+    }
+  ],
+  "bound_comparison": [
+    {
+      "maximum_dt": 2.0,
+      "steps": 80,
+      "dt": 1.3273467880610876,
+      "error": 0.015885516574009762,
+      "source": "runs/parameter_study_38dcc01181ef/study.json"
+    },
+    {
+      "maximum_dt": 4.0,
+      "steps": 47,
+      "dt": 4.0,
+      "error": 0.015272215090525811,
+      "source": "runs/parameter_study_cec0aadcf34e/study.json"
+    },
+    {
+      "maximum_dt": 8.0,
+      "steps": 45,
+      "dt": 4.168497492087088,
+      "error": 0.01523809960314568,
+      "source": "runs/parameter_study_520a41a9e6c1/study.json"
+    }
+  ],
+  "trial_count": 186,
+  "scope": "fixed N=10, half mixture, p=.25, c=.25, even-odd, jump-first; .016 mean + .004 sampling"
+}
