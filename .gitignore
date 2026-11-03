@@ -244,4 +244,6 @@ pyproject.toml
 /Model2/Experiment5/hardware_runs/**/*.zip
 /Model2/Experiment5/runs/**/*.zip
 
+paper/
+
 

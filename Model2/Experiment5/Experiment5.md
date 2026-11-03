@@ -171,6 +171,43 @@ interruption, substitute the printed manifest path:
 python Model2/Experiment5/run_hardware.py --resume Model2/Experiment5/hardware_runs/cosine44_<timestamp>/manifest.json --execute
 ```
 
+### Recover a completed compilation after a hashing MemoryError
+
+The original runner hashed `isa_circuits.qpy` with `Path.read_bytes()` after
+writing every circuit. On large ensembles this allocated the whole archive
+in RAM alongside the compiled circuits. That failure occurs **before any job
+submission**. The QPY write has already completed at that point.
+
+After updating `run_hardware.py` and adding `qpy_storage.py`, preserve the old
+run directory and first recover its archive offline:
+
+```powershell
+python Model2/Experiment5/run_hardware.py --resume "Model2/Experiment5/hardware_runs/cosine44_<timestamp>/manifest.json" --recover-compiled
+```
+
+Recovery loads one saved job-sized range at a time, verifies circuit identities,
+44-step/reset/CZ resources, final readout and the saved physical chain, and
+rebuilds the missing manifest metadata. It hashes the archive in 1 MiB chunks
+and records byte ranges for later bounded loading. It retains the original QPY
+unchanged, performs no transpilation, and loads no IBM account. A truncated or
+invalid archive fails without changing the manifest or submitting jobs.
+Keep the Qiskit environment that wrote the archive; recovery supports both
+sequential and offset-table QPY formats.
+
+After successful recovery, resume the same saved plan with the earlier
+`--resume ... --execute` command. The seed, 16,384 paths, shots, backend and
+selected chain come from that manifest; do not pass new run settings.
+If the crash preceded the compilation-time backend snapshot, recovery records
+that snapshot as unavailable rather than inventing historical calibration.
+Execution still records the current backend snapshot before submission.
+
+Fresh compilations now checkpoint an independently hashed QPY per Runtime job
+(at most `--batch-size` circuits). A one-job run retains the old
+`isa_circuits.qpy` filename. Resume verifies and reuses complete batches rather
+than recompiling them, and execution loads only the requested job's circuits.
+All jobs are still compiled and checked before the first hardware submission.
+Hashing and resume never read the entire large archive into a byte string.
+
 The manifest preserves exact paths, shots, basis groups, native QPY hash,
 mapping and job IDs. Resume retrieves submitted jobs and submits only
 batches without a recorded ID. If submission was interrupted while the
@@ -192,7 +229,8 @@ Current values are absent when only Z was measured.
 
 Each complete run contains `Plan.md`, `Analysis.md`, `observables.csv`,
 `observables.png`, raw count-bearing `manifest.json`, `hardware_results.json`,
-`source.json`, the frozen `spec.json`, native `isa_circuits.qpy`, physical
+`source.json`, the frozen `spec.json`, native QPY files (one per job for new
+multi-job runs, or the indexed original `isa_circuits.qpy` for recovered runs), physical
 path/calibration snapshots, and **`results_bundle.zip`**. The bundle includes
 the submitted QPY as well as the raw results for later offline auditing.
 Compilation and execution snapshots are retained separately. Raw JSON/QPY
@@ -213,8 +251,12 @@ planning, immutable-plan hashes, mixed-shot PUBs, job-ID persistence,
 interrupted collection, ambiguous submission, offline reanalysis, and the
 self-contained result bundle. All hardware submission tests use mocks.
 
-The 12 new experiment tests and 21 existing circuit/Runtime regression
-tests passed together: **33 tests passed**. The two-path offline snapshot
+The memory/recovery follow-up passed **38 local tests**, covering the Model2
+hardware runner and shared Runtime/control regressions. Recovery tests cover
+QPY versions 13, 15, 16 and 17, forbidden unbounded reads, an unchanged legacy
+archive, truncated-file rejection, partial compilation checkpoints, mocked
+multi-job submission, and a 156-qubit FakeKingston round trip against the
+standard QPY loader. No test submits live hardware jobs. The two-path offline snapshot
 compilation has **880 CZ gates and 44 resets per evolved circuit**; its
 native depths are 720–727 across the saved readout settings. These local
 checks do not predict live-device accuracy.

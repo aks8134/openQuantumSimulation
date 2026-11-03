@@ -12,7 +12,8 @@ from unittest.mock import Mock, patch
 import zipfile
 
 import numpy as np
-from qiskit import qpy
+from qiskit import qpy, QuantumCircuit
+from qiskit.qpy import common as qpy_common
 from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit.quantum_info import DensityMatrix, Kraus, partial_trace
 
@@ -20,6 +21,7 @@ from library import reservoir_scaling as physics
 from Model2.Experiment5 import input_data as inputs
 from Model2.Experiment5 import run_hardware as experiment
 from Model2.Experiment5 import analyze
+from Model2.Experiment5 import qpy_storage
 
 
 def nonselective_density(circuit):
@@ -68,6 +70,194 @@ class Model2HardwareTests(unittest.TestCase):
         destination=Path(folder)/"run"
         shutil.copytree(self.template,destination)
         return destination
+
+    def legacy_crash(self, folder):
+        destination = self.saved(folder)
+        manifest = json.loads((destination/"manifest.json").read_text())
+        manifest["status"] = "planned"
+        config = manifest["configuration"]
+        config.update(isa_sha256=None, physical_path=None)
+        for key in ("isa_storage", "isa_index_sha256", "versions"):
+            config.pop(key, None)
+        for batch in manifest["batches"]:
+            for key in ("isa_file", "isa_sha256", "isa_byte_range"):
+                batch.pop(key, None)
+        for row in manifest["circuits"]:
+            row.pop("metrics", None)
+            row.pop("final_logical_to_physical", None)
+        manifest["plan_sha256"] = experiment.plan_hash(manifest)
+        (destination/"manifest.json").write_text(json.dumps(manifest))
+        return destination
+
+    def no_large_read_bytes(self, path):
+        if path.suffix == ".qpy":
+            raise AssertionError("QPY files must be hashed in bounded chunks")
+        with path.open("rb") as handle:
+            return handle.read()
+
+    def compile_options(self, folder):
+        return experiment.parse_arguments(["--compile-only", "--backend", self.backend.name,
+            "--trajectory-count", "2", "--shots", "4", "--control-shots", "8", "--batch-size", "6",
+            "--physical-path", *map(str, range(12)), "--min-t1-us", "1", "--min-t2-us", "1",
+            "--max-cz-error", ".1", "--max-readout-error", ".1", "--output-directory", str(folder)])
+
+    def test_legacy_crash_recovery_is_offline_unchanged_and_does_not_recompile(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+            folder = self.legacy_crash(temporary)
+            old_hash = qpy_storage.file_sha256(folder/"isa_circuits.qpy")
+            with patch.object(experiment.runtime, "make_service", side_effect=AssertionError("offline recovery")), \
+                 patch.object(experiment, "transpile", side_effect=AssertionError("reuse existing compilation")), \
+                 patch.object(Path, "read_bytes", self.no_large_read_bytes):
+                result = experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--recover-compiled"]))
+                self.assertEqual(result["status"], "compiled")
+                self.assertEqual(result["configuration"]["physical_path"], list(range(12)))
+                self.assertEqual(result["configuration"]["isa_sha256"], old_hash)
+                self.assertEqual(result["configuration"]["isa_storage"], "legacy-indexed-qpy-v1")
+                self.assertFalse(result["compilation_recovery"]["scope"] == "")
+                self.assertTrue(all(b["job_id"] is None for b in result["batches"]))
+                folder, saved, _ = experiment.read_saved(folder/"manifest.json")
+                store = experiment.Publications(saved, folder, self.backend)
+                self.assertEqual(len(store[0:9]), 9)
+                sampler, job, _ = self.sampler(folder)
+                executed = experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--execute"]),
+                    backend=self.backend, service=Mock(), sampler_factory=Mock(return_value=sampler))
+                self.assertEqual(executed["job_ids"], ["model2_test_job"])
+            self.assertEqual(qpy_storage.file_sha256(folder/"isa_circuits.qpy"), old_hash)
+
+    def test_incomplete_legacy_archive_leaves_manifest_and_archive_untouched(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+            folder = self.legacy_crash(temporary)
+            path = folder/"isa_circuits.qpy"
+            with path.open("r+b") as handle:
+                handle.truncate(path.stat().st_size-20)
+            before = (folder/"manifest.json").read_bytes()
+            damaged_hash = qpy_storage.file_sha256(path)
+            with patch.object(experiment.runtime, "make_service", side_effect=AssertionError("offline recovery")):
+                with self.assertRaises(Exception):
+                    experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--recover-compiled"]))
+            self.assertEqual(before, (folder/"manifest.json").read_bytes())
+            self.assertEqual(damaged_hash, qpy_storage.file_sha256(path))
+
+    def test_qpy_batch_windows_preserve_payload_across_format_versions(self):
+        programs = []
+        for index in range(5):
+            circuit = QuantumCircuit(3, 3, name=f"stored_{index}")
+            circuit.h(index % 3)
+            circuit.rz(.123*(index+1), 0)
+            circuit.cz(0, 1)
+            circuit.measure(0, 0)
+            circuit.reset(0)
+            circuit.metadata = {"identity": index}
+            programs.append(circuit)
+        ranges = [{"start": 0, "stop": 2}, {"start": 2, "stop": 4}, {"start": 4, "stop": 5}]
+        for version in sorted({13, 15, 16, qpy_common.QPY_VERSION}):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as temporary:
+                path = Path(temporary)/"original.qpy"
+                with path.open("wb") as handle:
+                    qpy.dump(programs, handle, version=version)
+                archive = qpy_storage.Archive(path, len(programs))
+                indexed = []
+                for batch, (loaded, byte_range) in zip(ranges, archive.iter_batches(ranges)):
+                    self.assertEqual(loaded, programs[batch["start"]:batch["stop"]])
+                    self.assertEqual([p.metadata for p in loaded], [p.metadata for p in programs[batch["start"]:batch["stop"]]])
+                    indexed.append(dict(batch, isa_byte_range=byte_range))
+                self.assertEqual(archive.load_batch(indexed[1]), programs[2:4])
+                with path.open("ab") as handle:
+                    handle.write(b"unexpected trailing bytes")
+                with self.assertRaisesRegex(ValueError, "trailing|missing"):
+                    list(qpy_storage.Archive(path, len(programs)).iter_batches(ranges))
+
+    def test_large_plans_store_and_load_one_job_at_a_time(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()), \
+             patch.object(experiment.runtime, "make_service", side_effect=AssertionError("mock backend only")), \
+             patch.object(Path, "read_bytes", self.no_large_read_bytes):
+            manifest = experiment.main(self.compile_options(temporary), backend=self.backend)
+            folder = next(Path(temporary).glob("cosine44_*"))
+            self.assertEqual(manifest["configuration"]["isa_storage"], "batch-qpy-v1")
+            self.assertEqual(len(manifest["batches"]), 2)
+            self.assertFalse((folder/"isa_circuits.qpy").exists())
+            _, saved, _ = experiment.read_saved(folder/"manifest.json")
+            store = experiment.Publications(saved, folder, self.backend)
+            self.assertEqual(len(store), 12)
+            for batch in saved["batches"]:
+                self.assertEqual(len(store[batch["start"]:batch["stop"]]), 6)
+            with self.assertRaisesRegex(ValueError, "complete saved job"):
+                store[0:12]
+            experiment.bundle(folder)
+            with zipfile.ZipFile(folder/"results_bundle.zip") as archive:
+                self.assertTrue(all(b["isa_file"] in archive.namelist() for b in saved["batches"]))
+            sampler = Mock()
+            submitted = []
+            def submit(items, shots):
+                current = json.loads((folder/"manifest.json").read_text())
+                self.assertEqual(len(items), 6)
+                pubs = []
+                for circuit, _, requested in items:
+                    record = current["circuits"][circuit.metadata["pub_index"]]
+                    self.assertEqual(requested, record["shots"])
+                    counts = ({"1"*10:requested} if record.get("control") == "all_one" else
+                              {"0"*10:requested//2, "1"*10:requested-requested//2} if record.get("control") == "half_mixed" else
+                              {"0"*10:requested})
+                    pubs.append(SimpleNamespace(data=SimpleNamespace(outcome=SimpleNamespace(get_counts=lambda counts=counts:counts))))
+                job = Mock()
+                job.job_id.return_value = f"bounded_job_{len(submitted)}"
+                job.result.return_value = pubs
+                job.metrics.return_value = {}
+                submitted.append(job)
+                return job
+            sampler.run.side_effect = submit
+            result = experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--execute"]),
+                backend=self.backend, service=Mock(), sampler_factory=Mock(return_value=sampler))
+            self.assertEqual(result["job_ids"], ["bounded_job_0", "bounded_job_1"])
+            self.assertEqual(sampler.run.call_count, 2)
+
+    def test_interrupted_batch_compilation_resumes_without_recompiling_saved_paths(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+            dump = qpy.dump
+            calls = 0
+            def interrupted(programs, handle):
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise RuntimeError("interrupted local write")
+                return dump(programs, handle)
+            with patch.object(experiment.qpy, "dump", side_effect=interrupted), self.assertRaisesRegex(RuntimeError, "local write"):
+                experiment.main(self.compile_options(temporary), backend=self.backend)
+            folder = next(Path(temporary).glob("cosine44_*"))
+            _, saved, _ = experiment.read_saved(folder/"manifest.json")
+            completed = saved["batches"][0]
+            original_hash = qpy_storage.file_sha256(folder/completed["isa_file"])
+            old_path = next(r["trajectory"] for r in saved["circuits"][completed["start"]:completed["stop"]] if r["kind"] == "evolution")
+            transpile = experiment.transpile
+            def forbid_recompile(body, **kwargs):
+                if body.metadata["steps"] == 44 and body.metadata["trajectory"] == old_path:
+                    raise AssertionError("completed path recompiled")
+                return transpile(body, **kwargs)
+            with patch.object(experiment, "transpile", side_effect=forbid_recompile):
+                done = experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--compile-only"]), backend=self.backend)
+            self.assertEqual(done["status"], "compiled")
+            self.assertEqual(qpy_storage.file_sha256(folder/completed["isa_file"]), original_hash)
+
+    def test_streaming_loader_preserves_156_qubit_native_layout_and_gates(self):
+        from qiskit_ibm_runtime.fake_provider import FakeKingston
+        backend = FakeKingston()
+        physical = [95, 94, 93, 79, 73, 74, 75, 59, 55, 54, 53, 52]
+        layout = physical[1:-1]+[physical[0], physical[-1]]
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()), \
+             patch.object(experiment.runtime, "make_service", side_effect=AssertionError("offline target")):
+            args = ["--compile-only", "--backend", backend.name, "--trajectory-count", "2", "--shots", "4",
+                    "--batch-size", "9", "--physical-path", *map(str, physical), "--min-t1-us", "1",
+                    "--min-t2-us", "1", "--max-cz-error", ".1", "--max-readout-error", ".1",
+                    "--output-directory", temporary]
+            manifest = experiment.main(experiment.parse_arguments(args), backend=backend)
+            folder = next(Path(temporary).glob("cosine44_*"))
+            loaded = experiment.Publications(manifest, folder, backend)[0:9]
+            with (folder/"isa_circuits.qpy").open("rb") as handle:
+                reference = qpy.load(handle)
+            self.assertEqual(loaded, reference)
+            for circuit in loaded:
+                self.assertEqual(circuit.num_qubits, 156)
+                self.assertEqual(circuit.layout.final_index_layout(filter_ancillas=True), layout)
 
     def sampler(self,folder,job_id="model2_test_job"):
         sampler=Mock();job=Mock();job.job_id.return_value=job_id;job.metrics.return_value={}
@@ -128,7 +318,7 @@ class Model2HardwareTests(unittest.TestCase):
     def test_bad_cli_is_rejected_before_any_account(self):
         for args in (["--shots","0"],["--trajectory-count","1"],["--trajectory-count","16385"],
                      ["--batch-size","5"],["--bases","xy"],["--seed","-1"],
-                     ["--resume","x.json","--shots","10"],["--physical-path","0","1"]):
+                     ["--resume","x.json","--shots","10"],["--physical-path","0","1"],["--recover-compiled"]):
             with self.subTest(args=args),self.assertRaises(ValueError):
                 experiment.parse_arguments(args)
 
