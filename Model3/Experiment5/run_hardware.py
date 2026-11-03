@@ -328,7 +328,10 @@ def collect_and_submit(manifest, directory, publications, service, backend, samp
             batch["status"] = "submitting"
             atomic_json(directory/"manifest.json", manifest)
             job = sampler.run(selected, shots=default_shots)
-            batch.update(job_id=job.job_id(), status="submitted")
+            job_id = job.job_id()
+            if not isinstance(job_id, str) or not job_id.strip():
+                raise ValueError("submission returned no usable job ID; reconcile with IBM before resuming; no automatic retry")
+            batch.update(job_id=job_id, status="submitted")
             atomic_json(directory/"manifest.json", manifest)
             print(f"Submitted job {batch['job_id']}: circuits {batch['start']}..{batch['stop']-1}", flush=True)
         result = job.result()

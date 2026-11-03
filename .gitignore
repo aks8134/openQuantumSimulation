@@ -244,6 +244,13 @@ pyproject.toml
 /Model2/Experiment5/hardware_runs/**/*.zip
 /Model2/Experiment5/runs/**/*.zip
 
+# Model2 live mitigation data and transfer archives.
+/Model2/Experiment6/hardware_runs/**/*.json
+/Model2/Experiment6/hardware_runs/**/*.zip
+/Model2/Experiment6/runs/**/*.zip
+/Model2/Experiment6/analysis/**/*.json
+/Model2/Experiment6/job_estimates/**/*.json
+
 paper/
 
 

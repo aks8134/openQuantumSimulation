@@ -307,3 +307,35 @@ Retry tests additionally cover read-only inspection during maintenance,
 preserved failed-job/error/usage history, refusal to retry active or completed
 jobs, and backend status changing before submission. A preliminary budget for
 the raw 97-job configuration is in [BudgetEstimate.md](BudgetEstimate.md).
+
+## Offline instruction-limit audit
+
+To count the complete compiled Phoenix archive without submitting, recompiling,
+or changing the saved plan:
+
+```powershell
+python Model2/Experiment5/instruction_audit.py --manifest $runManifest
+```
+
+The command verifies saved source/QPY hashes and counts every native program
+with bounded memory. It writes `instruction_audit/InstructionAudit.md`, JSON
+and per-qubit/partition CSVs beside the existing manifest. This can take time
+for 49,443 programs. It counts IBM's published instruction weights per qubit,
+charges CZ to both operands, conservatively includes implicit initialization,
+and checks shot executions separately. Unsupported operations fail rather
+than disappearing from the count.
+
+The report gives a mathematical job-count lower bound and a concrete partition
+of whole trajectory groups, with a complete control set for each proposed job.
+If both counts agree, that is the minimum for these vectors under the stated
+heuristic. A separate 80%-capacity calculation gives memory headroom. These
+are proposed counts, not changes to the current 97-job run or proof of IBM
+compiler acceptance.
+
+The [local footprint projection](../Experiment6/instruction_audit/InstructionAudit.md)
+uses 32 saved FakeKingston trajectories. It predicts four raw jobs for 16,384
+paths under the published 26.8-million-instructions-per-qubit rule, or five
+jobs with an 80% memory cap. It does not replace the exact Phoenix archive
+audit. Six focused tests cover instruction weights, shot-versus-memory
+accounting, complete path groups/controls, lower-bound certification, and
+read-only audit of a real compiled archive.

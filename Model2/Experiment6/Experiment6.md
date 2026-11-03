@@ -1,8 +1,21 @@
-# Model2 Experiment6 — FakeKingston ZNE pilot
+# Model2 Experiment6 — population mitigation
 
 Apply the final Model3/Experiment5 population mitigation protocol to Model2's
-frozen 44-step warped cosine. Run locally in Aer using the installed FakeKingston
-calibration, with no account construction or hardware submission.
+frozen 44-step warped cosine. This directory contains two runners:
+
+- [Live hardware mitigation](HardwareMitigation.md), implemented by
+  [run_hardware.py](run_hardware.py), defaults to an offline plan for a
+  **64-path × 256-shot pilot: 2 jobs and 90,112 shots including controls**.
+  Only `--execute` submits to the selected IBM backend.
+- [Full-run job estimator](HardwareMitigation.md#estimate-jobs-for-the-full-experiment)
+  defaults to **16,384 paths × 32 shots** and compares instruction-based
+  packing with the runner's 512-circuit cap. Its bundled 32-path footprint
+  sample makes the default estimate offline and portable. `--backend ibm_phoenix`
+  instead fetches that backend's target and locally compiles/counts the chosen
+  sample or full set, without submitting QPU jobs.
+- [fake_kingston_zne.py](fake_kingston_zne.py) runs locally in Aer using the
+  installed FakeKingston calibration, without an account or hardware
+  submission. Its completed results and instructions are documented below.
 
 The comparison includes raw, raw + marginal SPAM correction, twirled,
 twirled + SPAM, linear ZNE, and linear ZNE + SPAM. It imports the same manual
@@ -12,6 +25,16 @@ The completed comparison and uncertainty are in [results/Results.md](results/Res
 The portable CSV tables and PNG/PDF figure live alongside that report. Local raw
 counts, native circuits and the exact noise model stay in `runs/` and are ignored
 by Git.
+
+An [instruction-memory footprint projection](instruction_audit/InstructionAudit.md)
+counts the saved native circuits using IBM's published per-qubit weights. At
+16,384 paths it predicts four jobs for raw three-basis measurements and sixteen
+for the population-only mitigation comparison (five/twenty with an 80% memory
+cap). These are extrapolations from 32 compiled FakeKingston paths, not the
+full Phoenix compilation or live acceptance tests. The live companion checks
+its own compiled job footprints before submission and retains a configurable
+circuit cap. The corresponding exact raw-archive audit command is documented in
+[Experiment5](../Experiment5/Experiment5.md#offline-instruction-limit-audit).
 
 ## Parameters
 

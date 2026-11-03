@@ -1,0 +1,722 @@
+{
+  "limit_source": "https://quantum.cloud.ibm.com/docs/en/guides/job-limits",
+  "weights": {
+    "rz": 1,
+    "delay": 1,
+    "sx": 2,
+    "x": 2,
+    "cx": 5,
+    "cz": 5,
+    "ecr": 5,
+    "measure": 10,
+    "reset": 17,
+    "init": 50
+  },
+  "implicit_init": true,
+  "instruction_limit": 26800000,
+  "execution_limit": 10000000,
+  "workloads": {
+    "raw": {
+      "per_path_minimum": [
+        3163,
+        5086,
+        5239,
+        5230,
+        5026,
+        5014,
+        5230,
+        5230,
+        5182,
+        3124,
+        1806,
+        1677
+      ],
+      "per_path_mean": [
+        3500.96875,
+        5098.375,
+        5239.0,
+        5230.0,
+        5026.0,
+        5014.0,
+        5230.0,
+        5230.0,
+        5199.4375,
+        3773.5,
+        2659.6875,
+        2821.40625
+      ],
+      "per_path_maximum": [
+        3955,
+        5104,
+        5239,
+        5230,
+        5026,
+        5014,
+        5230,
+        5230,
+        5218,
+        4246,
+        3792,
+        3681
+      ],
+      "controls_instructions": [
+        196,
+        196,
+        196,
+        196,
+        196,
+        196,
+        196,
+        196,
+        196,
+        196,
+        150,
+        150
+      ],
+      "control_executions": 6144,
+      "at_limit": {
+        "trajectories": 16384,
+        "lower_bound_jobs": 4,
+        "feasible_jobs": 4,
+        "minimum_certified_for_counting_model": true,
+        "jobs": [
+          {
+            "path_start": 0,
+            "path_stop": 5115,
+            "trajectories": 5115,
+            "maximum_instructions": 26797681,
+            "bottleneck_position": 2,
+            "executions": 497184
+          },
+          {
+            "path_start": 5115,
+            "path_stop": 10230,
+            "trajectories": 5115,
+            "maximum_instructions": 26797681,
+            "bottleneck_position": 2,
+            "executions": 497184
+          },
+          {
+            "path_start": 10230,
+            "path_stop": 15345,
+            "trajectories": 5115,
+            "maximum_instructions": 26797681,
+            "bottleneck_position": 2,
+            "executions": 497184
+          },
+          {
+            "path_start": 15345,
+            "path_stop": 16384,
+            "trajectories": 1039,
+            "maximum_instructions": 5443517,
+            "bottleneck_position": 2,
+            "executions": 105888
+          }
+        ],
+        "single_job_instructions": [
+          57360068,
+          83531972,
+          85835972,
+          85688516,
+          82346180,
+          82149572,
+          85688516,
+          85688516,
+          85187780,
+          61825220,
+          43576470,
+          46226070
+        ],
+        "single_job_maximum": 85835972,
+        "bottleneck_position": 2,
+        "single_job_executions": 1579008,
+        "total_executions_after_repartition": 1597440,
+        "instruction_limit": 26800000,
+        "execution_limit": 10000000
+      },
+      "at_80_percent": {
+        "trajectories": 16384,
+        "lower_bound_jobs": 5,
+        "feasible_jobs": 5,
+        "minimum_certified_for_counting_model": true,
+        "jobs": [
+          {
+            "path_start": 0,
+            "path_stop": 4092,
+            "trajectories": 4092,
+            "maximum_instructions": 21438184,
+            "bottleneck_position": 2,
+            "executions": 398976
+          },
+          {
+            "path_start": 4092,
+            "path_stop": 8184,
+            "trajectories": 4092,
+            "maximum_instructions": 21438184,
+            "bottleneck_position": 2,
+            "executions": 398976
+          },
+          {
+            "path_start": 8184,
+            "path_stop": 12276,
+            "trajectories": 4092,
+            "maximum_instructions": 21438184,
+            "bottleneck_position": 2,
+            "executions": 398976
+          },
+          {
+            "path_start": 12276,
+            "path_stop": 16368,
+            "trajectories": 4092,
+            "maximum_instructions": 21438184,
+            "bottleneck_position": 2,
+            "executions": 398976
+          },
+          {
+            "path_start": 16368,
+            "path_stop": 16384,
+            "trajectories": 16,
+            "maximum_instructions": 84020,
+            "bottleneck_position": 2,
+            "executions": 7680
+          }
+        ],
+        "single_job_instructions": [
+          57360068,
+          83531972,
+          85835972,
+          85688516,
+          82346180,
+          82149572,
+          85688516,
+          85688516,
+          85187780,
+          61825220,
+          43576470,
+          46226070
+        ],
+        "single_job_maximum": 85835972,
+        "bottleneck_position": 2,
+        "single_job_executions": 1579008,
+        "total_executions_after_repartition": 1603584,
+        "instruction_limit": 21440000,
+        "execution_limit": 10000000
+      },
+      "kind": "replicated_saved_FakeKingston_footprint_projection",
+      "observed_paths": 32,
+      "target_paths": 16384,
+      "shots_per_arm": 32,
+      "measured_per_path_minimum": [
+        3163,
+        5086,
+        5239,
+        5230,
+        5026,
+        5014,
+        5230,
+        5230,
+        5182,
+        3124,
+        1806,
+        1677
+      ],
+      "measured_per_path_maximum": [
+        3955,
+        5104,
+        5239,
+        5230,
+        5026,
+        5014,
+        5230,
+        5230,
+        5218,
+        4246,
+        3792,
+        3681
+      ],
+      "system_positions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "bath_positions": [
+        10,
+        11
+      ],
+      "bases": [
+        "z",
+        "xy",
+        "yx"
+      ],
+      "physical_compilation_backend": "FakeKingston, compact logical layout",
+      "source_run": "/storage/home/aks8134/OpenQuantumSystem/Model2/Experiment6/runs/fake_zne_f39521cdd46b",
+      "source_noise_model_sha256": "d7fb95daf40f4a647ed57baad3628aa7c5c3111d15d8632ecdfbed73a9bec6f1",
+      "scope": "Projection repeats observed native footprint rows, not quantum trajectories. It is not an audit of all 16,384 paths or of the Windows Phoenix archive."
+    },
+    "mitigation": {
+      "per_path_minimum": [
+        16372,
+        25206,
+        25350,
+        25439,
+        24909,
+        25000,
+        25211,
+        25503,
+        25329,
+        16434,
+        8396,
+        7719
+      ],
+      "per_path_mean": [
+        18209.5,
+        25828.0625,
+        25826.21875,
+        25804.4375,
+        25342.5625,
+        25296.96875,
+        25776.375,
+        25795.21875,
+        25803.875,
+        19460.875,
+        12424.96875,
+        13266.90625
+      ],
+      "per_path_maximum": [
+        20747,
+        26307,
+        26666,
+        26496,
+        25732,
+        25644,
+        26356,
+        26395,
+        26214,
+        21727,
+        17870,
+        17526
+      ],
+      "controls_instructions": [
+        992,
+        992,
+        992,
+        992,
+        992,
+        992,
+        992,
+        992,
+        992,
+        992,
+        750,
+        750
+      ],
+      "control_executions": 12288,
+      "at_limit": {
+        "trajectories": 16384,
+        "lower_bound_jobs": 16,
+        "feasible_jobs": 16,
+        "minimum_certified_for_counting_model": true,
+        "jobs": [
+          {
+            "path_start": 0,
+            "path_stop": 1037,
+            "trajectories": 1037,
+            "maximum_instructions": 26784171,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 1037,
+            "path_stop": 2074,
+            "trajectories": 1037,
+            "maximum_instructions": 26784638,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 2074,
+            "path_stop": 3111,
+            "trajectories": 1037,
+            "maximum_instructions": 26785241,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 3111,
+            "path_stop": 4148,
+            "trajectories": 1037,
+            "maximum_instructions": 26784411,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 4148,
+            "path_stop": 5185,
+            "trajectories": 1037,
+            "maximum_instructions": 26784381,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 5185,
+            "path_stop": 6222,
+            "trajectories": 1037,
+            "maximum_instructions": 26784896,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 6222,
+            "path_stop": 7259,
+            "trajectories": 1037,
+            "maximum_instructions": 26784543,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 7259,
+            "path_stop": 8296,
+            "trajectories": 1037,
+            "maximum_instructions": 26785249,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 8296,
+            "path_stop": 9333,
+            "trajectories": 1037,
+            "maximum_instructions": 26784279,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 9333,
+            "path_stop": 10370,
+            "trajectories": 1037,
+            "maximum_instructions": 26784976,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 10370,
+            "path_stop": 11407,
+            "trajectories": 1037,
+            "maximum_instructions": 26784668,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 11407,
+            "path_stop": 12444,
+            "trajectories": 1037,
+            "maximum_instructions": 26784357,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 12444,
+            "path_stop": 13481,
+            "trajectories": 1037,
+            "maximum_instructions": 26785330,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 13481,
+            "path_stop": 14518,
+            "trajectories": 1037,
+            "maximum_instructions": 26783745,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 14518,
+            "path_stop": 15555,
+            "trajectories": 1037,
+            "maximum_instructions": 26785196,
+            "bottleneck_position": 1,
+            "executions": 145024
+          },
+          {
+            "path_start": 15555,
+            "path_stop": 16384,
+            "trajectories": 829,
+            "maximum_instructions": 21412767,
+            "bottleneck_position": 1,
+            "executions": 118400
+          }
+        ],
+        "single_job_instructions": [
+          298345440,
+          423167968,
+          423137760,
+          422780896,
+          415213536,
+          414466528,
+          422321120,
+          422629856,
+          422771680,
+          318847968,
+          203571438,
+          217365742
+        ],
+        "single_job_maximum": 423167968,
+        "bottleneck_position": 1,
+        "single_job_executions": 2109440,
+        "total_executions_after_repartition": 2293760,
+        "instruction_limit": 26800000,
+        "execution_limit": 10000000
+      },
+      "at_80_percent": {
+        "trajectories": 16384,
+        "lower_bound_jobs": 20,
+        "feasible_jobs": 20,
+        "minimum_certified_for_counting_model": true,
+        "jobs": [
+          {
+            "path_start": 0,
+            "path_stop": 830,
+            "trajectories": 830,
+            "maximum_instructions": 21437818,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 830,
+            "path_stop": 1660,
+            "trajectories": 830,
+            "maximum_instructions": 21438246,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 1660,
+            "path_stop": 2490,
+            "trajectories": 830,
+            "maximum_instructions": 21438211,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 2490,
+            "path_stop": 3320,
+            "trajectories": 830,
+            "maximum_instructions": 21438014,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 3320,
+            "path_stop": 4150,
+            "trajectories": 830,
+            "maximum_instructions": 21438316,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 4150,
+            "path_stop": 4980,
+            "trajectories": 830,
+            "maximum_instructions": 21438788,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 4980,
+            "path_stop": 5810,
+            "trajectories": 830,
+            "maximum_instructions": 21438170,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 5810,
+            "path_stop": 6640,
+            "trajectories": 830,
+            "maximum_instructions": 21438240,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 6640,
+            "path_stop": 7470,
+            "trajectories": 830,
+            "maximum_instructions": 21438333,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 7470,
+            "path_stop": 8300,
+            "trajectories": 830,
+            "maximum_instructions": 21438112,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 8300,
+            "path_stop": 9130,
+            "trajectories": 830,
+            "maximum_instructions": 21438647,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 9130,
+            "path_stop": 9960,
+            "trajectories": 830,
+            "maximum_instructions": 21438499,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 9960,
+            "path_stop": 10790,
+            "trajectories": 830,
+            "maximum_instructions": 21438224,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 10790,
+            "path_stop": 11620,
+            "trajectories": 830,
+            "maximum_instructions": 21438203,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 11620,
+            "path_stop": 12450,
+            "trajectories": 830,
+            "maximum_instructions": 21438294,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 12450,
+            "path_stop": 13280,
+            "trajectories": 830,
+            "maximum_instructions": 21438427,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 13280,
+            "path_stop": 14110,
+            "trajectories": 830,
+            "maximum_instructions": 21437818,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 14110,
+            "path_stop": 14940,
+            "trajectories": 830,
+            "maximum_instructions": 21438246,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 14940,
+            "path_stop": 15770,
+            "trajectories": 830,
+            "maximum_instructions": 21438211,
+            "bottleneck_position": 1,
+            "executions": 118528
+          },
+          {
+            "path_start": 15770,
+            "path_stop": 16384,
+            "trajectories": 614,
+            "maximum_instructions": 15859999,
+            "bottleneck_position": 1,
+            "executions": 90880
+          }
+        ],
+        "single_job_instructions": [
+          298345440,
+          423167968,
+          423137760,
+          422780896,
+          415213536,
+          414466528,
+          422321120,
+          422629856,
+          422771680,
+          318847968,
+          203571438,
+          217365742
+        ],
+        "single_job_maximum": 423167968,
+        "bottleneck_position": 1,
+        "single_job_executions": 2109440,
+        "total_executions_after_repartition": 2342912,
+        "instruction_limit": 21440000,
+        "execution_limit": 10000000
+      },
+      "kind": "replicated_saved_FakeKingston_footprint_projection",
+      "observed_paths": 32,
+      "target_paths": 16384,
+      "shots_per_arm": 32,
+      "measured_per_path_minimum": [
+        16372,
+        25206,
+        25350,
+        25439,
+        24909,
+        25000,
+        25211,
+        25503,
+        25329,
+        16434,
+        8396,
+        7719
+      ],
+      "measured_per_path_maximum": [
+        20747,
+        26307,
+        26666,
+        26496,
+        25732,
+        25644,
+        26356,
+        26395,
+        26214,
+        21727,
+        17870,
+        17526
+      ],
+      "system_positions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "bath_positions": [
+        10,
+        11
+      ],
+      "bases": [
+        "z"
+      ],
+      "physical_compilation_backend": "FakeKingston, compact logical layout",
+      "source_run": "/storage/home/aks8134/OpenQuantumSystem/Model2/Experiment6/runs/fake_zne_f39521cdd46b",
+      "source_noise_model_sha256": "d7fb95daf40f4a647ed57baad3628aa7c5c3111d15d8632ecdfbed73a9bec6f1",
+      "scope": "Projection repeats observed native footprint rows, not quantum trajectories. It is not an audit of all 16,384 paths or of the Windows Phoenix archive."
+    }
+  }
+}
