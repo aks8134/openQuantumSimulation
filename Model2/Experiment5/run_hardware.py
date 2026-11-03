@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 import importlib.metadata
 import json
 from pathlib import Path
+import re
 import sys
 import tempfile
 import zipfile
@@ -57,11 +58,17 @@ def parse_arguments(arguments=None):
     action.add_argument("--compile-only", action="store_true")
     action.add_argument("--recover-compiled", action="store_true",
                         help="offline: recover the completed QPY from an interrupted legacy compilation; requires --resume")
+    action.add_argument("--inspect-job", metavar="JOB_ID", help="read-only job/error/usage and backend-status inspection; requires --resume")
+    parser.add_argument("--retry-failed-job", metavar="JOB_ID", help="explicit retry of a saved terminal ERROR/6056 job; requires --resume and --execute")
     parser.add_argument("--resume", type=Path, metavar="MANIFEST")
     parser.add_argument("--output-directory", type=Path, default=DIRECTORY/"hardware_runs")
     options = parser.parse_args(argv)
     if options.recover_compiled and not options.resume:
         raise ValueError("--recover-compiled requires --resume MANIFEST")
+    if options.inspect_job and not options.resume:
+        raise ValueError("--inspect-job requires --resume MANIFEST")
+    if options.retry_failed_job and not (options.resume and options.execute):
+        raise ValueError("--retry-failed-job requires --resume MANIFEST --execute")
     if not 2 <= options.trajectory_count <= 16384 or options.shots < 1 or options.control_shots < 2:
         raise ValueError("need 2..16384 trajectories, positive shots and control-shots>=2")
     if options.bases not in (["z"], list(circuits.BASES)):
@@ -79,7 +86,7 @@ def parse_arguments(arguments=None):
             or len(set(options.physical_path)) != 12 or min(options.physical_path) < 0):
         raise ValueError("physical-path must contain twelve distinct nonnegative qubit indices")
     if options.resume:
-        allowed = {"--resume", "--execute", "--compile-only", "--recover-compiled", "--account-file"}
+        allowed = {"--resume", "--execute", "--compile-only", "--recover-compiled", "--inspect-job", "--retry-failed-job", "--account-file"}
         if any(word.split("=",1)[0] not in allowed for word in argv if word.startswith("--")):
             raise ValueError("resume uses saved settings; only action and account-file may accompany --resume")
     return options
@@ -403,7 +410,53 @@ def bundle(folder):
                 archive.write(folder/name, arcname=name)
 
 
+def backend_readiness(backend, require_ready=False):
+    getter = getattr(backend, "status", None)
+    if not callable(getter):
+        return {"checked": False, "scope": "local target without a live backend status API"}
+    status = getter()
+    details = {"checked": True, "operational": status.operational, "status_msg": status.status_msg}
+    if require_ready and (status.operational is not True or status.status_msg.strip().lower() != "active"):
+        raise ValueError(f"backend {backend.name} is not ready for new submissions: {details}; saved jobs/circuits retained")
+    return details
+
+
+def job_diagnostic(manifest, service, job_id):
+    batch = next((b for b in manifest["batches"] if b.get("job_id") == job_id), None)
+    if batch is None:
+        raise ValueError("job ID is not a current saved job in this manifest")
+    job = service.job(job_id)
+    state = job.status()
+    details = {"job_id": job_id, "status": str(getattr(state, "name", state)).upper(),
+               "error_message": job.error_message(), "recorded_at_utc": datetime.now(timezone.utc).isoformat()}
+    try:
+        details["metrics"] = json.loads(json.dumps(job.metrics(), default=str))
+    except Exception as error:
+        details["metrics_unavailable"] = str(error)
+    return batch, details
+
+
+def inspect_saved_job(options, service=None, backend=None):
+    # No circuit archive/source load is needed for this read-only diagnosis.
+    folder = options.resume.resolve().parent
+    manifest = json.loads(options.resume.read_text())
+    if manifest.get("experiment") != EXPERIMENT or manifest.get("plan_sha256") != plan_hash(manifest):
+        raise ValueError("not an intact Model2 Experiment5 manifest")
+    if service is None:
+        service = runtime.make_service(options)
+    _, details = job_diagnostic(manifest, service, options.inspect_job)
+    if backend is None:
+        backend = service.backend(manifest["configuration"]["backend"], use_fractional_gates=False)
+    details["backend_status"] = backend_readiness(backend)
+    atomic_json(folder/"last_job_diagnostic.json", details)
+    print(json.dumps(details, indent=2, default=str), flush=True)
+    print("Read-only inspection; no jobs submitted or reset for retry.", flush=True)
+    return details
+
+
 def main(options, *, backend=None, service=None, sampler_factory=None):
+    if options.inspect_job:
+        return inspect_saved_job(options, service, backend)
     if options.resume:
         folder, manifest, source = read_saved(options.resume)
     else:
@@ -434,6 +487,8 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
         print("Offline plan only; no account loaded, backend queried or jobs submitted.", flush=True)
         return manifest
     if manifest["status"] == "collected":
+        if options.retry_failed_job:
+            raise ValueError("collected runs cannot be retried")
         from Model2.Experiment5.analyze import main as analyze
         result = analyze(folder)
         bundle(folder)
@@ -443,10 +498,22 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
     if c["isa_sha256"] is not None and not c.get("isa_index_sha256") and c.get("isa_storage") != "batch-qpy-v1":
         index_legacy_archive(manifest, source, folder)
         c = manifest["configuration"]
-    if backend is None and (c["isa_sha256"] is None or any(not b.get("job_id") and b.get("observations") is None for b in manifest["batches"])):
+    retry = None
+    if options.retry_failed_job:
+        if service is None:
+            service = runtime.make_service(options)
+        retry = job_diagnostic(manifest, service, options.retry_failed_job)
+        batch, details = retry
+        if (batch.get("observations") is not None or details["status"] != "ERROR"
+                or not re.search(r"\b6056\b", str(details["error_message"]))):
+            raise ValueError("retry refused: job must be a saved terminal ERROR with compiler code 6056 and no collected results")
+    pending = c["isa_sha256"] is None or retry is not None or any(not b.get("job_id") and b.get("observations") is None for b in manifest["batches"])
+    if backend is None and pending:
         if service is None:
             service = runtime.make_service(options)
         backend = service.backend(c["backend"], use_fractional_gates=False)
+    if pending and backend is not None:
+        backend_readiness(backend, require_ready=True)
     if c["isa_sha256"] is None:
         publications = compile_plan(manifest, source, backend, folder)
     else:
@@ -464,7 +531,15 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
         with tempfile.TemporaryDirectory(dir=folder, prefix="execution_calibration_") as temporary:
             runtime.save_backend_snapshot(backend, c["physical_path"], manifest["circuits"], Path(temporary))
             atomic_json(folder/"execution_backend_snapshot.json", json.loads((Path(temporary)/"backend_snapshot.json").read_text()))
-    runtime.collect_and_submit(manifest, folder, publications, service, backend, sampler_factory)
+    if retry is not None:
+        backend_readiness(backend, require_ready=True)
+        batch, details = retry
+        batch.setdefault("failed_attempts", []).append(details)
+        batch.update(job_id=None, status="not_submitted")
+        atomic_json(folder/"manifest.json", manifest)
+        print(f"Explicit retry enabled for failed job {options.retry_failed_job}; original ID/error/usage retained.", flush=True)
+    runtime.collect_and_submit(manifest, folder, publications, service, backend, sampler_factory,
+                               before_submit=lambda: backend_readiness(backend, require_ready=True))
     from Model2.Experiment5.analyze import main as analyze
     result = analyze(folder)
     bundle(folder)

@@ -101,6 +101,102 @@ class Model2HardwareTests(unittest.TestCase):
             "--physical-path", *map(str, range(12)), "--min-t1-us", "1", "--min-t2-us", "1",
             "--max-cz-error", ".1", "--max-readout-error", ".1", "--output-directory", str(folder)])
 
+    def failed_job(self, folder, state="ERROR", error="Error code 6056; Internal Compiler Error"):
+        path = folder/"manifest.json"
+        manifest = json.loads(path.read_text())
+        manifest["batches"][0].update(job_id="failed_compiler_job", status="submitted")
+        path.write_text(json.dumps(manifest))
+        job = Mock()
+        job.status.return_value = state
+        job.error_message.return_value = error
+        job.metrics.return_value = {"usage": {"qpu_charge_time_seconds": 0}}
+        service = Mock()
+        service.job.return_value = job
+        return service
+
+    def test_explicit_compiler_retry_retains_failed_id_and_reuses_the_plan(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+            folder = self.saved(temporary)
+            original = json.loads((folder/"manifest.json").read_text())["configuration"]
+            service = self.failed_job(folder)
+            sampler, _, _ = self.sampler(folder, "compiler_retry_job")
+            with patch.object(self.backend, "status", create=True,
+                              return_value=SimpleNamespace(operational=True, status_msg="active")), \
+                 patch.object(experiment, "transpile", side_effect=AssertionError("no recompilation")):
+                experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--execute",
+                    "--retry-failed-job", "failed_compiler_job"]), backend=self.backend, service=service,
+                    sampler_factory=Mock(return_value=sampler))
+            final = json.loads((folder/"manifest.json").read_text())
+            self.assertEqual(final["configuration"], original)
+            self.assertEqual(final["batches"][0]["job_id"], "compiler_retry_job")
+            history = final["batches"][0]["failed_attempts"]
+            self.assertEqual(history[0]["job_id"], "failed_compiler_job")
+            self.assertIn("6056", history[0]["error_message"])
+            self.assertEqual(history[0]["metrics"]["usage"]["qpu_charge_time_seconds"], 0)
+            sampler.run.assert_called_once()
+            service.job.assert_called_once_with("failed_compiler_job")
+
+    def test_retry_refuses_active_successful_cancelled_or_unrelated_failure(self):
+        cases = [(state, "6056 Internal Compiler Error") for state in ("QUEUED", "RUNNING", "DONE", "CANCELLED")]
+        cases.append(("ERROR", "6116 Control system resources exceeded"))
+        for state, error in cases:
+            with self.subTest(state=state, error=error), tempfile.TemporaryDirectory() as temporary, \
+                 contextlib.redirect_stdout(io.StringIO()):
+                folder = self.saved(temporary)
+                service = self.failed_job(folder, state, error)
+                before = (folder/"manifest.json").read_bytes()
+                factory = Mock(side_effect=AssertionError("no duplicate job"))
+                with self.assertRaisesRegex(ValueError, "retry refused"):
+                    experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--execute",
+                        "--retry-failed-job", "failed_compiler_job"]), backend=self.backend, service=service, sampler_factory=factory)
+                self.assertEqual(before, (folder/"manifest.json").read_bytes())
+                factory.assert_not_called()
+
+    def test_maintenance_blocks_retry_before_clearing_failed_job(self):
+        for operational, message in [(False, "maintenance"), (True, "maintenance"), (True, "calibrating")]:
+            with self.subTest(operational=operational, message=message), tempfile.TemporaryDirectory() as temporary, \
+                 contextlib.redirect_stdout(io.StringIO()):
+                folder = self.saved(temporary)
+                service = self.failed_job(folder)
+                before = (folder/"manifest.json").read_bytes()
+                factory = Mock(side_effect=AssertionError("maintenance"))
+                with patch.object(self.backend, "status", create=True,
+                                  return_value=SimpleNamespace(operational=operational, status_msg=message)), \
+                     self.assertRaisesRegex(ValueError, "not ready"):
+                    experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--execute",
+                        "--retry-failed-job", "failed_compiler_job"]), backend=self.backend, service=service, sampler_factory=factory)
+                self.assertEqual(before, (folder/"manifest.json").read_bytes())
+                factory.assert_not_called()
+
+    def test_inspection_is_read_only_during_maintenance_and_needs_no_qpy(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+            folder = self.saved(temporary)
+            service = self.failed_job(folder)
+            before = (folder/"manifest.json").read_bytes()
+            (folder/"isa_circuits.qpy").unlink()
+            with patch.object(self.backend, "status", create=True,
+                              return_value=SimpleNamespace(operational=False, status_msg="maintenance")):
+                details = experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"),
+                    "--inspect-job", "failed_compiler_job"]), backend=self.backend, service=service)
+            self.assertEqual(details["status"], "ERROR")
+            self.assertFalse(details["backend_status"]["operational"])
+            self.assertEqual(before, (folder/"manifest.json").read_bytes())
+            self.assertTrue((folder/"last_job_diagnostic.json").exists())
+
+    def test_backend_becoming_unavailable_does_not_leave_ambiguous_submission(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+            folder = self.saved(temporary)
+            factory = Mock(side_effect=AssertionError("no submission"))
+            statuses = [SimpleNamespace(operational=True, status_msg="active"),
+                        SimpleNamespace(operational=False, status_msg="maintenance")]
+            with patch.object(self.backend, "status", create=True, side_effect=statuses), \
+                 self.assertRaisesRegex(ValueError, "not ready"):
+                experiment.main(experiment.parse_arguments(["--resume", str(folder/"manifest.json"), "--execute"]),
+                    backend=self.backend, service=Mock(), sampler_factory=factory)
+            final = json.loads((folder/"manifest.json").read_text())
+            self.assertTrue(all(b["job_id"] is None and b["status"] == "not_submitted" for b in final["batches"]))
+            factory.assert_not_called()
+
     def test_legacy_crash_recovery_is_offline_unchanged_and_does_not_recompile(self):
         with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
             folder = self.legacy_crash(temporary)
@@ -318,7 +414,9 @@ class Model2HardwareTests(unittest.TestCase):
     def test_bad_cli_is_rejected_before_any_account(self):
         for args in (["--shots","0"],["--trajectory-count","1"],["--trajectory-count","16385"],
                      ["--batch-size","5"],["--bases","xy"],["--seed","-1"],
-                     ["--resume","x.json","--shots","10"],["--physical-path","0","1"],["--recover-compiled"]):
+                     ["--resume","x.json","--shots","10"],["--physical-path","0","1"],["--recover-compiled"],
+                     ["--inspect-job", "job"], ["--retry-failed-job", "job"],
+                     ["--resume", "x.json", "--retry-failed-job", "job"]):
             with self.subTest(args=args),self.assertRaises(ValueError):
                 experiment.parse_arguments(args)
 

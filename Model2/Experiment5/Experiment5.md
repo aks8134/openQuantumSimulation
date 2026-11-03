@@ -208,6 +208,48 @@ than recompiling them, and execution loads only the requested job's circuits.
 All jobs are still compiled and checked before the first hardware submission.
 Hashing and resume never read the entire large archive into a byte string.
 
+### Inspect or retry an IBM compiler failure
+
+IBM error 6056 is an internal compiler error; the registry recommends retrying
+or contacting support. A maintenance warning is relevant backend context, not
+proof of the specific cause. The runner stops after the failing job; it does
+not submit the remaining jobs automatically after that exception.
+
+Inspect a saved job and the backend without submitting anything:
+
+```powershell
+python Model2/Experiment5/run_hardware.py --resume $runManifest --inspect-job dbkkc08nceqs73am38fg
+```
+
+This reads the saved manifest, queries job status/error/usage and backend
+status, and saves `last_job_diagnostic.json`. It does not load the QPY archive,
+change the manifest, or create a new job. It uses the existing account loader.
+
+When Phoenix is operational, an explicitly requested retry is:
+
+```powershell
+python Model2/Experiment5/run_hardware.py --resume $runManifest --execute --retry-failed-job dbkkc08nceqs73am38fg
+```
+
+Retry is allowed only for the current saved job, with server status `ERROR`,
+error code 6056, and no collected results. It refuses active, successful,
+cancelled, unknown, or unrelated failures. The old job ID, error and available
+usage metrics are retained under the batch's `failed_attempts`; the exact
+circuits, path, shots and source are reused. After the retried batch succeeds,
+execution continues through the original remaining batches.
+
+New submissions check backend readiness before compilation/loading and again
+before each job. The backend must be operational and report status `active`.
+Local preparation and readiness failures do not mark a batch as an ambiguous
+submission. A network failure *during* submission still retains the existing
+ambiguity guard. A plain resume retrieves the known failed job and will not
+silently replace it with a new one.
+
+The [IBM error registry](https://quantum.cloud.ibm.com/docs/en/errors) defines
+6056. If it recurs on an operational backend, retain both job IDs and report
+them to IBM support; the code does not establish that shots or job size caused
+the failure. Retrying does not guarantee a server-side compiler fix.
+
 The manifest preserves exact paths, shots, basis groups, native QPY hash,
 mapping and job IDs. Resume retrieves submitted jobs and submits only
 batches without a recorded ID. If submission was interrupted while the
@@ -251,7 +293,7 @@ planning, immutable-plan hashes, mixed-shot PUBs, job-ID persistence,
 interrupted collection, ambiguous submission, offline reanalysis, and the
 self-contained result bundle. All hardware submission tests use mocks.
 
-The memory/recovery follow-up passed **38 local tests**, covering the Model2
+The memory/recovery and compiler-retry follow-up passed **43 local tests**, covering the Model2
 hardware runner and shared Runtime/control regressions. Recovery tests cover
 QPY versions 13, 15, 16 and 17, forbidden unbounded reads, an unchanged legacy
 archive, truncated-file rejection, partial compilation checkpoints, mocked
@@ -260,3 +302,8 @@ standard QPY loader. No test submits live hardware jobs. The two-path offline sn
 compilation has **880 CZ gates and 44 resets per evolved circuit**; its
 native depths are 720–727 across the saved readout settings. These local
 checks do not predict live-device accuracy.
+
+Retry tests additionally cover read-only inspection during maintenance,
+preserved failed-job/error/usage history, refusal to retry active or completed
+jobs, and backend status changing before submission. A preliminary budget for
+the raw 97-job configuration is in [BudgetEstimate.md](BudgetEstimate.md).

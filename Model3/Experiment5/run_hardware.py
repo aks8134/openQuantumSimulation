@@ -302,7 +302,7 @@ def save_control_pointer(pointer_file, directory, config, passed=None):
         "backend": config["backend"], "physical_path": config["physical_path"], "controls_passed": passed})
 
 
-def collect_and_submit(manifest, directory, publications, service, backend, sampler_factory=None):
+def collect_and_submit(manifest, directory, publications, service, backend, sampler_factory=None, before_submit=None):
     if sampler_factory is None:
         from qiskit_ibm_runtime import SamplerV2
         sampler_factory = SamplerV2
@@ -315,16 +315,18 @@ def collect_and_submit(manifest, directory, publications, service, backend, samp
         else:
             if batch.get("status") == "submitting":
                 raise ValueError("a submission was interrupted before its job ID was saved; find that job on IBM Quantum and add its job_id to the manifest before resuming")
-            if sampler is None:
-                sampler = sampler_factory(mode=backend, options={"dynamical_decoupling": {"enable": False},
-                    "twirling": {"enable_gates": False, "enable_measure": False}, "execution": {"init_qubits": True}})
-            batch["status"] = "submitting"
-            atomic_json(directory/"manifest.json", manifest)
             selected = publications[batch["start"]:batch["stop"]]
             records = manifest["circuits"][batch["start"]:batch["stop"]]
             default_shots = manifest["configuration"]["shots"]
             if any(record.get("shots", default_shots) != default_shots for record in records):
                 selected = [(circuit, None, record.get("shots", default_shots)) for circuit, record in zip(selected, records)]
+            if before_submit is not None:
+                before_submit()
+            if sampler is None:
+                sampler = sampler_factory(mode=backend, options={"dynamical_decoupling": {"enable": False},
+                    "twirling": {"enable_gates": False, "enable_measure": False}, "execution": {"init_qubits": True}})
+            batch["status"] = "submitting"
+            atomic_json(directory/"manifest.json", manifest)
             job = sampler.run(selected, shots=default_shots)
             batch.update(job_id=job.job_id(), status="submitted")
             atomic_json(directory/"manifest.json", manifest)
