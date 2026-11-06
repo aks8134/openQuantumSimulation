@@ -337,12 +337,103 @@ class HardwareMitigationTests(unittest.TestCase):
         for argv in (["--randomizations", "3"], ["--shots", "7"], ["--batch-size", "40"],
                      ["--fold-factors", "1", "1.00001", "1.00002"], ["--physical-path", "0", "1"],
                      ["--calibration-policy", "record-only"], ["--analyze-only"], ["--inspect-job", "job"],
-                     ["--retry-failed-job", "job"], ["--resume", "manifest", "--shots", "32"]):
+                     ["--retry-failed-job", "job"], ["--resume", "manifest", "--shots", "32"],
+                     ["--allow-calibration-drift"], ["--resume", "manifest", "--allow-calibration-drift"],
+                     ["--resume", "manifest", "--analyze-only", "--allow-calibration-drift"]):
             with self.subTest(argv=argv), self.assertRaises(ValueError):
                 options = runner.parse_arguments(argv)
                 # Fold rounding is validated by planning, before any service.
                 if argv[0] == "--fold-factors":
                     runner.new_plan(options)
+
+    def test_resume_accepts_recorded_drift_without_changing_plan_or_repeating_collected_job(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+            folder = self.saved(temporary)
+            path = folder/"manifest.json"
+            _, manifest, _ = runner.read_saved(path)
+            batch = manifest["batches"][0]
+            observations = []
+            for row in manifest["circuits"][batch["start"]:batch["stop"]]:
+                mask, shots = row["measurement_mask"], row["shots"]
+                zero, one = format(mask, "010b"), format(mask ^ 1023, "010b")
+                counts = ({zero: shots} if row.get("control") == "all_zero" else
+                          {one: shots} if row.get("control") == "all_one" else {zero: shots//2, one: shots//2})
+                observations.append(dict(outcome_counts=counts))
+            batch.update(status="collected", job_id="already_collected", observations=observations)
+            runner.checkpoint(manifest, folder)
+            runner.atomic_json(folder/"execution_backend_snapshot.json", {"earlier_execution": True})
+            previous_execution_sha = runner.qpy_storage.file_sha256(folder/"execution_backend_snapshot.json")
+            before = path.read_bytes()
+            config, plan_hash = copy.deepcopy(manifest["configuration"]), manifest["plan_sha256"]
+            originals = {name: runner.qpy_storage.file_sha256(folder/name) for name in
+                ["source.json", "selected_path.json", "backend_snapshot.json"]+[b["isa_file"] for b in manifest["batches"]]}
+            native_target = self.backend.target
+            changed_properties = copy.deepcopy(native_target.qubit_properties)
+            changed_properties[5].t1 = .5e-6  # Saved threshold is 1 microsecond.
+            class TargetView:
+                qubit_properties = changed_properties
+                def __getattr__(self, name): return getattr(native_target, name)
+                def __getitem__(self, name): return native_target[name]
+            changed_backend = SimpleNamespace(name=self.backend.name, target=TargetView(),
+                num_qubits=self.backend.num_qubits, coupling_map=self.backend.coupling_map)
+            forbidden = Mock(side_effect=AssertionError("no job submitted before drift is accepted"))
+            with self.assertRaisesRegex(ValueError, "allow-calibration-drift"):
+                runner.main(self.resume(folder, "--execute"), backend=changed_backend, service=Mock(), sampler_factory=forbidden)
+            self.assertEqual(before, path.read_bytes())
+            forbidden.assert_not_called()
+            sampler, jobs = self.sampler(folder)
+            service = Mock()
+            with patch.object(runner, "transpile", side_effect=AssertionError("no recompilation")), \
+                 patch.object(runner.raw.quality_path, "select", side_effect=AssertionError("keep fixed path")), \
+                 patch.object(runner, "finish_analysis", return_value={"complete": True}):
+                runner.main(self.resume(folder, "--execute", "--allow-calibration-drift"),
+                    backend=changed_backend, service=service, sampler_factory=Mock(return_value=sampler))
+            _, final, _ = runner.read_saved(path)
+            self.assertEqual(len(jobs), 1)
+            service.job.assert_not_called()
+            self.assertEqual(final["configuration"], config)
+            self.assertEqual(final["plan_sha256"], plan_hash)
+            self.assertEqual(final["batches"][0]["job_id"], "already_collected")
+            self.assertEqual(final["batches"][0]["observations"], observations)
+            self.assertEqual(final["status"], "collected")
+            for name, digest in originals.items():
+                self.assertEqual(runner.qpy_storage.file_sha256(folder/name), digest)
+            drift = final["resume_calibration_checks"][0]
+            self.assertEqual(drift["physical_path"], list(range(12)))
+            self.assertEqual(drift["threshold_failures"], [dict(qubit=5, quantity="t1_seconds", value=.5e-6,
+                threshold=1e-6, condition="minimum")])
+            self.assertEqual(runner.qpy_storage.file_sha256(folder/drift["file"]), drift["sha256"])
+            previous = drift["previous_execution_snapshot"]
+            self.assertEqual(previous["sha256"], previous_execution_sha)
+            self.assertEqual(runner.qpy_storage.file_sha256(folder/previous["file"]), previous_execution_sha)
+            runner.bundle(folder, final)
+            with zipfile.ZipFile(folder/"results_bundle.zip") as archive:
+                self.assertIn(drift["file"], archive.namelist())
+                self.assertIn(previous["file"], archive.namelist())
+
+    def test_drift_override_retains_compilation_readiness_and_native_checks(self):
+        with tempfile.TemporaryDirectory() as temporary, contextlib.redirect_stdout(io.StringIO()):
+            folder = self.saved(temporary)
+            path = folder/"manifest.json"
+            forbidden = Mock(side_effect=AssertionError("no submission"))
+            options = self.resume(folder, "--execute", "--allow-calibration-drift")
+            before = path.read_bytes()
+            with patch.object(self.backend, "status", create=True,
+                    return_value=SimpleNamespace(operational=True, status_msg="maintenance")), \
+                 self.assertRaisesRegex(ValueError, "not ready"):
+                runner.main(options, backend=self.backend, service=Mock(), sampler_factory=forbidden)
+            self.assertEqual(before, path.read_bytes())
+            with patch.object(runner.protocol, "assert_supported", side_effect=ValueError("unsupported native operation")), \
+                 self.assertRaisesRegex(ValueError, "unsupported native"):
+                runner.main(options, backend=self.backend, service=Mock(), sampler_factory=forbidden)
+            forbidden.assert_not_called()
+            _, manifest, _ = runner.read_saved(path)
+            self.assertTrue(all(b["job_id"] is None for b in manifest["batches"]))
+            manifest["batches"][0]["compiled"] = False
+            runner.checkpoint(manifest, folder)
+            with patch.object(runner.raw.runtime, "make_service", side_effect=AssertionError("no account")), \
+                 self.assertRaisesRegex(ValueError, "all jobs already compiled"):
+                runner.main(options, sampler_factory=forbidden)
 
 
 if __name__ == "__main__":

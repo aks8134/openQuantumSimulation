@@ -314,6 +314,16 @@ It retrieves only saved jobs reporting `DONE`, backs up the manifest before
 saving recovered counts, and produces a labelled completed-job subset analysis
 plus resume/inspection commands. It does not submit, retry or cancel jobs.
 
+If the saved chain fails today's quality thresholds after some jobs have
+finished, the explicit continuation option is
+`--resume MANIFEST --execute --allow-calibration-drift`. It is restricted to
+an already compiled run and keeps the saved path, source, QPY, job IDs and
+counts. Calibration failures and the previous execution snapshot are retained;
+native-ISA, resource, connectivity, exclusion and active-backend checks remain
+mandatory. The existing per-job controls remain in every pending job. See
+[calibration-drift recovery](../HardwareRecovery.md#continuing-after-calibration-drift)
+for the full command and interpretation.
+
 Each job has a separately checkpointed QPY archive, streamed SHA256, physical
 mapping, circuit identities, resource assessment, compiler versions, requested
 shots, raw outcome counts, provider job ID and available usage metrics. Large

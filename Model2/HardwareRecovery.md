@@ -67,3 +67,34 @@ python Model2/Experiment6/run_hardware.py --resume "Model2/Experiment6/hardware_
 Use the audit's diagnosis first if it reports a failed or ambiguous job. Keep
 the saved source, specification and QPY files with that manifest. Do not start
 a new run to continue an old one.
+
+## Continuing after calibration drift
+
+A multi-day run can have completed jobs while the saved physical chain no
+longer passes today's T1/T2, readout-error or CZ-error thresholds. The default
+resume preserves the original quality screen and stops before submitting.
+To explicitly finish a **fully compiled** mitigation run on the same saved
+chain while accepting the changed calibration:
+
+```powershell
+python Model2/Experiment6/run_hardware.py --resume "Model2/Experiment6/hardware_runs/mitigation44_20261103T145657_688162Z/manifest.json" --execute --allow-calibration-drift
+```
+
+This is an invocation-only override; repeat the flag if another resume needs
+it. The run's saved calibration policy, scientific settings, physical mapping,
+QPY, completed results and existing job IDs stay intact. Completed batches are
+skipped and existing uncollected IDs are retrieved. Each new job retains its
+planned zero/one/mixture controls, so no separate control campaign is needed
+to continue that saved comparison.
+
+The option requires a saved path and all jobs already compiled. Explicit
+qubit exclusions, CZ connectivity, native-ISA/resource validation, active
+backend requirements and failed/ambiguous-job guards still apply. It does
+not select a replacement chain or change a new experiment's quality policy.
+
+Current per-qubit and edge values, violated thresholds and the explicit
+override are saved in `resume_calibration_<UTC>.json` and referenced by hash
+from the manifest. Any earlier execution snapshot is retained under a unique
+name before the new snapshot is written. Both are included in the transfer
+bundle. Inspect the remaining jobs' own controls when interpreting results
+collected under changed calibration.

@@ -12,6 +12,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 import re
+import shutil
 import sys
 import zipfile
 
@@ -67,6 +68,8 @@ def parse_arguments(arguments=None):
     action.add_argument("--analyze-only", action="store_true", help="requires --resume; no account or submission")
     action.add_argument("--inspect-job", metavar="JOB_ID", help="requires --resume; read-only provider status/error/usage")
     parser.add_argument("--retry-failed-job", metavar="JOB_ID", help="explicit terminal ERROR/6056 retry; requires --resume --execute")
+    parser.add_argument("--allow-calibration-drift", action="store_true",
+        help="resume a fully compiled run on its saved path despite quality-threshold drift; record current calibration and keep ISA/readiness checks")
     parser.add_argument("--resume", type=Path, metavar="MANIFEST")
     parser.add_argument("--output-directory", type=Path, default=DIRECTORY/"hardware_runs")
     parser.add_argument("--analysis-output-directory", type=Path)
@@ -75,9 +78,11 @@ def parse_arguments(arguments=None):
         raise ValueError("analysis/inspection requires --resume MANIFEST")
     if options.retry_failed_job and not (options.resume and options.execute):
         raise ValueError("retry requires --resume MANIFEST --execute")
+    if options.allow_calibration_drift and not (options.resume and (options.execute or options.compile_only)):
+        raise ValueError("allow-calibration-drift requires --resume and --execute or --compile-only")
     if options.resume:
         allowed = {"--resume", "--execute", "--compile-only", "--plan-only", "--analyze-only", "--inspect-job",
-                   "--retry-failed-job", "--account-file", "--analysis-output-directory"}
+                   "--retry-failed-job", "--allow-calibration-drift", "--account-file", "--analysis-output-directory"}
         if any(word.split("=", 1)[0] not in allowed for word in argv if word.startswith("--")):
             raise ValueError("resume uses saved scientific/run settings; only action, account and analysis output may change")
         return options
@@ -270,19 +275,80 @@ def write_plan(manifest, source, folder):
     (folder/"Plan.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def select_path(manifest, source, backend, folder):
+def calibration_observations(backend, path, settings):
+    """Record available quality values and threshold violations on the fixed path."""
+    def number(value):
+        return float(value) if value is not None and np.isfinite(value) else None
+    qubits, edges, failures = {}, [], []
+    properties = backend.target.qubit_properties
+    for q in path:
+        prop = properties[q] if properties is not None else None
+        readout = backend.target["measure"].get((q,)) if "measure" in backend.target.operation_names else None
+        values = dict(t1_seconds=number(getattr(prop, "t1", None)), t2_seconds=number(getattr(prop, "t2", None)),
+                      readout_error=number(getattr(readout, "error", None)))
+        qubits[str(q)] = values
+        for key, threshold, minimum in (("t1_seconds", settings["min_t1_seconds"], True),
+                ("t2_seconds", settings["min_t2_seconds"], True), ("readout_error", settings["max_readout_error"], False)):
+            value = values[key]
+            if value is None or value < 0 or (value < threshold if minimum else value > threshold):
+                failures.append(dict(qubit=q, quantity=key, value=value, threshold=threshold,
+                                     condition="minimum" if minimum else "maximum"))
+    for a, b in zip(path, path[1:]):
+        values = [number(getattr(backend.target["cz"].get(pair), "error", None))
+                  for pair in ((a, b), (b, a))] if "cz" in backend.target.operation_names else []
+        available = [v for v in values if v is not None and 0 <= v < 1]
+        value = max(available) if available else None
+        edges.append(dict(qubits=[a, b], cz_error=value))
+        if value is None or value > settings["max_cz_error"]:
+            failures.append(dict(qubits=[a, b], quantity="cz_error", value=value,
+                                 threshold=settings["max_cz_error"], condition="maximum"))
+    return dict(qubits=qubits, edges=edges, threshold_failures=failures)
+
+
+def select_path(manifest, source, backend, folder, *, allow_calibration_drift=False):
     config = manifest["configuration"]
     if backend.name != config["backend"]:
         raise ValueError("backend differs from the saved mitigation plan")
     settings = config["path_settings"]
     fixed = config["physical_path"] or config["requested_physical_path"]
-    if fixed is None:
+    if allow_calibration_drift:
+        if config["physical_path"] is None or not all(b["compiled"] for b in manifest["batches"]):
+            raise ValueError("calibration drift override requires a saved physical path and all jobs already compiled")
+        if set(fixed) & set(settings["avoid_qubits"]):
+            raise ValueError("saved path intersects the run's explicit avoid-qubits; override refused")
+        # Connectivity, qubit validity, current ISA and backend readiness remain mandatory.
+        raw.circuits.chain_layout(backend, 10, "boundary", fixed)
+        observation = calibration_observations(backend, fixed, settings)
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+        name = f"resume_calibration_{stamp}.json"
+        previous_snapshot = None
+        if (folder/"execution_backend_snapshot.json").exists():
+            previous_name = f"execution_backend_snapshot_before_resume_{stamp}.json"
+            shutil.copy2(folder/"execution_backend_snapshot.json", folder/previous_name)
+            previous_snapshot = dict(file=previous_name, sha256=qpy_storage.file_sha256(folder/previous_name))
+        details = dict(captured_at_utc=datetime.now(timezone.utc).isoformat(), backend=backend.name,
+            physical_path=list(fixed), allow_calibration_drift=True, saved_policy=config["calibration_policy"],
+            settings=settings, previous_execution_snapshot=previous_snapshot, **observation,
+            scope="Explicit invocation-only quality-threshold override for saved compiled circuits. Scientific settings, path and job IDs retained; native ISA and active-backend checks remain required.")
+        atomic_json(folder/name, details)
+        manifest.setdefault("resume_calibration_checks", []).append(dict(file=name,
+            sha256=qpy_storage.file_sha256(folder/name), previous_execution_snapshot=previous_snapshot, **{k: details[k] for k in
+                ("captured_at_utc", "backend", "physical_path", "allow_calibration_drift", "threshold_failures")}))
+        selected = dict(physical_path=fixed, policy="invocation-only calibration-drift override")
+        print(f"Saved path retained; current calibration recorded in {folder/name}", flush=True)
+        print(f"Quality threshold failures: {json.dumps(observation['threshold_failures'])}", flush=True)
+    elif fixed is None:
         selected = raw.quality_path.select(backend, source, list(range(config["trajectory_count"])),
             avoid=settings["avoid_qubits"], min_t1=settings["min_t1_seconds"], min_t2=settings["min_t2_seconds"],
             max_cz_error=settings["max_cz_error"], max_readout_error=settings["max_readout_error"],
             max_expansions=settings["max_expansions"])
     elif config["calibration_policy"] == "screen":
-        selected = raw.quality_path.validate(backend, fixed, source, list(range(config["trajectory_count"])), settings)
+        try:
+            selected = raw.quality_path.validate(backend, fixed, source, list(range(config["trajectory_count"])), settings)
+        except ValueError as error:
+            raise ValueError(f"{error}. For a fully compiled continuation on this same path, "
+                             "--resume MANIFEST --execute --allow-calibration-drift records the current quality values "
+                             "and accepts threshold drift while retaining native-ISA/readiness checks.") from error
     else:
         raw.circuits.chain_layout(backend, 10, "boundary", fixed)
         selected = {"physical_path": fixed, "policy": "record-only", "scope": "Explicit fixed path retained; quality thresholds not applied."}
@@ -449,6 +515,9 @@ def bundle(folder, manifest, output=None):
     names = ["manifest.json", "source.json", "spec.json", "Plan.md", "selected_path.json", "backend_snapshot.json",
              "execution_backend_snapshot.json", "hardware_results.json", "last_job_diagnostic.json"]
     names += [batch["isa_file"] for batch in manifest["batches"] if batch.get("isa_file")]
+    names += [check["file"] for check in manifest.get("resume_calibration_checks", [])]
+    names += [check["previous_execution_snapshot"]["file"] for check in manifest.get("resume_calibration_checks", [])
+              if check.get("previous_execution_snapshot")]
     with zipfile.ZipFile(folder/"results_bundle.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for name in dict.fromkeys(names):
             if (folder/name).exists():
@@ -478,6 +547,8 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
     else:
         folder, manifest, source = new_plan(options)
     config = manifest["configuration"]
+    if options.allow_calibration_drift and (config["physical_path"] is None or not all(b["compiled"] for b in manifest["batches"])):
+        raise ValueError("calibration drift override requires a saved physical path and all jobs already compiled")
     if options.analysis_output_directory and options.analysis_output_directory.resolve().is_relative_to(folder.resolve()):
         raise ValueError("analysis output must be outside the raw run directory")
     print(f"Plan: {folder/'manifest.json'}", flush=True)
@@ -514,7 +585,7 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
             backend = service.backend(config["backend"], use_fractional_gates=False)
         if options.execute:
             raw.backend_readiness(backend, require_ready=True)
-        select_path(manifest, source, backend, folder)
+        select_path(manifest, source, backend, folder, allow_calibration_drift=options.allow_calibration_drift)
         publications = compile_batches(manifest, source, backend, folder)
     else:
         publications = Publications(manifest, folder, backend)
