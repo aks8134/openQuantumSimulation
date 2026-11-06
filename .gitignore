@@ -250,7 +250,9 @@ pyproject.toml
 /Model2/Experiment6/runs/**/*.zip
 /Model2/Experiment6/analysis/**/*.json
 /Model2/Experiment6/job_estimates/**/*.json
+/Model2/hardware_audit/**/*.json
 
 paper/
+reports/
 
 

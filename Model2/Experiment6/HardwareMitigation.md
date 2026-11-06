@@ -215,7 +215,43 @@ planning calculation. Outputs must stay outside the input archive directory.
 **The estimator does not install the memory-packed partitions into the
 hardware runner.** It leaves its 64-path default and 512-circuit cap unchanged,
 and never modifies saved manifests, job IDs, source or native programs.
-The full 20-job projection is therefore not an executable submission plan yet.
+To attempt the full workload in twenty balanced jobs, explicitly raise the
+runner's circuit cap as shown below. This uses balanced groups rather than
+importing the estimator's greedy CSV partition. Every actual compiled job
+must still pass the instruction and execution checks before submission.
+
+### Full workload with twenty balanced jobs
+
+For 16,384 paths and the fixed four-randomization/three-factor protocol,
+`--batch-size 10675` fits 820 complete paths and fifteen controls. The runner
+balances the paths across twenty jobs: four have 820 paths and sixteen have
+819 paths. This gives **213,292 circuits and 2,342,912 shots**, with 2,048
+control shots per preparation/treatment/job. The 80% instruction threshold
+is enforced on every actual native job, not just on sampled footprints.
+
+Using the Phoenix path from the reported 32-path target compilation:
+
+```powershell
+python Model2/Experiment6/run_hardware.py `
+  --backend ibm_phoenix `
+  --trajectory-count 16384 --shots 32 --seed 29 `
+  --randomizations 4 --control-shots 2048 `
+  --batch-size 10675 --instruction-fraction 0.8 `
+  --physical-path 106 116 115 114 113 112 111 101 91 81 80 90 `
+  --execute
+```
+
+The runner rechecks the explicit chain against the current calibration and
+compiles all jobs before submitting any. If actual instruction counts exceed
+the threshold, it stops without submitting and requires a new plan with a
+smaller cap. Passing the public counting heuristic does not guarantee IBM
+compiler acceptance. These large jobs also require substantially more local
+memory than 512-circuit jobs: the native circuit list for one Runtime job
+is retained in memory for serialization and submission.
+
+For compilation without subsequent submission, replace `--execute` with
+`--compile-only`. Execute that saved plan later with
+`python Model2/Experiment6/run_hardware.py --resume "<new manifest.json path>" --execute`.
 
 ## Commands from the repository root
 
@@ -266,6 +302,17 @@ Inspect the printed workload whenever changing these settings. Resume uses
 saved settings and refuses scientific parameter overrides.
 
 ## Recovery and analysis
+
+For a process that was killed, use the cross-experiment
+[completion audit](../HardwareRecovery.md) on the original checkout:
+
+```powershell
+python Model2/audit_hardware_runs.py --collect-existing --analyze
+```
+
+It retrieves only saved jobs reporting `DONE`, backs up the manifest before
+saving recovered counts, and produces a labelled completed-job subset analysis
+plus resume/inspection commands. It does not submit, retry or cancel jobs.
 
 Each job has a separately checkpointed QPY archive, streamed SHA256, physical
 mapping, circuit identities, resource assessment, compiler versions, requested

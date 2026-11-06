@@ -163,6 +163,19 @@ is documented separately in [OfflinePreview.md](OfflinePreview.md).
 
 ## Resume, analysis and transfer
 
+For an interrupted process, first inventory both Model2 hardware experiments
+and collect already finished jobs on the original machine:
+
+```powershell
+python Model2/audit_hardware_runs.py --collect-existing --analyze
+```
+
+This creates a manifest backup before recovered counts are saved, performs
+no submissions, and analyzes complete collected jobs even if the full run is
+unfinished. Read `Model2/hardware_audit/Audit.md` for exact saved IDs, queried
+states and resume commands. See [HardwareRecovery.md](../HardwareRecovery.md)
+for incomplete-cohort interpretation and failed/ambiguous submissions.
+
 The runner prints its unique run directory under
 `Model2/Experiment5/hardware_runs/cosine44_<UTC timestamp>/`. After an
 interruption, substitute the printed manifest path:
