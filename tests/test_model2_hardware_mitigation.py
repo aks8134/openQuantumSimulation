@@ -129,9 +129,17 @@ class HardwareMitigationTests(unittest.TestCase):
             self.assertEqual(len(report["statistics"]["job_local_controls"]), 2)
             self.assertEqual(report["per_path_ideal_populations"].shape, (4, 10))
             self.assertEqual(report["verification"]["compiled_batches_not_available"], [])
+            self.assertEqual(len(report["verification"]["compiled_batches_not_deserialized"]), 2)
+            with zipfile.ZipFile(folder/"results_bundle.zip") as archive:
+                self.assertEqual(sum(name.endswith(".qpy") for name in archive.namelist()), 0)
+                self.assertEqual(sum(name.endswith("_counts.json") for name in archive.namelist()), 2)
+                self.assertIn("analysis/Analysis.md", archive.namelist())
+            verified = analysis.analyze(folder, verify_circuits=True)
+            self.assertEqual(len(verified["verification"]["compiled_batches_verified"]), 2)
+            _, saved, _ = runner.read_saved(folder/"manifest.json")
+            runner.bundle(folder, saved, include_qpy=True)
             with zipfile.ZipFile(folder/"results_bundle.zip") as archive:
                 self.assertEqual(sum(name.endswith(".qpy") for name in archive.namelist()), 2)
-                self.assertIn("analysis/Analysis.md", archive.namelist())
             forbidden = Mock(side_effect=AssertionError("no duplicate submission"))
             runner.main(self.resume(folder, "--execute"), sampler_factory=forbidden)
             forbidden.assert_not_called()

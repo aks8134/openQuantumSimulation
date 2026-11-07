@@ -303,6 +303,12 @@ saved settings and refuses scientific parameter overrides.
 
 ## Recovery and analysis
 
+For a submitted mitigation run that appears stuck during local collection or
+analysis, use the [collection-only recovery instructions](CollectionRecovery.md).
+The new `--resume MANIFEST --collect-only` action retrieves only recorded DONE
+jobs and prints progress without loading QPY, submitting, analyzing, or packing
+archives. Run `--analyze-only` separately after all jobs are saved.
+
 For a process that was killed, use the cross-experiment
 [completion audit](../HardwareRecovery.md) on the original checkout:
 
@@ -353,7 +359,9 @@ The old ID, error and usage diagnostic remain in `failed_attempts`. Other
 errors are not automatically classified as safe retries. This does not resolve
 the provider's internal compiler fault in the previous raw experiment.
 
-All collected runs are analyzed automatically. To rebuild analysis offline:
+The `--execute` workflow analyzes a completely collected run automatically.
+The separate `--collect-only` action stops after saving counts. To rebuild
+analysis offline:
 
 ```powershell
 python Model2/Experiment6/run_hardware.py --resume $mitManifest --analyze-only
@@ -363,13 +371,15 @@ python Model2/Experiment6/run_hardware.py --resume $mitManifest --analyze-only
 Outputs are `Analysis.md`, per-site population CSV, JSON with all six profiles
 and job-local controls, and population/noise-scaling plots in PNG and PDF.
 The raw run contains `hardware_results.json` and `results_bundle.zip`, including
-the source, specification, counts, snapshots, QPY archives and analysis.
-Analysis requires the hashed source and intact plan; it verifies native QPY
-when available and explicitly records missing archives for portable analysis.
+the source, specification, counts, snapshots and analysis. Large QPY files are
+excluded by default; `--include-qpy` explicitly includes them. Analysis requires
+the hashed source and intact plan and reconstructs the saved counts. It records
+available-but-skipped and missing circuit archives. `--verify-circuits` opts
+into QPY deserialization and native circuit verification during analysis.
 
 ## Local validation
 
-Thirteen focused tests cover offline defaults, the exact budget, Model2 source
+Focused tests cover offline defaults, the exact budget, Model2 source
 shape, native CZ/reset counts, masks, QPY integrity, interrupted compilation,
 known/ambiguous job recovery, explicit 6056 retries, maintenance, per-job SPAM
 inversion, all six profile outputs and reference mapping. Mocked execution

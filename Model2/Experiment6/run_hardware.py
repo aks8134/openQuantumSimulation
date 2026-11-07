@@ -1,6 +1,7 @@
 """Live Model2 cosine44 population mitigation; default is an offline plan.
 
-Only --execute submits. --resume alone remains offline. Native CZ twirling,
+Only --execute submits. --collect-only recovers known DONE jobs; plain --resume
+remains offline. Native CZ twirling,
 folding and balanced terminal masks reuse the tested Model3 protocol. The
 frozen Model2 input, per-job controls, compiled QPY and job IDs are retained.
 """
@@ -8,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import gc
 import importlib.metadata
 import json
 from pathlib import Path
@@ -28,6 +30,7 @@ from Model2.Experiment5 import input_data, instruction_audit, qpy_storage
 from Model2.Experiment5 import run_hardware as raw
 from Model3.Experiment5 import mitigation as mit, run_mitigation as protocol
 from Model3.Experiment5.analyze_hardware import serializable
+from Model2.Experiment6.progress import progress
 
 EXPERIMENT = "Model2/Experiment6/hardware_mitigation_v1"
 SAMPLER_OPTIONS = protocol.SAMPLER_OPTIONS
@@ -65,6 +68,7 @@ def parse_arguments(arguments=None):
     action.add_argument("--plan-only", action="store_true")
     action.add_argument("--compile-only", action="store_true")
     action.add_argument("--execute", action="store_true")
+    action.add_argument("--collect-only", action="store_true", help="requires --resume; collect known DONE jobs without submission, QPY loading, or analysis")
     action.add_argument("--analyze-only", action="store_true", help="requires --resume; no account or submission")
     action.add_argument("--inspect-job", metavar="JOB_ID", help="requires --resume; read-only provider status/error/usage")
     parser.add_argument("--retry-failed-job", metavar="JOB_ID", help="explicit terminal ERROR/6056 retry; requires --resume --execute")
@@ -73,18 +77,22 @@ def parse_arguments(arguments=None):
     parser.add_argument("--resume", type=Path, metavar="MANIFEST")
     parser.add_argument("--output-directory", type=Path, default=DIRECTORY/"hardware_runs")
     parser.add_argument("--analysis-output-directory", type=Path)
+    parser.add_argument("--verify-circuits", action="store_true", help="opt in to expensive QPY deserialization during analysis")
+    parser.add_argument("--include-qpy", action="store_true", help="include compiled archives in the transfer ZIP; can be very large")
+    parser.add_argument("--include-job-metrics", action="store_true", help="request optional provider metrics after each result checkpoint")
     options = parser.parse_args(argv)
-    if (options.analyze_only or options.inspect_job) and not options.resume:
-        raise ValueError("analysis/inspection requires --resume MANIFEST")
+    if (options.analyze_only or options.inspect_job or options.collect_only) and not options.resume:
+        raise ValueError("analysis/inspection/collection requires --resume MANIFEST")
     if options.retry_failed_job and not (options.resume and options.execute):
         raise ValueError("retry requires --resume MANIFEST --execute")
     if options.allow_calibration_drift and not (options.resume and (options.execute or options.compile_only)):
         raise ValueError("allow-calibration-drift requires --resume and --execute or --compile-only")
     if options.resume:
         allowed = {"--resume", "--execute", "--compile-only", "--plan-only", "--analyze-only", "--inspect-job",
-                   "--retry-failed-job", "--allow-calibration-drift", "--account-file", "--analysis-output-directory"}
+                   "--retry-failed-job", "--allow-calibration-drift", "--account-file", "--analysis-output-directory",
+                   "--collect-only", "--verify-circuits", "--include-qpy", "--include-job-metrics"}
         if any(word.split("=", 1)[0] not in allowed for word in argv if word.startswith("--")):
-            raise ValueError("resume uses saved scientific/run settings; only action, account and analysis output may change")
+            raise ValueError("resume uses saved scientific/run settings; only action, account and local recovery/output options may change")
         return options
     if (not 2 <= options.trajectory_count <= 16384 or min(options.seed, options.seed_transpiler) < 0
             or options.bootstrap < 100 or not options.backend.strip() or options.randomizations < 2
@@ -219,7 +227,7 @@ def verify_manifest(manifest, source=None):
             raise ValueError("source does not match the frozen Model2 physics, paths or preparation")
 
 
-def read_saved(path, *, require_circuits=False):
+def read_saved(path, *, require_circuits=False, check_circuits=True):
     folder = path.resolve().parent
     manifest = json.loads(path.read_text())
     if manifest.get("plan_sha256") != plan_hash(manifest):
@@ -235,6 +243,8 @@ def read_saved(path, *, require_circuits=False):
     for batch in manifest["batches"]:
         if not batch["compiled"]:
             continue
+        if not check_circuits and not require_circuits:
+            continue  # Collection/count analysis does not consume QPY assets.
         archive = folder/batch["isa_file"]
         if not archive.exists():
             if require_circuits:
@@ -511,30 +521,209 @@ def inspect_job(options, service=None, backend=None):
     return details
 
 
-def bundle(folder, manifest, output=None):
+def validate_observations(observations, records):
+    if len(observations) != len(records):
+        raise ValueError("Runtime returned an unexpected number of circuit results")
+    for observation, row in zip(observations, records):
+        counts = observation.get("outcome_counts", {})
+        if (not counts or any(not re.fullmatch(r"[01]{10}", key) for key in counts)
+                or any(type(value) is not int or value < 0 for value in counts.values())
+                or sum(counts.values()) != row["shots"]):
+            raise ValueError("invalid ten-bit Runtime counts or shot total differs from the plan")
+
+
+def counts_journal(folder, manifest, index):
+    """An interrupted manifest write can recover this already-saved job locally."""
+    batch = manifest["batches"][index]
+    name = f"job_{index:04d}_counts.json"
+    if batch.get("counts_file", name) != name:
+        raise ValueError("unexpected saved count-journal name")
+    path = folder/name
+    if not path.exists():
+        if batch.get("counts_file"):
+            raise ValueError("recorded count journal is missing")
+        return None
+    if batch.get("counts_sha256") and qpy_storage.file_sha256(path) != batch["counts_sha256"]:
+        raise ValueError("count-journal hash mismatch")
+    with progress(f"Reading saved count journal for job {index+1}"):
+        with path.open() as handle:
+            saved = json.load(handle)
+    identity = dict(artifact_type="model2_mitigation_job_counts_v1", experiment=EXPERIMENT,
+        plan_sha256=manifest["plan_sha256"], batch=index, job_id=batch["job_id"],
+        start=batch["start"], stop=batch["stop"])
+    if any(saved.get(key) != value for key, value in identity.items()):
+        raise ValueError("count journal belongs to a different job or plan")
+    validate_observations(saved["observations"], manifest["circuits"][batch["start"]:batch["stop"]])
+    return saved
+
+
+def checkpoint_result(folder, manifest, index, saved):
+    batch = manifest["batches"][index]
+    name = f"job_{index:04d}_counts.json"
+    if saved is None:
+        raise ValueError("missing saved result")
+    batch.update(observations=saved["observations"], status="collected",
+        collected_at_utc=saved["collected_at_utc"], counts_file=name,
+        counts_sha256=qpy_storage.file_sha256(folder/name))
+    with progress(f"Checkpointing manifest after job {index+1}/{len(manifest['batches'])}"):
+        checkpoint(manifest, folder)
+    print(f"Collected job {index+1}/{len(manifest['batches'])}: {batch['job_id']}", flush=True)
+
+
+def collect_job(folder, manifest, index, job, *, include_metrics=False):
+    batch = manifest["batches"][index]
+    records = manifest["circuits"][batch["start"]:batch["stop"]]
+    with progress(f"Waiting/downloading/decoding results for job {index+1}: {batch['job_id']}"):
+        result = job.result()
+    if len(result) != len(records):
+        raise ValueError("Runtime returned an unexpected number of circuit results")
+    observations = []
+    with progress(f"Extracting final-register counts for {len(records):,} circuits in job {index+1}"):
+        for position, pub in enumerate(result, 1):
+            observations.append(dict(outcome_counts={str(k): int(v)
+                for k, v in pub.data.outcome.get_counts().items()}))
+            if position % 1000 == 0:
+                print(f"  Counts extracted: {position:,}/{len(records):,}", flush=True)
+        validate_observations(observations, records)
+    del result, pub  # Do not retain SDK result objects during disk writes.
+    gc.collect()
+    saved = dict(artifact_type="model2_mitigation_job_counts_v1", experiment=EXPERIMENT,
+        plan_sha256=manifest["plan_sha256"], batch=index, job_id=batch["job_id"],
+        start=batch["start"], stop=batch["stop"], observations=observations,
+        collected_at_utc=datetime.now(timezone.utc).isoformat())
+    with progress(f"Saving count journal for job {index+1}"):
+        atomic_json(folder/f"job_{index:04d}_counts.json", saved)
+    checkpoint_result(folder, manifest, index, saved)
+    if include_metrics:
+        try:
+            with progress(f"Requesting optional metrics for job {index+1}; counts already checkpointed"):
+                batch["job_metrics"] = json.loads(json.dumps(job.metrics(), default=str))
+        except Exception as error:
+            batch["job_metrics_unavailable"] = str(error)
+        with progress(f"Saving optional metrics for job {index+1}"):
+            checkpoint(manifest, folder)
+
+
+def collect_existing(folder, manifest, options, service=None):
+    """No Sampler, backend, calibration query, QPY load, waiting on active jobs, or retry."""
+    pending = [(i, b) for i, b in enumerate(manifest["batches"]) if b.get("observations") is None]
+    if pending:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+        backup = folder/f"manifest.before_collect_{stamp}.json"
+        with progress("Backing up the current manifest"):
+            shutil.copy2(folder/"manifest.json", backup)
+        print(f"Backup: {backup}", flush=True)
+    for index, batch in pending:
+        if not batch.get("job_id"):
+            print(f"Job {index+1}: no saved ID ({batch['status']}); left unchanged", flush=True)
+            continue
+        saved = counts_journal(folder, manifest, index)
+        if saved is not None:
+            checkpoint_result(folder, manifest, index, saved)
+            del saved
+            continue
+        if service is None:
+            service = raw.runtime.make_service(options)
+        with progress(f"Checking known job {index+1}: {batch['job_id']}"):
+            job = service.job(batch["job_id"])
+            status = job.status()
+            status = str(getattr(status, "name", status)).upper()
+        print(f"Job {index+1}: {status}", flush=True)
+        if status != "DONE":
+            print("  Left unchanged; collection only retrieves DONE jobs.", flush=True)
+            continue
+        collect_job(folder, manifest, index, job, include_metrics=options.include_job_metrics)
+        del job
+    complete = all(b.get("observations") is not None for b in manifest["batches"])
+    if complete and manifest["status"] != "collected":
+        manifest["status"] = "collected"
+        with progress("Saving final collection checkpoint"):
+            checkpoint(manifest, folder)
+    count = sum(b.get("observations") is not None for b in manifest["batches"])
+    print(f"Collection: {count}/{len(manifest['batches'])} jobs saved. No jobs submitted. "
+          "No analysis or ZIP packaging performed.", flush=True)
+    return manifest
+
+
+def collect_and_submit(manifest, folder, publications, service, backend, sampler_factory=None, *, include_metrics=False):
+    """Execution keeps submission safeguards and releases circuits before collection."""
+    sampler = None
+    for index, batch in enumerate(manifest["batches"]):
+        if batch.get("observations") is not None:
+            continue
+        if batch.get("job_id"):
+            saved = counts_journal(folder, manifest, index)
+            if saved is not None:
+                checkpoint_result(folder, manifest, index, saved)
+                del saved
+                continue
+            with progress(f"Retrieving known job {index+1}: {batch['job_id']}"):
+                job = service.job(batch["job_id"])
+        else:
+            if batch["status"] == "submitting":
+                raise ValueError("submission interrupted before its job ID was saved; reconcile with IBM; no automatic retry")
+            with progress(f"Loading and validating circuits for job {index+1}"):
+                selected = publications[batch["start"]:batch["stop"]]
+            records = manifest["circuits"][batch["start"]:batch["stop"]]
+            programs = [(circuit, None, row["shots"]) for circuit, row in zip(selected, records)]
+            raw.backend_readiness(backend, require_ready=True)
+            if sampler is None:
+                if sampler_factory is None:
+                    from qiskit_ibm_runtime import SamplerV2
+                    sampler_factory = SamplerV2
+                sampler = sampler_factory(mode=backend, options=SAMPLER_OPTIONS)
+            batch["status"] = "submitting"
+            checkpoint(manifest, folder)
+            with progress(f"Submitting job {index+1}"):
+                job = sampler.run(programs, shots=manifest["configuration"]["shots"])
+                job_id = job.job_id()
+                if not isinstance(job_id, str) or not job_id.strip():
+                    raise ValueError("submission returned no usable job ID; reconcile with IBM before resuming; no automatic retry")
+                batch.update(job_id=job_id, status="submitted")
+                checkpoint(manifest, folder)
+            print(f"Submitted job {job_id}: circuits {batch['start']}..{batch['stop']-1}", flush=True)
+            del selected, programs, records
+            gc.collect()
+        collect_job(folder, manifest, index, job, include_metrics=include_metrics)
+        del job
+    manifest["status"] = "collected"
+    with progress("Saving final collection checkpoint"):
+        checkpoint(manifest, folder)
+
+
+def bundle(folder, manifest, output=None, *, include_qpy=False):
     names = ["manifest.json", "source.json", "spec.json", "Plan.md", "selected_path.json", "backend_snapshot.json",
              "execution_backend_snapshot.json", "hardware_results.json", "last_job_diagnostic.json"]
-    names += [batch["isa_file"] for batch in manifest["batches"] if batch.get("isa_file")]
+    if include_qpy:
+        names += [batch["isa_file"] for batch in manifest["batches"] if batch.get("isa_file")]
+    names += [batch["counts_file"] for batch in manifest["batches"] if batch.get("counts_file")]
     names += [check["file"] for check in manifest.get("resume_calibration_checks", [])]
     names += [check["previous_execution_snapshot"]["file"] for check in manifest.get("resume_calibration_checks", [])
               if check.get("previous_execution_snapshot")]
-    with zipfile.ZipFile(folder/"results_bundle.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    temporary = folder/"results_bundle.zip.partial"
+    with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for name in dict.fromkeys(names):
             if (folder/name).exists():
-                archive.write(folder/name, arcname=name)
+                with progress(f"Packing {name}"):
+                    archive.write(folder/name, arcname=name)
         if output is not None:
             for path in output.iterdir():
                 if path.is_file():
                     archive.write(path, arcname="analysis/"+path.name)
+    temporary.replace(folder/"results_bundle.zip")
 
 
-def finish_analysis(folder, manifest, output=None):
+def finish_analysis(folder, manifest, output=None, *, source=None, verify_circuits=False, include_qpy=False):
     from Model2.Experiment6.analyze_hardware import analyze
-    report = analyze(folder)
+    gc.collect()
+    report = analyze(folder, manifest=manifest, source=source, verify_circuits=verify_circuits)
     output = output or DIRECTORY/"analysis"/folder.name
-    protocol.save_analysis(report, output)
-    atomic_json(folder/"hardware_results.json", serializable(report))
-    bundle(folder, manifest, output)
+    with progress("Writing analysis tables and plots"):
+        protocol.save_analysis(report, output)
+    with progress("Saving hardware_results.json"):
+        atomic_json(folder/"hardware_results.json", serializable(report))
+    print(f"Analysis saved: {output/'Analysis.md'}", flush=True)
+    bundle(folder, manifest, output, include_qpy=include_qpy)
     print(f"Analysis: {output/'Analysis.md'}\nTransfer: {folder/'results_bundle.zip'}", flush=True)
     return report
 
@@ -543,7 +732,8 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
     if options.inspect_job:
         return inspect_job(options, service, backend)
     if options.resume:
-        folder, manifest, source = read_saved(options.resume)
+        with progress("Reading and validating the saved plan and source"):
+            folder, manifest, source = read_saved(options.resume, check_circuits=False)
     else:
         folder, manifest, source = new_plan(options)
     config = manifest["configuration"]
@@ -554,15 +744,19 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
     print(f"Plan: {folder/'manifest.json'}", flush=True)
     print(f"Mitigation: {config['total_jobs']} jobs, {config['total_circuits']:,} circuits, {config['total_shots']:,} shots", flush=True)
     print(f"Finite-path assessment: {source['finite_path_assessment']}", flush=True)
+    if options.collect_only:
+        return collect_existing(folder, manifest, options, service)
     if options.analyze_only:
-        return finish_analysis(folder, manifest, options.analysis_output_directory)
+        return finish_analysis(folder, manifest, options.analysis_output_directory, source=source,
+            verify_circuits=options.verify_circuits, include_qpy=options.include_qpy)
     if not options.execute and not options.compile_only:
         print("Offline plan only; no account loaded, backend queried, or jobs submitted.", flush=True)
         return manifest
     if manifest["status"] == "collected":
         if options.retry_failed_job:
             raise ValueError("collected mitigation runs cannot be retried")
-        return finish_analysis(folder, manifest, options.analysis_output_directory)
+        return finish_analysis(folder, manifest, options.analysis_output_directory, source=source,
+            verify_circuits=options.verify_circuits, include_qpy=options.include_qpy)
     if any(b["status"] == "submitting" and not b.get("job_id") for b in manifest["batches"]):
         raise ValueError("submission interrupted before its job ID was saved; reconcile with IBM; no automatic retry")
     retry = None
@@ -590,7 +784,7 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
     else:
         publications = Publications(manifest, folder, backend)
     if options.compile_only:
-        bundle(folder, manifest)
+        bundle(folder, manifest, include_qpy=options.include_qpy)
         print(f"Compiled only; no jobs submitted. Execute with --resume {folder/'manifest.json'} --execute", flush=True)
         return manifest
     if service is None and sampler_factory is None:
@@ -611,18 +805,23 @@ def main(options, *, backend=None, service=None, sampler_factory=None):
         print(f"Explicit retry of {options.retry_failed_job}; previous ID/error/usage retained.", flush=True)
     from qiskit_ibm_runtime.exceptions import RuntimeJobFailureError
     try:
-        raw.runtime.collect_and_submit(manifest, folder, publications, service, backend, sampler_factory,
-                                       before_submit=lambda: raw.backend_readiness(backend, require_ready=True))
+        collect_and_submit(manifest, folder, publications, service, backend, sampler_factory,
+                           include_metrics=options.include_job_metrics)
     except RuntimeJobFailureError as error:
         batch = next(b for b in manifest["batches"] if b.get("job_id") and b.get("observations") is None)
         batch["last_result_error"] = str(error)
         checkpoint(manifest, folder)
         raise ValueError(f"IBM failed mitigation job {batch['job_id']}; saved ID retained. Use --resume MANIFEST --inspect-job JOB_ID; no automatic resubmission. {error}") from error
-    return finish_analysis(folder, manifest, options.analysis_output_directory)
+    return finish_analysis(folder, manifest, options.analysis_output_directory, source=source,
+        verify_circuits=options.verify_circuits, include_qpy=options.include_qpy)
 
 
 if __name__ == "__main__":
     try:
         main(parse_arguments())
+    except KeyboardInterrupt:
+        print("\nLocal process stopped; existing checkpoints retained. "
+              "Use --resume MANIFEST --collect-only to recover recorded job IDs.", flush=True)
+        raise SystemExit(130) from None
     except (ValueError, OSError) as error:
         raise SystemExit(str(error)) from error

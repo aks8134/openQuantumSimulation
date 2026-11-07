@@ -1,0 +1,184 @@
+{
+  "archive": "Model2/Experiment7/hardware_runs/dd44_hardware_20261107T185806_072208Z.zip",
+  "archive_sha256": "a6a69ccf00629b7f1ed84078dd2be31ed7c041c204c0e1548b486e9141a042af",
+  "job_id": "dbnn9idt7fqc73ajtifg",
+  "submission_mode": "hardware",
+  "status": "collected",
+  "trajectory_count": 4,
+  "shots_per_basis_arm": 256,
+  "total_shots": 27648,
+  "matched_arms": [
+    "baseline",
+    "dd_ratio_2",
+    "dd_ratio_10"
+  ],
+  "plan_sha256_verified": true,
+  "available_asset_hashes_verified": {
+    "source.json": true,
+    "spec.json": true,
+    "dd_policy.json": true,
+    "backend_snapshot.json": true,
+    "dd_windows_00000.json": true,
+    "dd_windows_00001.json": true,
+    "dd_windows_00002.json": true,
+    "dd_windows_00003.json": true
+  },
+  "raw_result_sha256_verified": true,
+  "omitted_qpy_assets": [
+    "controls.qpy",
+    "native_00000.qpy",
+    "scheduled_00000.qpy",
+    "native_00001.qpy",
+    "scheduled_00001.qpy",
+    "native_00002.qpy",
+    "scheduled_00002.qpy",
+    "native_00003.qpy",
+    "scheduled_00003.qpy"
+  ],
+  "saved_observables_reproduced_from_raw_counts": true,
+  "metrics": [
+    {
+      "arm": "baseline",
+      "populations_max_error": 0.15474995927594723,
+      "populations_rmse": 0.08816541168678863,
+      "populations_worst_index_1based": 2,
+      "excitation_flows_max_error": 0.03391496976794065,
+      "excitation_flows_rmse": 0.01954320952737766,
+      "excitation_flows_worst_index_1based": 5,
+      "maximum_error": 0.15474995927594723,
+      "combined_rmse": 0.06536087334608169,
+      "maximum_error_reduction_vs_baseline_percent": 0.0,
+      "combined_rmse_reduction_vs_baseline_percent": 0.0
+    },
+    {
+      "arm": "dd_ratio_2",
+      "populations_max_error": 0.11080464677594723,
+      "populations_rmse": 0.07797235478341955,
+      "populations_worst_index_1based": 2,
+      "excitation_flows_max_error": 0.024256960781121918,
+      "excitation_flows_rmse": 0.012442039797505565,
+      "excitation_flows_worst_index_1based": 3,
+      "maximum_error": 0.11080464677594723,
+      "combined_rmse": 0.05721157423091889,
+      "maximum_error_reduction_vs_baseline_percent": 28.39762459752092,
+      "combined_rmse_reduction_vs_baseline_percent": 12.46816129890551,
+      "mean_added_x_per_evolution_circuit": 881.0,
+      "mean_protected_windows_per_evolution_circuit": 440.5,
+      "added_x_range": [
+        868,
+        892
+      ],
+      "mean_protected_idle_qubit_us": 447.3500000000001
+    },
+    {
+      "arm": "dd_ratio_10",
+      "populations_max_error": 0.09420308427594723,
+      "populations_rmse": 0.07565864441084204,
+      "populations_worst_index_1based": 2,
+      "excitation_flows_max_error": 0.020630102471795017,
+      "excitation_flows_rmse": 0.013197958849934,
+      "excitation_flows_worst_index_1based": 7,
+      "maximum_error": 0.09420308427594723,
+      "combined_rmse": 0.05563507971410586,
+      "maximum_error_reduction_vs_baseline_percent": 39.12561611213994,
+      "combined_rmse_reduction_vs_baseline_percent": 14.880146384333582,
+      "mean_added_x_per_evolution_circuit": 492.0,
+      "mean_protected_windows_per_evolution_circuit": 246.0,
+      "added_x_range": [
+        430,
+        530
+      ],
+      "mean_protected_idle_qubit_us": 367.35400000000004
+    }
+  ],
+  "controls": [
+    {
+      "arm": "baseline",
+      "control": "all_zero",
+      "maximum_error": 0.01318359375,
+      "mean_error": 0.005859375,
+      "maximum_absolute_shot_z": 5.229469647645516
+    },
+    {
+      "arm": "dd_ratio_2",
+      "control": "all_zero",
+      "maximum_error": 0.01416015625,
+      "mean_error": 0.005419921875,
+      "maximum_absolute_shot_z": 5.422377642389133
+    },
+    {
+      "arm": "dd_ratio_10",
+      "control": "all_zero",
+      "maximum_error": 0.0107421875,
+      "mean_error": 0.00546875,
+      "maximum_absolute_shot_z": 4.714661762842158
+    },
+    {
+      "arm": "baseline",
+      "control": "all_one",
+      "maximum_error": 0.015625,
+      "mean_error": -0.009716796875,
+      "maximum_absolute_shot_z": 5.700181005201808
+    },
+    {
+      "arm": "dd_ratio_2",
+      "control": "all_one",
+      "maximum_error": 0.01708984375,
+      "mean_error": -0.009619140625,
+      "maximum_absolute_shot_z": 5.965832504890107
+    },
+    {
+      "arm": "dd_ratio_10",
+      "control": "all_one",
+      "maximum_error": 0.01513671875,
+      "mean_error": -0.009619140625,
+      "maximum_absolute_shot_z": 5.6090178117999185
+    },
+    {
+      "arm": "baseline",
+      "control": "half_mixed",
+      "maximum_error": 0.02197265625,
+      "mean_error": -0.006884765625,
+      "maximum_absolute_shot_z": 1.9901748631849505
+    },
+    {
+      "arm": "dd_ratio_2",
+      "control": "half_mixed",
+      "maximum_error": 0.0283203125,
+      "mean_error": -0.003515625,
+      "maximum_absolute_shot_z": 2.566756800281136
+    },
+    {
+      "arm": "dd_ratio_10",
+      "control": "half_mixed",
+      "maximum_error": 0.0185546875,
+      "mean_error": 0.003759765625,
+      "maximum_absolute_shot_z": 1.6801258046886614
+    }
+  ],
+  "finite_path_assessment": {
+    "ideal_subset_target_error": 0.11861714677594723,
+    "sampling_distance": 0.13403526349403264,
+    "maximum_two_standard_errors": 0.2955231822690891,
+    "empirical_classical_checks_passed": false,
+    "scope": "This exact finite path ensemble, analytic initial mixture, no measurement shots or device noise; two SE descriptive. Full 16384-path validation is separate."
+  },
+  "server_checks": 24,
+  "all_non_x_anchors_equal": true,
+  "all_added_x_match": true,
+  "all_circuit_end_times_equal": true,
+  "physical_path": [
+    38,
+    48,
+    47,
+    57,
+    56,
+    66,
+    76,
+    86,
+    96,
+    97,
+    98,
+    108
+  ]
+}
