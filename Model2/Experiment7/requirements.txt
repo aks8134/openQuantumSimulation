@@ -1,0 +1,6 @@
+# Use a separate environment; do not upgrade an interrupted hardware runner.
+qiskit>=2.5.2,<3
+qiskit-ibm-runtime[visualization]>=0.51,<0.52
+numpy>=2.0
+scipy>=1.13
+matplotlib>=3.9
