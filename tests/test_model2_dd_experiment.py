@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+from collections import Counter
 import importlib.util
 import json
 from pathlib import Path
@@ -85,7 +86,7 @@ def fake_collect(folder, *, dry_run=True):
             else:
                 counts = {"0"*10: shots//2, "1"*10: shots-shots//2}
             text = compiler_text()
-            if row.get("arm") == "dd" and row["kind"] == "evolution":
+            if row.get("arm") != "baseline" and row["kind"] == "evolution":
                 for q, count in row["dd_check"]["added_x_by_qubit"].items():
                     text += "".join(f"main,x_{q},Qubit {q},{30+i},1,play\n" for i in range(count))
             pubs.append(dict(pub_index=row["pub_index"], timing=text, outcome_counts=counts))
@@ -406,3 +407,83 @@ def test_partial_render_resumes_completed_views_and_repairs_changed_html(scout, 
     assert draw.call_count == 1 and draw.call_args.kwargs["channels"] is None
     assert (out/"server_comparison_path_0_z.json").exists()
     assert not (out/"server_comparison.json").exists()
+
+
+def test_three_arm_threshold_comparison_end_to_end(scout, tmp_path):
+    b, folder = copy_scout(scout, tmp_path)
+    fake_collect(folder)
+    policy_path = tmp_path/"two_cutoffs.json"
+    policy = run.create_policy(run.parse_arguments(["policy", "--manifest", str(folder/"manifest.json"),
+        "--system-sites", *map(str, range(1, 11)), "--min-idle-ratios", "2", "10",
+        "--note", "Compare broad and selective XX using identical inspected paths", "--output", str(policy_path)]))
+    assert policy["artifact_type"] == "model2_dd_policy_comparison_v1"
+    assert policy["min_idle_ratios"] == [2., 10.]
+    options = run.parse_arguments(["apply-policy", "--manifest", str(folder/"manifest.json"),
+        "--policy", str(policy_path), "--shots", "16", "--control-shots", "32",
+        "--batch-size", "27", "--output-directory", str(tmp_path)])
+    with patch.object(timing, "schedule", wraps=timing.schedule) as schedules:
+        paired, m = run.apply_policy(options, backend=b)
+    ratios = Counter(call.kwargs["policy"]["min_idle_ratio"] for call in schedules.call_args_list if call.kwargs.get("policy"))
+    assert ratios == {2.: 6, 10.: 6}
+    arms = ["baseline", "dd_ratio_2", "dd_ratio_10"]
+    assert m["configuration"]["arms"] == arms
+    assert len(m["batches"]) == 1 and len(m["circuits"]) == 27
+    assert m["configuration"]["total_shots"] == 2*3*3*16+3*3*32
+    assert m["files"]["scheduled_00000.qpy"]["circuit_count"] == 9
+    assert m["files"]["controls.qpy"]["circuit_count"] == 9
+    assert len(run.load_qpy(paired, m, "scheduled_00000.qpy")) == 9
+    permutations = set()
+    for trajectory in range(2):
+        for basis in ("z", "xy", "yx"):
+            rows = [r for r in m["circuits"] if r["kind"] == "evolution"
+                    and r["trajectory"] == trajectory and r["basis"] == basis]
+            assert len(rows) == 3 and {r["arm"] for r in rows} == set(arms)
+            permutations.add(tuple(r["arm"] for r in rows))
+            counts = {r["arm"]: r["dd_check"]["added_x_pulses"] for r in rows if r["arm"] != "baseline"}
+            assert counts["dd_ratio_2"] >= counts["dd_ratio_10"]
+    assert len(permutations) == 6
+    for arm in arms:
+        assert {r["control"] for r in m["circuits"] if r["kind"] == "control" and r["arm"] == arm} == set(run.CONTROLS)
+    fake_collect(paired)
+    with patch.object(timing, "draw", side_effect=fake_draw) as draw:
+        checks = run.render(run.parse_arguments(["render", "--manifest", str(paired/"manifest.json"),
+            "--trajectory", "0", "--basis", "z", "--view", "full"]))
+    assert len(checks) == 2 and draw.call_count == 3
+    assert {v["arm"] for v in checks} == set(arms[1:])
+    clone_options = run.parse_arguments(["clone-for-hardware", "--manifest", str(paired/"manifest.json"),
+                                        "--output-directory", str(tmp_path)])
+    clone, cloned = run.clone_for_hardware(clone_options)
+    assert cloned["files"] == m["files"] and all(b["job_id"] is None for b in cloned["batches"])
+    fake_collect(clone, dry_run=False)
+    report = analyze(clone/"manifest.json")
+    assert len(report["server_timing_checks"]) == 12
+    assert set(report["method_errors"]) == set(arms)
+    assert len(report["error_comparisons"]) == 3
+    direct = report["observables"]["populations"]["comparisons"]["dd_ratio_10_minus_dd_ratio_2"]
+    assert direct["reference"] == "dd_ratio_2" and direct["treatment"] == "dd_ratio_10"
+    np.testing.assert_allclose(direct["difference"], 0)
+    # Two independent 16-shot PUBs per path, averaged over two paths. Baseline
+    # variance must not be added to the direct DD-policy contrast.
+    np.testing.assert_allclose(direct["shot_standard_errors_fixed_paths"], np.sqrt(2*.25/(16-1)/2))
+    assert (clone/"analysis"/"method_errors.csv").exists()
+    # A failure unique to the second policy must block preflight cloning too.
+    _, changed, _ = run.read_saved(paired/"manifest.json")
+    batch = changed["batches"][0]; result_path = paired/batch["result_file"]
+    result = json.loads(result_path.read_text())
+    for row, pub in zip(changed["circuits"], result["pubs"]):
+        if row["arm"] == "dd_ratio_10" and row.get("dd_check", {}).get("added_x_pulses", 0):
+            pub["timing"] = compiler_text(); break
+    else:
+        raise AssertionError("test needs a nonempty second policy")
+    atomic_json(result_path, result); batch["result_sha256"] = run.qpy_storage.file_sha256(result_path)
+    run.checkpoint(paired, changed)
+    with pytest.raises(ValueError, match="service timing changed"):
+        run.clone_for_hardware(clone_options)
+
+
+@pytest.mark.parametrize("ratios", [(10, 2), (2, 2), (1, 10), (2, float("inf"))])
+def test_comparison_policy_rejects_invalid_ratios(tmp_path, ratios):
+    with pytest.raises(SystemExit):
+        run.parse_arguments(["policy", "--manifest", str(tmp_path/"manifest.json"),
+            "--system-sites", "1", "--min-idle-ratios", *map(str, ratios),
+            "--note", "invalid ratio test", "--output", str(tmp_path/"policy.json")])

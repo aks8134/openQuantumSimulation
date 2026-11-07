@@ -43,6 +43,7 @@ SAMPLER_OPTIONS = {"dynamical_decoupling": {"enable": False},
     "experimental": {"execution": {"scheduler_timing": True}}}
 CONTROLS = {"all_zero": 0., "all_one": 1., "half_mixed": .5}
 MAX_QPY_SHARD_BYTES = 64*1024*1024
+MAX_QPY_SHARD_CIRCUITS = 9
 
 
 def parse_arguments(arguments=None):
@@ -92,7 +93,9 @@ def parse_arguments(arguments=None):
             mode.add_argument("--hardware", action="store_true", help="real QPU shots; consumes allocation")
         if name == "policy":
             p.add_argument("--system-sites", type=int, nargs="+", required=True, help="explicit 1-based system sites, never bath indices")
-            p.add_argument("--min-idle-ratio", type=float, default=2., help="idle duration must exceed this times the two X pulse durations")
+            ratios = p.add_mutually_exclusive_group()
+            ratios.add_argument("--min-idle-ratio", type=float, default=2., help="idle duration must exceed this times the two X pulse durations")
+            ratios.add_argument("--min-idle-ratios", type=float, nargs=2, help="two increasing ratios for one matched baseline + two-DD-arm comparison; e.g. 2 10")
             p.add_argument("--note", required=True, help="what the server schedule showed and why these sites were chosen")
             p.add_argument("--output", type=Path, required=True)
     a = parser.parse_args(arguments)
@@ -107,10 +110,13 @@ def parse_arguments(arguments=None):
             parser.error("physical-path requires twelve distinct nonnegative physical qubits")
         if a.calibration_policy == "record-only" and not a.physical_path:
             parser.error("record-only requires an explicit physical path")
-    if a.action == "policy" and (not np.isfinite(a.min_idle_ratio) or a.min_idle_ratio < 2
-            or not a.note.strip() or len(set(a.system_sites)) != len(a.system_sites)
-            or min(a.system_sites) < 1 or max(a.system_sites) > 10):
-        parser.error("choose distinct system sites 1..10, finite ratio >=2 and a nonempty inspection note")
+    if a.action == "policy":
+        ratios = a.min_idle_ratios or [a.min_idle_ratio]
+        if (any(not np.isfinite(r) or r < 2 for r in ratios)
+                or any(b <= x for x, b in zip(ratios, ratios[1:]))
+                or not a.note.strip() or len(set(a.system_sites)) != len(a.system_sites)
+                or min(a.system_sites) < 1 or max(a.system_sites) > 10):
+            parser.error("choose distinct system sites 1..10, increasing finite ratios >=2 and a nonempty inspection note")
     if a.action == "render" and a.trajectory is not None and a.trajectory < 0:
         parser.error("trajectory is a nonnegative saved index")
     return a
@@ -159,6 +165,9 @@ def read_saved(path, *, check_files=True):
     c = m["configuration"]
     if c["spec_sha256"] != input_data.SPEC_SHA256 or c["sampler_options"] != SAMPLER_OPTIONS:
         raise ValueError("frozen physics or sampler options changed")
+    policies = dd_policies(c["policy"]) if c.get("policy") is not None else {}
+    if c["arms"] != ["baseline", *policies]:
+        raise ValueError("saved arm labels differ from their DD policies")
     if check_files:
         for name, details in m["files"].items():
             if Path(name).name != name or qpy_storage.file_sha256(folder/name) != details["sha256"]:
@@ -186,9 +195,9 @@ def save_qpy(folder, manifest, name, programs):
 def load_qpy(folder, manifest, name):
     details = manifest["files"][name]
     # Qiskit 2.6 requires the Rust decoder for new QPY versions. Public load is
-    # safe here because each file is bounded to one path (<=6 circuits) or its
+    # safe here because each file is bounded to one path (<=9 circuits) or its
     # controls. Never hand this reader a monolithic experiment archive.
-    if not 1 <= details["circuit_count"] <= 6 or (folder/name).stat().st_size > MAX_QPY_SHARD_BYTES:
+    if not 1 <= details["circuit_count"] <= MAX_QPY_SHARD_CIRCUITS or (folder/name).stat().st_size > MAX_QPY_SHARD_BYTES:
         raise ValueError("QPY shard exceeds the bounded per-path size/count limit")
     if qpy_storage.file_sha256(folder/name) != details["sha256"]:
         raise ValueError("saved QPY hash mismatch")
@@ -282,6 +291,10 @@ def create_policy(options):
         physical_qubits=[m["configuration"]["physical_path"][s] for s in sites],
         min_idle_ratio=options.min_idle_ratio, skip_reset_qubits=True, insert_multiple_cycles=False,
         inspected_at_utc=datetime.now(timezone.utc).isoformat(), inspection_note=options.note)
+    if getattr(options, "min_idle_ratios", None) is not None:
+        p.pop("min_idle_ratio")
+        p.update(artifact_type="model2_dd_policy_comparison_v1", min_idle_ratios=options.min_idle_ratios)
+    dd_policies(p)
     if options.output.exists():
         raise ValueError("policy output already exists; use a new filename")
     atomic_json(options.output, p)
@@ -289,25 +302,64 @@ def create_policy(options):
     return p
 
 
+def dd_policies(policy):
+    """Map saved policy parameters to stable arm names, including legacy runs."""
+    kind = policy.get("artifact_type")
+    if kind == "model2_dd_policy_v1":
+        ratios, names = [policy.get("min_idle_ratio")], ["dd"]
+    elif kind == "model2_dd_policy_comparison_v1":
+        ratios = policy.get("min_idle_ratios")
+        if not isinstance(ratios, list) or len(ratios) != 2:
+            raise ValueError("comparison policy requires two increasing DD ratios")
+        names = ["dd_ratio_"+format(r, ".12g").replace(".", "p") for r in ratios
+                 if isinstance(r, (int, float)) and not isinstance(r, bool)]
+    else:
+        raise ValueError("unknown DD policy type")
+    if (any(not isinstance(r, (int, float)) or isinstance(r, bool) or not np.isfinite(r) or r < 2 for r in ratios)
+            or any(b <= a for a, b in zip(ratios, ratios[1:])) or len(set(names)) != len(ratios)):
+        raise ValueError("DD ratios must be finite, distinct, increasing and >=2")
+    return {name: {**policy, "min_idle_ratio": ratio} for name, ratio in zip(names, ratios)}
+
+
+def compare_arm_timings(config, pairs, expected, *, require_complete=False):
+    policies = dd_policies(config["policy"]) if config.get("policy") else {}
+    if require_complete:
+        wanted = {(i, b) for i in range(config["trajectory_count"]) for b in config["measurement_bases"]}
+        if set(pairs) != wanted or any(set(arms) != set(config["arms"]) for arms in pairs.values()):
+            raise ValueError("incomplete matched server timing coverage")
+    checks = []
+    for (trajectory, basis), arms in sorted(pairs.items()):
+        for arm, policy in policies.items():
+            if "baseline" not in arms or arm not in arms:
+                continue
+            checks.append(dict(trajectory=trajectory, basis=basis, arm=arm,
+                min_idle_ratio=policy["min_idle_ratio"],
+                **timing.server_comparison(arms["baseline"], arms[arm],
+                    expected_added_x_by_qubit=expected[trajectory, basis, arm])))
+    return checks
+
+
 def apply_policy(options, *, backend=None, service=None):
     parent, scout, source = read_saved(options.manifest)
     evidence = require_timing(parent, scout)
     c = scout["configuration"]
     p = json.loads(options.policy.read_text())
+    policies = dd_policies(p)
     sites = p.get("system_sites_1based", [])
-    if (c["stage"] != "scout" or p.get("artifact_type") != "model2_dd_policy_v1"
+    if (c["stage"] != "scout"
             or p.get("scout_plan_sha256") != scout["plan_sha256"] or p.get("timing_evidence") != evidence
             or p.get("sequence") != "XX" or p.get("spacings") != [.25, .5, .25]
             or not sites or sites != sorted(set(sites)) or min(sites) < 1 or max(sites) > 10
             or p.get("physical_qubits") != [c["physical_path"][s] for s in sites]
-            or not np.isfinite(p.get("min_idle_ratio", 0)) or p["min_idle_ratio"] < 2
             or p.get("skip_reset_qubits") is not True or p.get("insert_multiple_cycles") is not False
             or not p.get("inspection_note", "").strip()):
         raise ValueError("policy is not a valid inspected system-only XX policy for this scout")
     service, backend = get_backend(options, c["backend"], service=service, backend=backend)
     if timing.timing_model(backend, c["physical_path"]) != c["timing_model"]:
         raise ValueError("target durations/constraints changed since scout; prepare and inspect a fresh scout")
-    config = {**c, "stage": "paired", "arms": ["baseline", "dd"], "policy": p,
+    if options.batch_size < 3*len(policies)+3+(len(policies)+1)*len(c["measurement_bases"]):
+        raise ValueError("batch-size must fit all arms/bases of one path and all arm-local controls")
+    config = {**c, "stage": "paired", "arms": ["baseline", *policies], "policy": p,
         "shots": options.shots, "control_shots": options.control_shots, "batch_size": options.batch_size,
         "run_token": uuid.uuid4().hex[:16], "software_versions": versions(),
         "parent_scout_plan_sha256": scout["plan_sha256"]}
@@ -316,8 +368,8 @@ def apply_policy(options, *, backend=None, service=None):
     raw.runtime.save_backend_snapshot(backend, c["physical_path"], [], folder)
     register_file(folder, m, "backend_snapshot.json")
     compile_experiment(folder, m, source, backend, parent=(parent, scout))
-    if not sum(row.get("dd_check", {}).get("added_x_pulses", 0) for row in m["circuits"]):
-        raise ValueError(f"no eligible DD windows for this policy; nothing should be submitted ({folder})")
+    if m["status"] == "no_eligible_dd_windows":
+        raise ValueError(f"no eligible DD windows for at least one policy; nothing should be submitted ({folder})")
     return folder, m
 
 
@@ -332,10 +384,9 @@ def clone_for_hardware(options):
     for row, pub in saved_pubs(parent, m):
         if row["kind"] == "evolution":
             pairs.setdefault((row["trajectory"], row["basis"]), {})[row["arm"]] = timing.parse_timing(pub["timing"])
-            if row["arm"] == "dd":
-                expected[row["trajectory"], row["basis"]] = row["dd_check"]["added_x_by_qubit"]
-    for key, arms in pairs.items():
-        check = timing.server_comparison(arms["baseline"], arms["dd"], expected_added_x_by_qubit=expected[key])
+            if row["arm"] != "baseline":
+                expected[row["trajectory"], row["basis"], row["arm"]] = row["dd_check"]["added_x_by_qubit"]
+    for check in compare_arm_timings(c, pairs, expected, require_complete=True):
         if (not check["non_x_anchor_timing_equal"] or check["baseline_end_dt"] != check["dd_end_dt"]
                 or not check["added_x_counts_match"]):
             raise ValueError("paired service timing changed; inspect the schedules before designing a new hardware comparison")
@@ -360,6 +411,7 @@ def compile_experiment(folder, m, source, backend, *, parent=None):
     c = m["configuration"]
     layout, path = raw.circuits.chain_layout(backend, 10, "boundary", c["physical_path"])
     controls, groups, group_vectors = [], [], []
+    policies = dd_policies(c["policy"]) if c.get("policy") else {}
     def compile_body(path_index=0, population=None):
         logical = raw.build_body(source, path_index, steps=0 if population is not None else None,
                                  populations=[population]*10 if population is not None else None)
@@ -395,25 +447,37 @@ def compile_experiment(folder, m, source, backend, *, parent=None):
             register_file(folder, m, raw_name, circuit_count=len(originals))
             natives = originals
         programs, rows, checks = [], [], []
-        for basis, native in zip(c["measurement_bases"], natives):
-            baseline, baseline_events = timing.schedule(native, backend.target)
-            decoupled = None
-            if parent is not None:
-                decoupled, dd_events = timing.schedule(native, backend.target, policy=c["policy"])
-                check = timing.verify_pair(baseline, decoupled, baseline_events, dd_events, c["policy"],
-                                           alignment_dt=int(backend.target.pulse_alignment or 1))
-                checks.append(dict(basis=basis, **check))
-            # Alternating requested order limits a fixed baseline-first ordering.
-            arms = c["arms"] if (index+sum(map(ord, basis))) % 2 else c["arms"][::-1]
+        for basis_index, (basis, native) in enumerate(zip(c["measurement_bases"], natives)):
+            with progress(f"Scheduling path {index}, {basis}, baseline"):
+                baseline, baseline_events = timing.schedule(native, backend.target)
+            variants, variant_checks = {"baseline": baseline}, {}
+            for arm, policy in policies.items():
+                with progress(f"Scheduling path {index}, {basis}, {arm}"):
+                    decoupled, dd_events = timing.schedule(native, backend.target, policy=policy)
+                    check = timing.verify_pair(baseline, decoupled, baseline_events, dd_events, policy,
+                                               alignment_dt=int(backend.target.pulse_alignment or 1))
+                checks.append(dict(basis=basis, arm=arm, min_idle_ratio=policy["min_idle_ratio"], **check))
+                variants[arm], variant_checks[arm] = decoupled, check
+            if len(c["arms"]) <= 2:
+                arms = c["arms"] if (index+sum(map(ord, basis))) % 2 else c["arms"][::-1]
+            else:
+                # Six permutations across consecutive path/basis groups balance
+                # each condition's requested position in a three-arm comparison.
+                position = index*len(c["measurement_bases"])+basis_index
+                offset = position % len(c["arms"])
+                arms = c["arms"][offset:]+c["arms"][:offset]
+                if (position//len(c["arms"])) % 2:
+                    arms = arms[::-1]
             for arm in arms:
-                program = baseline if arm == "baseline" else decoupled
+                program = variants[arm]
                 if program.count_ops().get("reset", 0) != 44:
                     raise ValueError("evolution no longer contains all 44 reservoir resets")
                 program.metadata.update(experiment=EXPERIMENT, trajectory=index, arm=arm, readout_basis=basis)
                 programs.append(program)
                 row = dict(kind="evolution", trajectory=index, basis=basis, arm=arm, shots=c["shots"])
-                if arm == "dd":
-                    row["dd_check"] = {k: v for k, v in check.items() if k != "windows"}
+                if arm != "baseline":
+                    row["dd_min_idle_ratio"] = policies[arm]["min_idle_ratio"]
+                    row["dd_check"] = {k: v for k, v in variant_checks[arm].items() if k != "windows"}
                 rows.append(row)
         name = f"scheduled_{index:05d}.qpy"
         group_vectors.append(group(programs, name, rows)); groups.append(rows)
@@ -457,7 +521,8 @@ def compile_experiment(folder, m, source, backend, *, parent=None):
     c.update(total_jobs=len(m["batches"]), total_circuits=len(m["circuits"]),
              total_shots=sum(r["shots"] for r in m["circuits"]))
     m["status"] = "compiled"
-    if c["stage"] == "paired" and not any(r.get("dd_check", {}).get("added_x_pulses", 0) for r in m["circuits"]):
+    if c["stage"] == "paired" and any(not any(r["arm"] == arm and r.get("dd_check", {}).get("added_x_pulses", 0)
+            for r in m["circuits"]) for arm in policies):
         m["status"] = "no_eligible_dd_windows"
     checkpoint(folder, m)
     write_plan(folder, m)
@@ -480,6 +545,11 @@ def write_plan(folder, m):
         "The compiler-returned timing is the visualization source; no timeline_drawer or synthetic schedule fallback.",
         "Cloud dry-run outputs are random mock counts and cannot measure DD performance. Hardware counts are analyzed only from an explicit hardware submission.",
         "Small scouts/pilots do not certify the 0.02 target or the full 16384-path experiment. No QPU jobs are submitted by preparation.", ""]
+    for arm, policy in (dd_policies(c["policy"]) if c.get("policy") else {}).items():
+        x = [i["duration_seconds"] for i in c["timing_model"]["instructions"]
+             if i["name"] == "x" and i["qubits"][0] in policy["physical_qubits"]]
+        cutoffs = [2*t*policy["min_idle_ratio"]*1e6 for t in x]
+        text.append(f"`{arm}`: XX, minimum idle ratio {policy['min_idle_ratio']:g}; physical idle cutoff >{min(cutoffs):g}..{max(cutoffs):g} us on the selected sites.")
     (folder/"Plan.md").write_text("\n".join(text), encoding="utf-8")
 
 
@@ -719,13 +789,9 @@ def render(options):
             atomic_json(cache_path, cache); update_index()
             print(f"View ready: {out/name}", flush=True)
         paired.setdefault((row["trajectory"], row["basis"]), {})[row["arm"]] = rows
-        if row["arm"] == "dd":
-            expected[row["trajectory"], row["basis"]] = row["dd_check"]["added_x_by_qubit"]
-    for (path, basis), arms in paired.items():
-        if set(arms) == {"baseline", "dd"}:
-            comparisons.append(dict(trajectory=path, basis=basis,
-                **timing.server_comparison(arms["baseline"], arms["dd"],
-                    expected_added_x_by_qubit=expected[path, basis])))
+        if row["arm"] != "baseline":
+            expected[row["trajectory"], row["basis"], row["arm"]] = row["dd_check"]["added_x_by_qubit"]
+    comparisons = compare_arm_timings(c, paired, expected)
     comparison_file = "server_comparison.json" if trajectory is None and basis is None else (
         f"server_comparison_path_{trajectory if trajectory is not None else 'all'}_{basis or 'all'}.json")
     atomic_json(out/comparison_file, comparisons)

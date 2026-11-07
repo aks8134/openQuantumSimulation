@@ -1,5 +1,10 @@
 # Model2 Experiment7: inspect IBM timing, then test dynamical decoupling
 
+The three-arm DD-off / 0.16-us XX / 0.8-us XX workflow is documented in
+[CompareCutoffs.md](CompareCutoffs.md). It uses one matched run rather than
+separate runs with different baselines. Existing single-policy commands below
+remain supported.
+
 The hypothesis is that XX pulses in eligible system idle windows reduce device
 error without changing the intended reservoir channel. This experiment first
 retrieves IBM compiler timing and opens it with `draw_circuit_schedule_timing`.

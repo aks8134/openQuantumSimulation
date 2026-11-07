@@ -1,0 +1,6 @@
+min_gap_strictly_greater_us,min_idle_ratio,total_candidate_windows,mean_candidate_windows_per_circuit,mean_candidate_x_pulses_per_circuit,retained_idle_fraction
+0.16,2.0,4617,384.75,769.5,0.9851887759945347
+0.4,5.0,3402,283.5,567.0,0.9223070183492664
+0.8,10.0,2754,229.5,459.0,0.8438647218197692
+1.0,12.5,2436,203.0,406.0,0.7901007956899223
+2.0,25.0,477,39.75,79.5,0.21552801410548303

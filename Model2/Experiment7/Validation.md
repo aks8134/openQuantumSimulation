@@ -63,3 +63,22 @@ missing view, and rebuilds changed HTML detected by its output hash. Rendering
 can select one trajectory, basis and view. The actual IBM drawer HTML test also
 passes with atomic HTML output. Service data in these recovery tests is mocked;
 the user's Windows job was not downloaded or inspected here.
+
+## Two-cutoff comparison update, 2026-11-07
+
+The focused suite passes **18 tests on both SDK setups**. The new comparison
+test uses a short local test circuit and mocked result records. It checks a
+single three-arm manifest, exact same native sources across conditions,
+nine-circuit QPY shards, nine arm-local controls per job, complete matched
+path/basis coverage, and all six requested arm-order permutations. Both ratios
+are passed separately to the insertion pass. Every DD arm participates in
+server timing validation, including a test where only the second arm's added
+X pulses are missing and cloning must fail.
+
+Analysis reconstructs all three arms, reports each against its same-path ideal,
+and includes all three pairwise contrasts. A numerical check ensures that the
+direct ratio-10 versus ratio-2 shot uncertainty includes just those two arms,
+without adding baseline variance. Invalid/repeated/reversed/nonfinite ratios
+are rejected. Existing single-policy manifests and analysis fields remain
+covered by the earlier tests. No new cloud job, hardware experiment or Aer run
+was executed for this implementation.
