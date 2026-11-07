@@ -239,7 +239,11 @@ def draw(value, destination, *, channels=None):
         raise ValueError("timing HTML needs plotly: install Experiment7/requirements.txt; raw timing is retained") from error
     figure = draw_circuit_schedule_timing(circuit_schedule=timing_text(value),
         included_channels=channels, filter_readout_channels=False, filter_barriers=False, width=1500)
-    figure.write_html(str(destination), include_plotlyjs=True, full_html=True)
+    destination = Path(destination)
+    temporary = destination.with_name(destination.name+".partial")
+    print(f"Figure constructed; writing {destination.name}...", flush=True)
+    figure.write_html(str(temporary), include_plotlyjs=True, full_html=True)
+    temporary.replace(destination)
 
 
 def server_comparison(baseline_rows, dd_rows, *, expected_added_x_by_qubit=None):

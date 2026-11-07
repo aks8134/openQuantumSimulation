@@ -10,6 +10,7 @@ render/analyze: work from saved results without contacting IBM.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import importlib.metadata
 import inspect
@@ -18,6 +19,8 @@ from pathlib import Path
 import re
 import shutil
 import sys
+import threading
+import time
 import uuid
 
 import numpy as np
@@ -73,6 +76,14 @@ def parse_arguments(arguments=None):
         p.add_argument("--manifest", type=Path, required=True)
         if name in ("submit", "collect"):
             account(p)
+        if name == "collect":
+            p.add_argument("--download-only", action="store_true",
+                help="save existing results without optional job-details requests or HTML rendering")
+        if name == "render":
+            p.add_argument("--trajectory", type=int, help="render one zero-based saved trajectory index")
+            p.add_argument("--basis", choices=raw.circuits.BASES, help="render only this measurement basis")
+            p.add_argument("--view", choices=("full", "active", "both"), default="both")
+            p.add_argument("--overwrite", action="store_true", help="rebuild already verified HTML views")
         if name == "clone-for-hardware":
             output(p)
         if name == "submit":
@@ -100,7 +111,29 @@ def parse_arguments(arguments=None):
             or not a.note.strip() or len(set(a.system_sites)) != len(a.system_sites)
             or min(a.system_sites) < 1 or max(a.system_sites) > 10):
         parser.error("choose distinct system sites 1..10, finite ratio >=2 and a nonempty inspection note")
+    if a.action == "render" and a.trajectory is not None and a.trajectory < 0:
+        parser.error("trajectory is a nonnegative saved index")
     return a
+
+
+@contextmanager
+def progress(message):
+    """Expose blocking API/Plotly stages; a heartbeat means waiting, not progress."""
+    start = time.monotonic()
+    stopped = threading.Event()
+    def heartbeat():
+        while not stopped.wait(20):
+            print(f"Still waiting: {message} ({time.monotonic()-start:.0f}s elapsed)", flush=True)
+    print(f"{message}...", flush=True)
+    worker = threading.Thread(target=heartbeat, daemon=True)
+    worker.start()
+    success = False
+    try:
+        yield
+        success = True
+    finally:
+        stopped.set(); worker.join()
+        print(f"{'Finished' if success else 'Stopped'}: {message} ({time.monotonic()-start:.1f}s)", flush=True)
 
 
 def versions():
@@ -514,48 +547,81 @@ def collect(options, *, service=None):
     folder, m, _ = read_saved(options.manifest)
     if not any(b["job_id"] for b in m["batches"]):
         raise ValueError("no submitted job IDs to collect")
-    service = service or raw.runtime.make_service(options)
+    download_only = getattr(options, "download_only", False)
     for i, batch in enumerate(m["batches"]):
-        if not batch["job_id"] or batch["status"] == "collected":
+        if not batch["job_id"]:
             continue
-        job = service.job(batch["job_id"])
-        status = job.status()
-        status = getattr(status, "name", str(status)).upper()
-        batch["provider_status"] = status
-        print(f"Job {i+1}: {batch['job_id']} {status}", flush=True)
-        if status != "DONE":
-            if status in ("ERROR", "CANCELLED"):
-                batch["error_message"] = str(job.error_message())
-            checkpoint(folder, m); continue
-        result = job.result()
-        rows = m["circuits"][batch["start"]:batch["stop"]]
-        if len(result) != len(rows):
-            raise ValueError("server PUB count differs from saved job")
-        pubs = []
-        for pub, row in zip(result, rows):
-            scheduler = pub.metadata.get("compilation", {}).get("scheduler_timing", {})
-            value = scheduler.get("timing")
-            # Save the result before checking experimental timing, so data survives
-            # an unsupported/missing-timing response and collection can be retried.
-            counts = {str(k): int(v) for k, v in pub.data.outcome.get_counts().items()}
-            if sum(counts.values()) != row["shots"]:
-                raise ValueError("server outcome shot count differs from request")
-            pubs.append(dict(pub_index=row["pub_index"], timing=value, outcome_counts=counts,
-                             metadata=json.loads(json.dumps(pub.metadata, default=str))))
-        saved = dict(job_id=batch["job_id"], submission_mode=m["submission_mode"], pubs=pubs,
-                     collected_at_utc=datetime.now(timezone.utc).isoformat())
+        job = None
+        if batch["status"] != "collected":
+            service = service or raw.runtime.make_service(options)
+            job = service.job(batch["job_id"])
+            status = job.status()
+            status = getattr(status, "name", str(status)).upper()
+            batch["provider_status"] = status
+            print(f"Job {i+1}: {batch['job_id']} {status}", flush=True)
+            if status != "DONE":
+                if status in ("ERROR", "CANCELLED"):
+                    batch["error_message"] = str(job.error_message())
+                checkpoint(folder, m); continue
+            with progress(f"Downloading/decoding results for {batch['job_id']}"):
+                result = job.result()
+            rows = m["circuits"][batch["start"]:batch["stop"]]
+            if len(result) != len(rows):
+                raise ValueError("server PUB count differs from saved job")
+            pubs = []
+            with progress(f"Saving {len(rows)} PUB results for job {i+1}"):
+                for pub, row in zip(result, rows):
+                    scheduler = pub.metadata.get("compilation", {}).get("scheduler_timing", {})
+                    value = scheduler.get("timing")
+                    counts = {str(k): int(v) for k, v in pub.data.outcome.get_counts().items()}
+                    if sum(counts.values()) != row["shots"]:
+                        raise ValueError("server outcome shot count differs from request")
+                    pubs.append(dict(pub_index=row["pub_index"], timing=value, outcome_counts=counts,
+                                     metadata=json.loads(json.dumps(pub.metadata, default=str))))
+                saved = dict(job_id=batch["job_id"], submission_mode=m["submission_mode"], pubs=pubs,
+                             collected_at_utc=datetime.now(timezone.utc).isoformat())
+                name = f"job_{i:04d}_results.json"
+                atomic_json(folder/name, saved)
+                batch.update(result_file=name, result_sha256=qpy_storage.file_sha256(folder/name), status="collected")
+                # Results survive interruption in optional API calls or plotting.
+                if all(b["status"] == "collected" for b in m["batches"]):
+                    m["status"] = "collected"
+                checkpoint(folder, m)
+            print(f"Saved: {folder/name} ({(folder/name).stat().st_size/1024**2:.1f} MiB)", flush=True)
+            del result, pubs, saved
+        else:
+            result_path = folder/batch["result_file"]
+            if qpy_storage.file_sha256(result_path) != batch["result_sha256"]:
+                raise ValueError("saved results changed")
+            print(f"Using saved results for {batch['job_id']}", flush=True)
+        if download_only:
+            continue
+        if batch.get("details_file"):
+            if qpy_storage.file_sha256(folder/batch["details_file"]) != batch["details_sha256"]:
+                raise ValueError("saved job details changed")
+            continue
+        # Keep optional job details separate from immutable timing/count archives:
+        # adding usage later must not invalidate an inspected policy's evidence.
+        service = service or raw.runtime.make_service(options)
+        job = job or service.job(batch["job_id"])
+        details = dict(job_id=batch["job_id"], recorded_at_utc=datetime.now(timezone.utc).isoformat())
         for key in ("metrics", "usage"):
             try:
-                saved[key] = json.loads(json.dumps(getattr(job, key)(), default=str))
-            except (AttributeError, TypeError, ValueError) as error:
-                saved[key+"_unavailable"] = str(error)
-        name = f"job_{i:04d}_results.json"
-        atomic_json(folder/name, saved)
-        batch.update(result_file=name, result_sha256=qpy_storage.file_sha256(folder/name), status="collected")
+                with progress(f"Retrieving optional {key} for {batch['job_id']}"):
+                    details[key] = json.loads(json.dumps(getattr(job, key)(), default=str))
+            except Exception as error:
+                details[key+"_unavailable"] = str(error)
+                print(f"Optional {key} unavailable; timing/count results are already saved.", flush=True)
+        name = f"job_{i:04d}_details.json"
+        atomic_json(folder/name, details)
+        batch.update(details_file=name, details_sha256=qpy_storage.file_sha256(folder/name))
         checkpoint(folder, m)
     if all(b["status"] == "collected" for b in m["batches"]):
         m["status"] = "collected"; checkpoint(folder, m)
-    render(options)
+    if download_only:
+        print("Download-only complete; no optional job-details requests or HTML rendering. No jobs submitted.", flush=True)
+    else:
+        render(options)
     return m
 
 
@@ -580,20 +646,78 @@ def render(options):
     folder, m, _ = read_saved(options.manifest)
     out = folder/"timing"; out.mkdir(exist_ok=True)
     c = m["configuration"]
-    index, comparisons, paired, expected = [], [], {}, {}
+    trajectory, basis = getattr(options, "trajectory", None), getattr(options, "basis", None)
+    view = getattr(options, "view", "both")
+    overwrite = getattr(options, "overwrite", False)
+    if trajectory is not None and not 0 <= trajectory < c["trajectory_count"]:
+        raise ValueError("trajectory is outside this run's saved paths")
+    views = ("full", "active") if view == "both" else (view,)
+    cache_path = out/"render_cache.json"
+    try:
+        cache = json.loads(cache_path.read_text())
+        if cache.get("artifact_type") != "model2_timing_render_cache_v1":
+            cache = {}
+    except (FileNotFoundError, ValueError):
+        cache = {}
+    entries = cache.setdefault("entries", {})
+    cache["artifact_type"] = "model2_timing_render_cache_v1"
+    comparisons, paired, expected = [], {}, {}
+    selected_count = sum(r["kind"] == "evolution"
+        and (trajectory is None or r["trajectory"] == trajectory)
+        and (basis is None or r["basis"] == basis) for r in m["circuits"])
+    print(f"Rendering up to {selected_count} schedules / {selected_count*len(views)} HTML views; verified completed views are reused.", flush=True)
+    def valid_asset(entry, filename):
+        path = out/filename
+        return (filename in entry.get("assets", {}) and path.is_file()
+                and qpy_storage.file_sha256(path) == entry["assets"][filename])
+    def update_index():
+        links = []
+        for label, entry in sorted(entries.items()):
+            files = []
+            for suffix, caption in ((".html", "all channels"), ("_active.html", "12 active qubits"), ("_gaps.csv", "drive gaps")):
+                filename = label+suffix
+                if filename in entry.get("assets", {}) and (out/filename).exists():
+                    files.append(f'<a href="{filename}">{caption}</a>')
+            if files:
+                links.append(f'<li>{label}: '+" | ".join(files)+"</li>")
+        (out/"index.html").write_text('<!doctype html><meta charset="utf-8"><title>Model2 compiler timing</title>'
+            '<h1>IBM compiler-returned timing</h1><p>Completed views appear here as they are written. Drive-channel gaps are candidates for inspection; controller/readout activity may restrict insertion. The HTML plots use draw_circuit_schedule_timing.</p><ul>'
+            +"\n".join(links)+"</ul>", encoding="utf-8")
+    position = 0
     for row, pub in saved_pubs(folder, m):
-        if row["kind"] != "evolution":
+        if (row["kind"] != "evolution" or (trajectory is not None and row["trajectory"] != trajectory)
+                or (basis is not None and row["basis"] != basis)):
             continue
+        position += 1
         label = f"path_{row['trajectory']:05d}_{row['basis']}_{row['arm']}"
         value = timing.timing_text(pub["timing"])
         rows = timing.parse_timing(value)
-        (out/(label+".txt")).write_text(value, encoding="utf-8")
-        timing.write_csv(out/(label+"_instructions.csv"), rows)
-        timing.write_csv(out/(label+"_gaps.csv"), timing.gap_table(rows, c["physical_path"], c["timing_model"]["dt_seconds"]))
-        # Full server/controller view, plus the twelve relevant drive channels.
-        timing.draw(value, out/(label+".html"))
-        timing.draw(value, out/(label+"_active.html"), channels=[f"Qubit {q}" for q in c["physical_path"]])
-        index.append(f'<li>{label}: <a href="{label}.html">all channels</a> | <a href="{label}_active.html">12 active qubits</a> | <a href="{label}_gaps.csv">drive gaps</a></li>')
+        print(f"Schedule {position}/{selected_count}: {label}, {len(rows):,} compiler instructions", flush=True)
+        identity = input_data.digest(dict(timing=value, physical_path=c["physical_path"],
+            dt_seconds=c["timing_model"]["dt_seconds"], render_format=1))
+        entry = entries.setdefault(label, {})
+        if entry.get("input_sha256") != identity:
+            entry.clear(); entry.update(input_sha256=identity, assets={})
+        tables = [label+suffix for suffix in (".txt", "_instructions.csv", "_gaps.csv")]
+        if overwrite or not all(valid_asset(entry, name) for name in tables):
+            with progress(f"Exporting instruction and drive-gap tables for {label}"):
+                (out/tables[0]).write_text(value, encoding="utf-8")
+                timing.write_csv(out/tables[1], rows)
+                timing.write_csv(out/tables[2], timing.gap_table(rows, c["physical_path"], c["timing_model"]["dt_seconds"]))
+            for name in tables:
+                entry["assets"][name] = qpy_storage.file_sha256(out/name)
+            atomic_json(cache_path, cache); update_index()
+        for selected_view in views:
+            name = label+(".html" if selected_view == "full" else "_active.html")
+            if not overwrite and valid_asset(entry, name):
+                print(f"Reusing completed view: {name}", flush=True)
+                continue
+            channels = None if selected_view == "full" else [f"Qubit {q}" for q in c["physical_path"]]
+            with progress(f"Drawing/writing {selected_view} view for {label}"):
+                timing.draw(value, out/name, channels=channels)
+            entry["assets"][name] = qpy_storage.file_sha256(out/name)
+            atomic_json(cache_path, cache); update_index()
+            print(f"View ready: {out/name}", flush=True)
         paired.setdefault((row["trajectory"], row["basis"]), {})[row["arm"]] = rows
         if row["arm"] == "dd":
             expected[row["trajectory"], row["basis"]] = row["dd_check"]["added_x_by_qubit"]
@@ -602,11 +726,11 @@ def render(options):
             comparisons.append(dict(trajectory=path, basis=basis,
                 **timing.server_comparison(arms["baseline"], arms["dd"],
                     expected_added_x_by_qubit=expected[path, basis])))
-    atomic_json(out/"server_comparison.json", comparisons)
-    (out/"index.html").write_text('<!doctype html><meta charset="utf-8"><title>Model2 compiler timing</title>'
-        '<h1>IBM compiler-returned timing</h1><p>Drive-channel gaps are candidates for inspection; controller/readout activity may restrict insertion. The HTML plots use draw_circuit_schedule_timing.</p><ul>'
-        +"\n".join(index)+"</ul>", encoding="utf-8")
-    print(f"Timing views: {(out/'index.html').resolve()}")
+    comparison_file = "server_comparison.json" if trajectory is None and basis is None else (
+        f"server_comparison_path_{trajectory if trajectory is not None else 'all'}_{basis or 'all'}.json")
+    atomic_json(out/comparison_file, comparisons)
+    update_index()
+    print(f"Timing views: {(out/'index.html').resolve()}", flush=True)
     return comparisons
 
 

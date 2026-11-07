@@ -51,3 +51,15 @@ python -m pytest tests/test_model2_dd_experiment.py -q
 
 All new Python files compile, and `git diff --check` passes. Previous Model2 and
 Model3 experiment code/manifests were not modified.
+
+## Collection/render recovery update, 2026-11-07
+
+The focused suite now passes **13 tests on both SDK setups** above. New checks
+cover download-only collection (no plotting, metrics, usage or resubmission),
+local reuse of saved results without account discovery, and fetching optional
+job details later without changing raw timing/count hashes or policy evidence.
+Interrupted rendering retains its completed view and index, resumes only the
+missing view, and rebuilds changed HTML detected by its output hash. Rendering
+can select one trajectory, basis and view. The actual IBM drawer HTML test also
+passes with atomic HTML output. Service data in these recovery tests is mocked;
+the user's Windows job was not downloaded or inspected here.

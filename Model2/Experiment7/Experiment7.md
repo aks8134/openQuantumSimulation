@@ -94,6 +94,34 @@ repeated without IBM access:
 python Model2/Experiment7/run_hardware.py render --manifest "$scout"
 ```
 
+After `Job ... DONE`, collection still downloads/decodes the result, saves the
+PUBs, fetches optional metrics/usage, and builds the HTML views. Progress messages
+identify each stage, with a waiting message every 20 seconds for long calls.
+`DONE` alone is not confirmation that the local files or plots are finished.
+
+For a faster first inspection, separate download from rendering:
+
+```powershell
+python Model2/Experiment7/run_hardware.py collect --manifest "$scout" --download-only
+python Model2/Experiment7/run_hardware.py render --manifest "$scout" --trajectory 0 --basis z --view full
+Invoke-Item (Join-Path (Split-Path "$scout") "timing/path_00000_z_baseline.html")
+```
+
+Download-only skips optional metrics/usage requests and HTML generation. If
+results are already saved, it checks/reuses them without contacting IBM. A
+later ordinary `collect` can fetch the optional details into a separate
+`job_0000_details.json`; the timing/count archive and inspected policy evidence
+stay unchanged. Raw results and the collected manifest checkpoint are written
+**before** optional job-detail calls or Plotly rendering.
+
+Rendering uses saved server metadata and submits no jobs. `--view active`
+selects the twelve drive channels; `--view both` produces both views (the
+default). Each completed HTML is written atomically and recorded with input and
+output hashes. Interrupted rendering reuses verified completed views, and the
+index is updated after each view. `--overwrite` explicitly rebuilds them.
+Existing HTML produced before render caching was added can still be opened
+directly, but is rebuilt once when first used by the updated renderer.
+
 Drive-channel gaps are **candidates for inspection**, not certified free pulse
 slots. The CSV keeps branch identity and overlapping controller/readout channels.
 It excludes leading/trailing intervals and never merges alternative branches.

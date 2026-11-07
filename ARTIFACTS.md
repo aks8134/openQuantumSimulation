@@ -12,6 +12,22 @@ documented command to regenerate outputs in a fresh checkout. Reports may
 link to those local outputs even when the outputs are not stored in Git.
 Use external storage or release assets for sharing complete datasets.
 
+To package a particular folder for transfer, use the standard-library helper
+from the repository root. For the Model2 timing inspection, omit the large QPY
+and HTML files while retaining JSON, raw timing text and CSV exports:
+
+```powershell
+python zip_folder.py "Model2/Experiment7/hardware_runs/dd44_scout_20261107T163922_266664Z" --exclude "*.qpy" "*.html" "*.partial"
+```
+
+This writes `dd44_scout_20261107T163922_266664Z.zip` next to the source folder.
+Omit `--exclude` to include all regular files, or specify `--output "PATH.zip"`
+to choose another destination. Existing ZIPs are retained unless `--overwrite`
+is supplied. The helper streams files, preserves relative paths under the
+folder's name, and does not follow links or junctions. It does not run experiment
+code or contact IBM. Packaging a local output does not make it tracked by Git;
+share the ZIP directly.
+
 ## Portable cosine hardware input
 
 The small tracked file

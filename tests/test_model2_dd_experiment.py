@@ -33,6 +33,10 @@ def compiler_text():
     return "\n".join(rows)+"\n"
 
 
+def fake_draw(value, destination, *, channels=None):
+    Path(destination).write_text("<!doctype html><p>Test timing view</p>", encoding="utf-8")
+
+
 def toy_body(source, trajectory, steps=None, populations=None):
     """Short channel for runner tests; full frozen-circuit smoke is separate."""
     q = QuantumCircuit(12)
@@ -234,7 +238,7 @@ def test_matched_compile_hardware_analysis_and_cloud_clone(scout, tmp_path):
     np.testing.assert_allclose(report["observables"]["populations"]["dd_minus_baseline"], 0)
     assert report["observables"]["populations"]["arms"]["baseline"]["maximum_error_same_paths"] > 0
     assert (clone/"analysis"/"Analysis.md").exists()
-    with patch.object(timing, "draw") as draw:
+    with patch.object(timing, "draw", side_effect=fake_draw) as draw:
         checks = run.render(SimpleNamespace(manifest=clone/"manifest.json"))
     assert len(checks) == 6 and draw.call_count == 24
     assert all(call.args[0].startswith(compiler_text()) for call in draw.call_args_list)
@@ -333,3 +337,72 @@ def test_hardware_maintenance_does_not_create_submitting_entry(scout, tmp_path):
     factory.assert_not_called()
     _, m, _ = run.read_saved(folder/"manifest.json")
     assert m["batches"][0]["status"] == "not_submitted" and m["batches"][0]["job_id"] is None
+
+
+def test_download_only_skips_optional_requests_and_preserves_policy_evidence(scout, tmp_path):
+    b, folder = copy_scout(scout, tmp_path)
+    manifest = folder/"manifest.json"
+    sampler = Mock(); sampler.run.return_value.job_id.return_value = "download_existing_id"
+    run.submit(run.parse_arguments(["submit", "--manifest", str(manifest), "--dry-run"]),
+               backend=b, sampler_factory=Mock(return_value=sampler))
+    _, m, _ = run.read_saved(manifest)
+    pubs = []
+    for row in m["circuits"]:
+        counts = {"0"*10: row["shots"]}
+        metadata = {"compilation": {"scheduler_timing": {"timing": compiler_text()}}}
+        pubs.append(SimpleNamespace(metadata=metadata,
+            data=SimpleNamespace(outcome=SimpleNamespace(get_counts=lambda c=counts: c))))
+    service = Mock(); job = service.job.return_value
+    job.status.return_value = "DONE"; job.result.return_value = pubs
+    options = run.parse_arguments(["collect", "--manifest", str(manifest), "--download-only"])
+    with patch.object(run, "render", side_effect=AssertionError("no plotting during download")):
+        checked = run.collect(options, service=service)
+    assert checked["status"] == "collected"
+    job.metrics.assert_not_called(); job.usage.assert_not_called()
+    assert sampler.run.call_count == job.result.call_count == 1
+    with patch.object(run.raw.runtime, "make_service", side_effect=AssertionError("already saved")):
+        run.collect(options)
+    p = select_policy(folder, tmp_path/"downloaded_policy.json")
+    original = (folder/"job_0000_results.json").read_bytes()
+    job.metrics.return_value = {}; job.usage.return_value = 1.25
+    with patch.object(run, "render"):
+        run.collect(run.parse_arguments(["collect", "--manifest", str(manifest)]), service=service)
+    _, after, _ = run.read_saved(manifest)
+    assert (folder/"job_0000_results.json").read_bytes() == original
+    assert after["plan_sha256"] == checked["plan_sha256"]
+    assert run.require_timing(folder, after) == p["timing_evidence"]
+    assert (folder/"job_0000_details.json").exists()
+    assert sampler.run.call_count == job.result.call_count == 1
+
+
+def test_partial_render_resumes_completed_views_and_repairs_changed_html(scout, tmp_path):
+    _, folder = copy_scout(scout, tmp_path)
+    fake_collect(folder)
+    options = run.parse_arguments(["render", "--manifest", str(folder/"manifest.json"),
+                                   "--trajectory", "0", "--basis", "z"])
+    def interrupted(value, destination, *, channels=None):
+        if channels is not None:
+            raise KeyboardInterrupt
+        fake_draw(value, destination, channels=channels)
+    with patch.object(timing, "draw", side_effect=interrupted):
+        with pytest.raises(KeyboardInterrupt):
+            run.render(options)
+    out = folder/"timing"
+    full = out/"path_00000_z_baseline.html"
+    active = out/"path_00000_z_baseline_active.html"
+    assert full.exists() and not active.exists()
+    assert full.name in (out/"index.html").read_text()
+    assert active.name not in (out/"index.html").read_text()
+    with patch.object(timing, "draw", side_effect=fake_draw) as draw:
+        run.render(options)
+    assert draw.call_count == 1 and draw.call_args.kwargs["channels"] == list(map(lambda q: f"Qubit {q}", range(12)))
+    assert active.exists() and not (out/"path_00001_z_baseline.html").exists()
+    assert not (out/"path_00000_xy_baseline.html").exists()
+    with patch.object(timing, "draw", side_effect=AssertionError("reuse completed views")):
+        run.render(options)
+    full.write_text("truncated HTML")
+    with patch.object(timing, "draw", side_effect=fake_draw) as draw:
+        run.render(options)
+    assert draw.call_count == 1 and draw.call_args.kwargs["channels"] is None
+    assert (out/"server_comparison_path_0_z.json").exists()
+    assert not (out/"server_comparison.json").exists()
