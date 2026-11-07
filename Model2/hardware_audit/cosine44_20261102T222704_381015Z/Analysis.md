@@ -1,14 +1,12 @@
-# Model2 exported raw analysis
+# Model2 raw collected-job analysis
 
-Original manifest/counts/source are absent here; completion is reported by the exported analysis, not independently reconstructed from raw results.
+Complete: **True**. 97/97 jobs, 16384 original trajectories.
 
-The exported analysis lists **97 jobs**.
+| Observable | Maximum discrepancy from same-path ideal | Maximum discrepancy from stationary target |
+| --- | ---: | ---: |
+| populations | 0.0517650911 | 0.0683937073 |
+| excitation_flows | 0.00221323741 | 0.00401687622 |
 
-| Observable | Mean | Minimum | Maximum | Max vs same-path ideal | Max vs stationary |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| excitation_flows | 0.00056797 | -0.00239658 | 0.00401688 | 0.00221324 | 0.00401688 |
-| populations | 0.31281414 | 0.30650330 | 0.31839371 | 0.05176509 | 0.06839371 |
+An incomplete cohort describes only the completed original paths and complete job-local controls. No paths are regenerated and no correction, clipping or final full-run accuracy claim is applied.
 
-Largest all-one control discrepancy: **0.390137**, job 31 (`dbkv43onceqs73ammpj0`). Its held-out mixture residual is **0.189941**. These are per-job maxima over sites, not site-resolved calibration matrices; they cannot be used to apply an affine correction.
-
-![Per-job preparation/readout diagnostics](controls.png)
+Manifest and exact source bytes verified. Analysis reconstructs outcome counts; QPY bytes are not audited by this command.
