@@ -1,0 +1,706 @@
+{
+  "artifact_type": "model2_mitigation_dd_job_estimate_v1",
+  "backend": "ibm_phoenix",
+  "trajectory_count": 16834,
+  "num_qubits": 120,
+  "physical_path": [
+    106,
+    116,
+    115,
+    114,
+    113,
+    112,
+    111,
+    101,
+    91,
+    81,
+    80,
+    90
+  ],
+  "timing_model": {
+    "dt_seconds": 4e-09,
+    "constraints": {
+      "pulse_alignment": 1,
+      "acquire_alignment": 1,
+      "granularity": 1,
+      "min_length": 2
+    },
+    "instructions": [
+      {
+        "name": "cz",
+        "qubits": [
+          80,
+          81
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          80,
+          90
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          81,
+          80
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          81,
+          91
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          90,
+          80
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          90,
+          91
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          91,
+          81
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          91,
+          90
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          91,
+          101
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          101,
+          91
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          101,
+          111
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          106,
+          116
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          111,
+          101
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          111,
+          112
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          112,
+          111
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          112,
+          113
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          113,
+          112
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          113,
+          114
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          114,
+          113
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          114,
+          115
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          115,
+          114
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          115,
+          116
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          116,
+          106
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "cz",
+        "qubits": [
+          116,
+          115
+        ],
+        "duration_seconds": 6.8e-08
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          80
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          81
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          90
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          91
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          101
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          106
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          111
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          112
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          113
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          114
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          115
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "measure",
+        "qubits": [
+          116
+        ],
+        "duration_seconds": 1.94e-06
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          80
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          81
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          90
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          91
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          101
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          106
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          111
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          112
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          113
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          114
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          115
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "reset",
+        "qubits": [
+          116
+        ],
+        "duration_seconds": 4e-07
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          80
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          81
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          90
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          91
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          101
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          106
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          111
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          112
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          113
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          114
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          115
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "rz",
+        "qubits": [
+          116
+        ],
+        "duration_seconds": 0.0
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          80
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          81
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          90
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          91
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          101
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          106
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          111
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          112
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          113
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          114
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          115
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "sx",
+        "qubits": [
+          116
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          80
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          81
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          90
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          91
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          101
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          106
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          111
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          112
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          113
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          114
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          115
+        ],
+        "duration_seconds": 4e-08
+      },
+      {
+        "name": "x",
+        "qubits": [
+          116
+        ],
+        "duration_seconds": 4e-08
+      }
+    ]
+  },
+  "captured_at_utc": "2026-11-09T00:16:11.268133+00:00",
+  "versions": {
+    "qiskit": "2.6.2",
+    "qiskit-ibm-runtime": "0.51.0",
+    "numpy": "2.5.4"
+  },
+  "code_hashes": {
+    "Model2/Experiment8/estimate_jobs.py": "9b6959d2c3b5816b57d755f3da542335b9d809c6c87a83c19e492907168b98a2",
+    "Model2/Experiment8/run_hardware.py": "224d0ceb23c981115a3e8271d4b1b839fafb5f6772a7bb373069460bc45718d3",
+    "Model2/Experiment7/schedule_tools.py": "86ca550ca8938547fe03360d34913d5b32339c0f91fcb035fb78d6e9fc310118",
+    "Model2/Experiment8/ordering.py": "0869f15d210caa5e7c3bf0894d658481bff5614ea74bd86a3f9860c2881e5071",
+    "Model3/Experiment5/run_mitigation.py": "6813ff0b9daf63f34ebf061d80b9c2851dac34e63a27c2e4b93805a42cd30031",
+    "Model3/Experiment5/mitigation.py": "a716743f8f4adaae7bffc90a015cf9d45a79d5fee4d34690dbf75476b190a026",
+    "Model2/Experiment5/run_hardware.py": "f47b6ec61ec3211cabeec34c7021275f6122606ffd2062a49b3d1d057b926c1a",
+    "Model3/Experiment5/circuit_depth.py": "52dc186987f40d46d1b22a23f5667fde13f17bf075e3ca62e492de5790cd0ead",
+    "Model2/Experiment5/instruction_audit.py": "01f9416e1e5fd16a037d1c627f2b93b1e98776c5e712b8a0bf8f41067c154119",
+    "Model2/Experiment5/input_data.py": "5ff9fea85e3351922b7bbce513e30f5c0bc87cdbf48ecb2023a76a117f2c7001"
+  },
+  "spec_sha256": "a718135fd2db8bccd5973d2f476d15030dd3064a1e8fd870db1a012b59d9c2bd",
+  "seed": 29,
+  "seed_transpiler": 11,
+  "optimization_level": 3,
+  "dd_policy": {
+    "sequence": "XX",
+    "spacings": [
+      0.25,
+      0.5,
+      0.25
+    ],
+    "min_idle_ratio": 10.0,
+    "system_sites_1based": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "skip_reset_qubits": true,
+    "insert_multiple_cycles": false
+  },
+  "weights": {
+    "rz": 1,
+    "delay": 1,
+    "sx": 2,
+    "x": 2,
+    "cx": 5,
+    "cz": 5,
+    "ecr": 5,
+    "measure": 10,
+    "reset": 17,
+    "init": 50
+  },
+  "implicit_init": true,
+  "files": {
+    "target.pkl": "a8c1ddeda902e951798701f980f86bf6827b2f9f3ed3d9809786c16c45bccf50",
+    "source.json": "caa45a14bcd0763a9aecce1d9b82f266ae47781529eb64766975e07288955522"
+  },
+  "sha256": "e30025ae8b6b9479511e122db7965de1a7914ee2c7ca441d0b4812612cd83d2d"
+}
