@@ -1,0 +1,496 @@
+{
+  "artifact_type": "model2_dd_preparation_parallel_benchmark_v1",
+  "complete": true,
+  "created_at_utc": "2026-11-09T20:45:18.273987+00:00",
+  "versions": {
+    "qiskit": "2.6.2",
+    "qiskit-ibm-runtime": "0.51.0",
+    "numpy": "2.5.2"
+  },
+  "host": {
+    "platform": "Linux-4.18.0-553.174.1.el8_10.x86_64-x86_64-with-glibc2.28",
+    "python": "3.14.7",
+    "logical_cpus": 64,
+    "affinity": [
+      58,
+      59,
+      38,
+      39
+    ],
+    "quota_constraints": [],
+    "effective_cpu_capacity": 4,
+    "slurm_job_id": "57157007",
+    "slurm_cpus_per_task": "4"
+  },
+  "thread_limits": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "RAYON_NUM_THREADS": "1",
+    "QISKIT_NUM_PROCS": "1",
+    "QISKIT_PARALLEL": "FALSE"
+  },
+  "source_context_sha256": "e30025ae8b6b9479511e122db7965de1a7914ee2c7ca441d0b4812612cd83d2d",
+  "physical_path": [
+    106,
+    116,
+    115,
+    114,
+    113,
+    112,
+    111,
+    101,
+    91,
+    81,
+    80,
+    90
+  ],
+  "synthetic_backend_qubits": 120,
+  "trajectories": [
+    12194,
+    258,
+    15569,
+    7041,
+    10377,
+    5435,
+    7316,
+    2092,
+    10216,
+    2773,
+    9975,
+    2440,
+    8902,
+    458,
+    2416,
+    3145
+  ],
+  "circuits": 223,
+  "control_circuits": 15,
+  "source_and_compiler_code_sha256": {
+    "Model2/Experiment8/estimate_jobs.py": "0e74038a117a0ce0f0d173f3fcbc12ae48d66ad78a1ab7943ef01acdfac2c845",
+    "Model2/Experiment8/run_hardware.py": "abcfe2a7397fdc73fea1720a78f35ee547395f43a775539bcdff07997ed0ed28",
+    "Model2/Experiment7/schedule_tools.py": "bb11d946ea5adf687513099a7b265a0a75ec95dc5181b5eb958c0b4d97a6c742",
+    "Model2/Experiment8/ordering.py": "01d8d806ed1f2e075904433938f87d0bb7daf40a12cf0582f21f192170915ff6",
+    "Model3/Experiment5/run_mitigation.py": "38f247077de42282e37e68f382b19ab74b56cbbbcb7eb0f6c2bd935d9a79874b",
+    "Model3/Experiment5/mitigation.py": "007a0d55d4b339471ce49b0e3f01ef3b61dc881ce529342ceb4c1ac44daa6546",
+    "Model2/Experiment5/run_hardware.py": "e58218f422106945fd7ed27b3ae51259d8f46c2e649ee0a12af45173e4dd258e",
+    "Model3/Experiment5/circuit_depth.py": "17788fa370ddaf1f80e1148509203e484c522e3825f1554d65604655d6c27303",
+    "Model2/Experiment5/instruction_audit.py": "ffc47ddb204c7aa47c40fe204790c77466c14a52ac5c9c71d13cbbbeef62f071",
+    "Model2/Experiment5/input_data.py": "f301aac17fc9166e22d3e5b475c6fdf3c453b5887817f297acc411c86605357d"
+  },
+  "benchmark_code_sha256": {
+    "Model2/Experiment8/benchmark_preparation.py": "debef9678383d1025f200d5b3078e2bf2bc0d2ab7db33b69ebc7f23584e78f07",
+    "Model2/Experiment8/preparation.py": "a3014b671188ea721dc823c8882854b300a269e176eab55722909472b7e34ff7"
+  },
+  "scope": "Local synthetic backend with saved Phoenix path durations, not the Phoenix target/calibration. Identical trajectories, seeds, native transformations, checks and QPY writes for each mode. Wall time includes process startup, compilation, validation, QPY writes/hashes and shutdown. Output comparison is outside timed sections. No IBM access, hardware execution or simulation. These workers are a benchmark prototype, not enabled in the production CLI.",
+  "raw_report_relative_path": ".local-artifacts/model2-dd-prep-benchmark16-compute/benchmark.json",
+  "raw_report_sha256": "588b041872648de01bb41081b500c008aa676f95956e6ebab9a0c191a54fe6dc",
+  "verification": {
+    "all_223_circuit_signatures_match": true,
+    "per_group_instruction_vectors_match": true,
+    "cz_and_reset_counts_match": true,
+    "software_regression_tests": 10,
+    "regression_wall_seconds": 115.93,
+    "preliminary_login_node_run_excluded": true,
+    "preliminary_login_node_cpu_quota_cores": 0.5
+  },
+  "results": [
+    {
+      "workers": 1,
+      "wall_seconds": 198.84387501585297,
+      "task_cpu_seconds": 197.19566521099998,
+      "memory": {
+        "available": true,
+        "samples": 72,
+        "peak_aggregate_rss_mib": 358.26953125,
+        "peak_aggregate_uss_mib": 353.95703125,
+        "scope": "Sampled parent plus recursive children. RSS counts shared pages in each process; USS counts private pages. Neither is total system memory."
+      },
+      "qpy_bytes": 100409477,
+      "semantic_sha256": "ceded94f45b5e90c0651374e48635ee370d1f9779748cb6a0c2c5365d4f1749b",
+      "semantic_comparison_passed": true,
+      "speedup_vs_serial": 1.0,
+      "group_timings": [
+        {
+          "name": "control_all_one.qpy",
+          "seconds": 0.06350546702742577,
+          "process_cpu_seconds": 0.044002753000000894,
+          "size_bytes": 12988
+        },
+        {
+          "name": "control_all_zero.qpy",
+          "seconds": 0.05554499593563378,
+          "process_cpu_seconds": 0.04202889900000173,
+          "size_bytes": 10848
+        },
+        {
+          "name": "control_initial_mixture.qpy",
+          "seconds": 0.082404850050807,
+          "process_cpu_seconds": 0.07553300600000057,
+          "size_bytes": 21842
+        },
+        {
+          "name": "trajectory_00258.qpy",
+          "seconds": 12.585628467146307,
+          "process_cpu_seconds": 12.503401571000001,
+          "size_bytes": 6301959
+        },
+        {
+          "name": "trajectory_00458.qpy",
+          "seconds": 12.354723944095895,
+          "process_cpu_seconds": 12.291266801000006,
+          "size_bytes": 6361459
+        },
+        {
+          "name": "trajectory_02092.qpy",
+          "seconds": 12.787030201172456,
+          "process_cpu_seconds": 12.717107252999995,
+          "size_bytes": 6408269
+        },
+        {
+          "name": "trajectory_02416.qpy",
+          "seconds": 12.431249914923683,
+          "process_cpu_seconds": 12.342777420000004,
+          "size_bytes": 6367092
+        },
+        {
+          "name": "trajectory_02440.qpy",
+          "seconds": 12.02757933898829,
+          "process_cpu_seconds": 11.958517457,
+          "size_bytes": 6163297
+        },
+        {
+          "name": "trajectory_02773.qpy",
+          "seconds": 12.41574652097188,
+          "process_cpu_seconds": 12.293566569999996,
+          "size_bytes": 6391546
+        },
+        {
+          "name": "trajectory_03145.qpy",
+          "seconds": 11.799206335097551,
+          "process_cpu_seconds": 11.74053525299999,
+          "size_bytes": 6072570
+        },
+        {
+          "name": "trajectory_05435.qpy",
+          "seconds": 12.134048349922523,
+          "process_cpu_seconds": 12.062353371,
+          "size_bytes": 6029311
+        },
+        {
+          "name": "trajectory_07041.qpy",
+          "seconds": 12.4336942138616,
+          "process_cpu_seconds": 12.374656541,
+          "size_bytes": 6196465
+        },
+        {
+          "name": "trajectory_07316.qpy",
+          "seconds": 12.378814727067947,
+          "process_cpu_seconds": 12.297631496999998,
+          "size_bytes": 6184070
+        },
+        {
+          "name": "trajectory_08902.qpy",
+          "seconds": 12.880017260089517,
+          "process_cpu_seconds": 12.817463059000005,
+          "size_bytes": 6653163
+        },
+        {
+          "name": "trajectory_09975.qpy",
+          "seconds": 12.052553459070623,
+          "process_cpu_seconds": 11.995962084999988,
+          "size_bytes": 6198723
+        },
+        {
+          "name": "trajectory_10216.qpy",
+          "seconds": 12.268019008915871,
+          "process_cpu_seconds": 12.145722261999992,
+          "size_bytes": 6231340
+        },
+        {
+          "name": "trajectory_10377.qpy",
+          "seconds": 12.582021532114595,
+          "process_cpu_seconds": 12.505294918999994,
+          "size_bytes": 6244308
+        },
+        {
+          "name": "trajectory_12194.qpy",
+          "seconds": 12.806309398962185,
+          "process_cpu_seconds": 12.580917674,
+          "size_bytes": 6348712
+        },
+        {
+          "name": "trajectory_15569.qpy",
+          "seconds": 12.499090985860676,
+          "process_cpu_seconds": 12.406926819999999,
+          "size_bytes": 6211515
+        }
+      ]
+    },
+    {
+      "workers": 2,
+      "wall_seconds": 114.39856259105727,
+      "task_cpu_seconds": 198.867102412,
+      "memory": {
+        "available": true,
+        "samples": 512,
+        "peak_aggregate_rss_mib": 1065.6171875,
+        "peak_aggregate_uss_mib": 868.50390625,
+        "scope": "Sampled parent plus recursive children. RSS counts shared pages in each process; USS counts private pages. Neither is total system memory."
+      },
+      "qpy_bytes": 100409477,
+      "semantic_sha256": "ceded94f45b5e90c0651374e48635ee370d1f9779748cb6a0c2c5365d4f1749b",
+      "semantic_comparison_passed": true,
+      "speedup_vs_serial": 1.738167600292881,
+      "group_timings": [
+        {
+          "name": "control_all_one.qpy",
+          "seconds": 0.06200969498604536,
+          "process_cpu_seconds": 0.045404028999996626,
+          "size_bytes": 12988
+        },
+        {
+          "name": "control_all_zero.qpy",
+          "seconds": 0.059525673976168036,
+          "process_cpu_seconds": 0.04342044300000225,
+          "size_bytes": 10848
+        },
+        {
+          "name": "control_initial_mixture.qpy",
+          "seconds": 0.08397796703502536,
+          "process_cpu_seconds": 0.06224400600000024,
+          "size_bytes": 21842
+        },
+        {
+          "name": "trajectory_00258.qpy",
+          "seconds": 12.613111961865798,
+          "process_cpu_seconds": 12.395166491,
+          "size_bytes": 6301959
+        },
+        {
+          "name": "trajectory_00458.qpy",
+          "seconds": 12.873482179827988,
+          "process_cpu_seconds": 12.685026506,
+          "size_bytes": 6361459
+        },
+        {
+          "name": "trajectory_02092.qpy",
+          "seconds": 13.10466523305513,
+          "process_cpu_seconds": 12.876593221999997,
+          "size_bytes": 6408269
+        },
+        {
+          "name": "trajectory_02416.qpy",
+          "seconds": 13.319406050024554,
+          "process_cpu_seconds": 12.994054069,
+          "size_bytes": 6367092
+        },
+        {
+          "name": "trajectory_02440.qpy",
+          "seconds": 12.429238718003035,
+          "process_cpu_seconds": 12.166131580999995,
+          "size_bytes": 6163297
+        },
+        {
+          "name": "trajectory_02773.qpy",
+          "seconds": 12.923427569912747,
+          "process_cpu_seconds": 12.744261790000003,
+          "size_bytes": 6391546
+        },
+        {
+          "name": "trajectory_03145.qpy",
+          "seconds": 13.074163044104353,
+          "process_cpu_seconds": 12.776562023000011,
+          "size_bytes": 6072570
+        },
+        {
+          "name": "trajectory_05435.qpy",
+          "seconds": 12.211534269154072,
+          "process_cpu_seconds": 11.769685943999999,
+          "size_bytes": 6029311
+        },
+        {
+          "name": "trajectory_07041.qpy",
+          "seconds": 12.647370067192242,
+          "process_cpu_seconds": 12.017274864000001,
+          "size_bytes": 6196465
+        },
+        {
+          "name": "trajectory_07316.qpy",
+          "seconds": 12.160142662003636,
+          "process_cpu_seconds": 12.028928820000004,
+          "size_bytes": 6184070
+        },
+        {
+          "name": "trajectory_08902.qpy",
+          "seconds": 13.644907476147637,
+          "process_cpu_seconds": 13.481319933999998,
+          "size_bytes": 6653163
+        },
+        {
+          "name": "trajectory_09975.qpy",
+          "seconds": 12.160369141027331,
+          "process_cpu_seconds": 12.013751383999995,
+          "size_bytes": 6198723
+        },
+        {
+          "name": "trajectory_10216.qpy",
+          "seconds": 12.442706256872043,
+          "process_cpu_seconds": 12.263595973000001,
+          "size_bytes": 6231340
+        },
+        {
+          "name": "trajectory_10377.qpy",
+          "seconds": 12.17259287997149,
+          "process_cpu_seconds": 12.058068529000003,
+          "size_bytes": 6244308
+        },
+        {
+          "name": "trajectory_12194.qpy",
+          "seconds": 12.878660840913653,
+          "process_cpu_seconds": 12.621788000999999,
+          "size_bytes": 6348712
+        },
+        {
+          "name": "trajectory_15569.qpy",
+          "seconds": 12.02085700398311,
+          "process_cpu_seconds": 11.823824802999999,
+          "size_bytes": 6211515
+        }
+      ]
+    },
+    {
+      "workers": 4,
+      "wall_seconds": 78.23574622790329,
+      "task_cpu_seconds": 217.652032305,
+      "memory": {
+        "available": true,
+        "samples": 314,
+        "peak_aggregate_rss_mib": 1734.5859375,
+        "peak_aggregate_uss_mib": 1405.50390625,
+        "scope": "Sampled parent plus recursive children. RSS counts shared pages in each process; USS counts private pages. Neither is total system memory."
+      },
+      "qpy_bytes": 100409477,
+      "semantic_sha256": "ceded94f45b5e90c0651374e48635ee370d1f9779748cb6a0c2c5365d4f1749b",
+      "semantic_comparison_passed": true,
+      "speedup_vs_serial": 2.5415987525269363,
+      "group_timings": [
+        {
+          "name": "control_all_one.qpy",
+          "seconds": 0.09199551097117364,
+          "process_cpu_seconds": 0.04790595000000053,
+          "size_bytes": 12988
+        },
+        {
+          "name": "control_all_zero.qpy",
+          "seconds": 0.08443049690686166,
+          "process_cpu_seconds": 0.051215692999996065,
+          "size_bytes": 10848
+        },
+        {
+          "name": "control_initial_mixture.qpy",
+          "seconds": 0.09708456695079803,
+          "process_cpu_seconds": 0.06453997999999928,
+          "size_bytes": 21842
+        },
+        {
+          "name": "trajectory_00258.qpy",
+          "seconds": 13.63865717407316,
+          "process_cpu_seconds": 13.414493995,
+          "size_bytes": 6301959
+        },
+        {
+          "name": "trajectory_00458.qpy",
+          "seconds": 14.256543816067278,
+          "process_cpu_seconds": 13.911066106,
+          "size_bytes": 6361459
+        },
+        {
+          "name": "trajectory_02092.qpy",
+          "seconds": 14.500206613913178,
+          "process_cpu_seconds": 14.238079679,
+          "size_bytes": 6408269
+        },
+        {
+          "name": "trajectory_02416.qpy",
+          "seconds": 12.862806987948716,
+          "process_cpu_seconds": 12.555026796999996,
+          "size_bytes": 6367092
+        },
+        {
+          "name": "trajectory_02440.qpy",
+          "seconds": 23.213369481964037,
+          "process_cpu_seconds": 13.874061337999997,
+          "size_bytes": 6163297
+        },
+        {
+          "name": "trajectory_02773.qpy",
+          "seconds": 14.770132472971454,
+          "process_cpu_seconds": 14.098486516999998,
+          "size_bytes": 6391546
+        },
+        {
+          "name": "trajectory_03145.qpy",
+          "seconds": 12.59848675597459,
+          "process_cpu_seconds": 12.444084666000002,
+          "size_bytes": 6072570
+        },
+        {
+          "name": "trajectory_05435.qpy",
+          "seconds": 13.414219559170306,
+          "process_cpu_seconds": 13.076787592000002,
+          "size_bytes": 6029311
+        },
+        {
+          "name": "trajectory_07041.qpy",
+          "seconds": 13.859944402938709,
+          "process_cpu_seconds": 13.383411902999999,
+          "size_bytes": 6196465
+        },
+        {
+          "name": "trajectory_07316.qpy",
+          "seconds": 19.10407305206172,
+          "process_cpu_seconds": 13.724420589,
+          "size_bytes": 6184070
+        },
+        {
+          "name": "trajectory_08902.qpy",
+          "seconds": 14.587051677983254,
+          "process_cpu_seconds": 14.457032775999998,
+          "size_bytes": 6653163
+        },
+        {
+          "name": "trajectory_09975.qpy",
+          "seconds": 23.378575393930078,
+          "process_cpu_seconds": 13.751325878,
+          "size_bytes": 6198723
+        },
+        {
+          "name": "trajectory_10216.qpy",
+          "seconds": 13.995422575855628,
+          "process_cpu_seconds": 13.677791570000004,
+          "size_bytes": 6231340
+        },
+        {
+          "name": "trajectory_10377.qpy",
+          "seconds": 18.683187801158056,
+          "process_cpu_seconds": 13.718483864,
+          "size_bytes": 6244308
+        },
+        {
+          "name": "trajectory_12194.qpy",
+          "seconds": 14.535132475895807,
+          "process_cpu_seconds": 13.709008373000001,
+          "size_bytes": 6348712
+        },
+        {
+          "name": "trajectory_15569.qpy",
+          "seconds": 14.412925517186522,
+          "process_cpu_seconds": 13.454809039,
+          "size_bytes": 6211515
+        }
+      ]
+    }
+  ]
+}

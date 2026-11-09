@@ -8,11 +8,17 @@ From the repository root in PowerShell:
 python -u Model2/Experiment8/run_hardware.py plan --backend ibm_phoenix --trajectory-count 16834 --shots 32 --batch-size 9141 --instruction-fraction 0.8 --execution-mode batch
 
 $ddManifest = "<manifest.json path printed by plan>"
-python -u Model2/Experiment8/run_hardware.py prepare --resume "$ddManifest"
+python -u Model2/Experiment8/run_hardware.py prepare --resume "$ddManifest" --workers 4
 python -u Model2/Experiment8/run_hardware.py submit --manifest "$ddManifest" --hardware
 ```
 
 The Python commands also work in bash; set `ddManifest="<manifest.json path>"` there. `plan` is offline. `prepare` constructs and validates every native circuit and actual job footprint before a Runtime Batch is opened. It retains the existing calibration screen and bounded QPY shards. Full preparation can take substantial local CPU time and disk space; numeric estimate caches do not contain executable QPY.
+
+`--workers 4` selects local preparation concurrency. See
+[ParallelPreparation.md](ParallelPreparation.md) for recovery of completed
+trajectory files from the earlier interrupted serial runner. Older files
+require one-time full validation; newly receipted groups resume without
+transpilation or scheduling. The worker count does not change the hardware plan.
 
 Only `submit --hardware` submits QPU jobs. It creates one `qiskit_ibm_runtime.Batch` and uses `SamplerV2(mode=runtime_batch)` for every job. It queues all 24 without waiting for `job.result()`. The Batch ID is saved before the first submission, and each job ID and association are saved immediately afterward. Only one job's circuits are loaded at a time. Larger individual jobs still need sufficient RAM for Sampler serialization.
 

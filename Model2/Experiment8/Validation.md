@@ -1,5 +1,69 @@
 # Experiment8 software validation
 
+## Production parallel preparation and recovery
+
+The final integration passed **38 tests** in two regression runs:
+
+* 14 existing calibration, native DD, collection/analysis and resume tests in
+  419.77 s on the CPU-limited login host.
+* 24 integration/Batch/CPU-allocation tests in 170.18 s on four allocated CPUs
+  in local Slurm job 57163954, with 4 GiB RAM. This run used Qiskit 2.6.2 and
+  Runtime 0.51.0.
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 \
+  PYTHONPATH=.local-artifacts/model2-dd-bench-runtime051 \
+  MPLCONFIGDIR=.local-artifacts/model2-dd-parallel-tests-mpl \
+  .venv/bin/python -m pytest -q -x --disable-warnings \
+  tests/test_model2_parallel_preparation.py \
+  tests/test_model2_runtime_batch.py \
+  tests/test_model2_preparation_benchmark.py
+```
+
+Real spawned workers prepare complete 44-step trajectories and all matched
+variants. Tests interrupt four-worker preparation, allow in-flight receipts to
+finish, then resume with two workers while forbidding compilation/scheduling.
+Native circuit DAGs and wire operation/label sequences match the serial result.
+Older unregistered QPY files undergo the full independent paired-schedule check;
+their original hashes remain unchanged. Further cases reject modified QPY,
+receipt seals/contexts and a missing DD pulse, preserve unfinished `.partial`
+files, retain the IBM translation plugin in target-only workers, and keep
+scientific resume options immutable. Existing 24-job accounting, Batch recovery
+and CPU quota checks also pass.
+
+These are local-target and mocked-provider tests. No IBM service, QPU or Aer
+execution was used. Windows itself was not available for execution; workers
+use the cross-platform spawn method. See
+[ParallelPreparation.md](ParallelPreparation.md) for the production command.
+
+## Shared preparation kernel and worker benchmark
+
+The production preparation loop and isolated parallel benchmark now share
+`preparation.compile_group`. At the time of the original benchmark production
+preparation was sequential; its subsequent integration is validated above.
+The original regression run passed **10 tests in 115.93 s**
+under Qiskit 2.6.2/Runtime 0.51:
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 \
+  PYTHONPATH=/tmp/model2-dd-runtime051 MPLCONFIGDIR=/tmp/model2-prep-tests-mpl \
+  .venv/bin/python -m pytest -q \
+  tests/test_model2_preparation_benchmark.py \
+  tests/test_model2_dd_calibration.py \
+  tests/test_model2_combined_dd.py::test_real_folded_native_circuits_preserve_resets_frames_measurements_and_dd \
+  tests/test_model2_combined_dd.py::test_preparation_resume_preserves_shards_without_recompilation
+```
+
+Tests cover inherited CPU quotas, refusal before compilation when resources
+are insufficient, exact calibration diagnostics, native folded/DD circuits and
+resume without recompilation. The four CPU tests were rerun after making the
+affinity mock portable to Windows; all four passed in 0.22 s.
+
+A separate [completed 1/2/4-worker benchmark](benchmarks/preparation16_four_cpus/Benchmark.md)
+used four Slurm CPU slots, 16 distinct 44-step trajectories and all 15 controls.
+All 223 circuit signatures and per-group instruction vectors matched across
+modes. No IBM service, Sampler, QPU or Aer run was used.
+
 ## Calibration diagnostics
 
 The diagnostic update passed **six tests** in 109.93 seconds under Runtime

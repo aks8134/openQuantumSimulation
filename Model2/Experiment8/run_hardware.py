@@ -84,6 +84,8 @@ def parse_arguments(arguments=None):
         p.add_argument("--account-file", type=Path)
         if action == "prepare":
             p.add_argument("--resume", type=Path, help="continue this compiled/partially compiled manifest with its saved settings")
+            p.add_argument("--workers", type=int, default=1,
+                           help="local preparation processes; invocation-only, use 4 for the measured parallel option")
     for action in ("submit", "collect", "render", "analyze", "bundle", "clone-for-hardware", "inspect-job", "inspect-calibration"):
         p = sub.add_parser(action)
         p.add_argument("--manifest", required=True, type=Path)
@@ -116,8 +118,10 @@ def parse_arguments(arguments=None):
             p.add_argument("--job-id", required=True)
     a = parser.parse_args(argv)
     if a.action == "prepare" and a.resume:
-        if any(word.split("=", 1)[0] not in ("--resume", "--account-file") for word in argv if word.startswith("--")):
-            parser.error("prepare --resume uses all saved settings; only --account-file may be supplied")
+        if any(word.split("=", 1)[0] not in ("--resume", "--account-file", "--workers") for word in argv if word.startswith("--")):
+            parser.error("prepare --resume uses all saved settings; only --account-file and --workers may be supplied")
+    if a.action == "prepare" and a.workers < 1:
+        parser.error("workers must be a positive integer")
     if a.action in ("plan", "prepare") and not getattr(a, "resume", None):
         if (not 2 <= a.trajectory_count <= MAX_TRAJECTORIES or a.shots < 8 or a.shots % 4
                 or a.control_shots < 8 or a.control_shots % 4 or a.batch_size < 41 or a.bootstrap < 100
@@ -315,7 +319,7 @@ def prepare(options, *, backend=None, service=None):
         if any(b.get("job_id") or b["status"] == "submitting" for b in m["batches"]):
             raise ValueError("submitted plans are immutable; collect or submit the existing ledger")
         if (m["configuration"]["compiler_versions"] != dd_runtime.versions()
-                and any(name.endswith(".qpy") for name in m["files"])):
+                and (any(name.endswith(".qpy") for name in m["files"]) or next(folder.glob("batch_*.qpy"), None) is not None)):
             raise ValueError("resume compilation in the saved compiler environment")
         m["configuration"]["compiler_versions"] = dd_runtime.versions()
     else:
@@ -345,87 +349,36 @@ def prepare(options, *, backend=None, service=None):
         register(folder, m, "backend_snapshot.json")
         atomic_json(folder/"selected_path.json", selection); register(folder, m, "selected_path.json")
     m["status"] = "compiling"; checkpoint(folder, m)
-    layout = path[1:-1]+[path[0], path[-1]]
-    policy = dict(c["dd_policy"], physical_qubits=path[1:-1])
-    templates = {}
-    for i, batch in enumerate(m["batches"]):
-        if batch["compiled"]:
-            if qpy_storage.file_sha256(folder/batch["isa_file"]) != batch["isa_sha256"]:
-                raise ValueError("compiled shard index changed")
-            for name in json.loads((folder/batch["isa_file"]).read_text())["shards"]:
-                load_shard(folder, m, name, backend)
-            continue
-        rows = m["circuits"][batch["start"]:batch["stop"]]
-        groups = {}
-        for row in rows:
-            groups.setdefault(protocol.template_key(row), []).append(row)
-        shards, vector = [], np.zeros(backend.num_qubits, dtype=np.int64)
-        for key, group in groups.items():
-            name = f"batch_{i:04d}_{key[0]}_{key[1]}.qpy"
-            if name in m["files"]:
-                with progress(f"Checking previously compiled shard {name}"):
-                    programs = load_shard(folder, m, name, backend)
-                    vector += sum((instruction_audit.footprint(p) for p in programs), np.zeros_like(vector))
-                    del programs
-                shards.append(name)
+    from Model2.Experiment8.parallel_preparation import Preparation
+    with Preparation(sys.modules[__name__], folder, m, source, backend, getattr(options, "workers", 1)) as preparation:
+        for i, batch in enumerate(m["batches"]):
+            if batch["compiled"]:
+                with progress(f"Validating completed job {i+1}/{len(m['batches'])}"):
+                    if qpy_storage.file_sha256(folder/batch["isa_file"]) != batch["isa_sha256"]:
+                        raise ValueError("compiled shard index changed")
+                    for name in json.loads((folder/batch["isa_file"]).read_text())["shards"]:
+                        programs = load_shard(folder, m, name, backend)
+                        del programs
                 continue
-            control = group[0]["kind"] == "control"
-            if key not in templates:
-                logical = raw.build_body(source, 0 if control else key[1], steps=0 if control else None,
-                                         populations=group[0].get("expected_populations"))
-                native = transpile(logical, backend=backend, initial_layout=layout,
-                    optimization_level=3, seed_transpiler=11)
-                if native.layout.final_index_layout(filter_ancillas=True) != layout:
-                    raise ValueError("transpiler changed the fixed mapping")
-                templates[key] = raw.circuits.append_readout(native, layout[:10], "z")
-            programs, windows = [], []
-            for row in group:
-                variant = protocol.make_variant(templates[key], c, row)
-                variant.metadata.update(experiment=EXPERIMENT, pub_index=row["pub_index"], batch=i, kind=row["kind"],
-                    dd_condition="on", dd_policy=c["dd_policy"])
-                variant.metadata["control" if control else "trajectory"] = row["control"] if control else row["trajectory"]
-                with progress(f"Scheduling DD-on job {i+1}, {row['case_id']}"):
-                    local, original = timing.schedule(variant, backend.target, block_ordering_callable=flat_block_order)
-                    program, events = timing.schedule(variant, backend.target, policy=policy, block_ordering_callable=flat_block_order)
-                    check = timing.verify_pair(local, program, original, events, policy,
-                                               alignment_dt=int(backend.target.pulse_alignment or 1))
-                row.update(isa_file=name, isa_index=len(programs), metrics=raw.circuits.metrics(program),
-                    final_logical_to_physical=layout, dd_check={k:v for k,v in check.items() if k != "windows"})
-                if c["capture_timing"]:
-                    windows.append(dict(pub_index=row["pub_index"], case_id=row["case_id"], **check))
-                base.validate_circuits(m, [program], [row], backend, expected_experiment=EXPERIMENT)
-                validate_isa_circuits([program], backend.target)
-                programs.append(program)
-                vector += instruction_audit.footprint(program)
-                del local, original, events, variant
-            temporary = folder/(name+".partial")
-            with temporary.open("wb") as handle:
-                qpy.dump(programs, handle)
-            if temporary.stat().st_size > MAX_SHARD_BYTES or len(programs) > MAX_SHARD_CIRCUITS:
-                raise ValueError("compiled shard exceeds its bounded storage limit")
-            temporary.replace(folder/name)
-            register(folder, m, name, circuit_count=len(programs), pub_indices=[r["pub_index"] for r in group])
-            if windows:
-                filename = name.replace(".qpy", "_dd_windows.json")
-                atomic_json(folder/filename, windows); register(folder, m, filename)
-            shards.append(name)
-            del programs, program
-            if not control:
-                del templates[key]
-        allowance = int(c["instruction_fraction"]*instruction_audit.INSTRUCTION_LIMIT)
-        shots = sum(r["shots"] for r in rows)
-        if vector.max() > allowance or shots > instruction_audit.EXECUTION_LIMIT:
+            rows = m["circuits"][batch["start"]:batch["stop"]]
+            groups = {}
+            for row in rows:
+                groups.setdefault(protocol.template_key(row), []).append(row)
+            shards, vector = preparation.batch(groups, i)
+            allowance = int(c["instruction_fraction"]*instruction_audit.INSTRUCTION_LIMIT)
+            shots = sum(r["shots"] for r in rows)
+            if vector.max() > allowance or shots > instruction_audit.EXECUTION_LIMIT:
+                checkpoint(folder, m)
+                raise ValueError("actual DD-on job exceeds instruction/execution allowance; prepare a new plan with a smaller circuit cap")
+            name = f"job_{i:04d}_compilation.json"
+            atomic_json(folder/name, dict(artifact_type="qpy_shard_index_v1", shards=shards,
+                instructions_per_qubit=vector.tolist(), shots=shots))
+            register(folder, m, name)
+            batch.update(compiled=True, isa_file=name, isa_sha256=m["files"][name]["sha256"],
+                resources=dict(circuits=len(rows), shots=shots, maximum_instructions=int(vector.max()),
+                               instruction_budget=allowance), compiler_versions=dd_runtime.versions())
             checkpoint(folder, m)
-            raise ValueError("actual DD-on job exceeds instruction/execution allowance; prepare a new plan with a smaller circuit cap")
-        name = f"job_{i:04d}_compilation.json"
-        atomic_json(folder/name, dict(artifact_type="qpy_shard_index_v1", shards=shards,
-            instructions_per_qubit=vector.tolist(), shots=shots))
-        register(folder, m, name)
-        batch.update(compiled=True, isa_file=name, isa_sha256=m["files"][name]["sha256"],
-            resources=dict(circuits=len(rows), shots=shots, maximum_instructions=int(vector.max()),
-                           instruction_budget=allowance), compiler_versions=dd_runtime.versions())
-        checkpoint(folder, m)
-        print(f"Compiled job {i+1}/{len(m['batches'])}; all variants use DD.", flush=True)
+            print(f"Compiled job {i+1}/{len(m['batches'])}; all variants use DD.", flush=True)
     for factor in range(3):
         if not any(r["kind"] == "trajectory" and r["arm"] == "twirled" and r["factor_index"] == factor
                    and r["dd_check"]["added_x_pulses"] for r in m["circuits"]):

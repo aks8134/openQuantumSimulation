@@ -1,0 +1,15 @@
+# Schedules scaling results
+
+See Experiment1.md for definitions, assumptions and commands.
+
+| model | N | family | status | selected_steps | physical_time |
+|---|---|---|---|---|---|
+| model1 | 2 | constant | mean_forward_window_passed | 31 | 31.14611089528635 |
+| model1 | 2 | warped_cosine | mean_forward_window_passed | 31 | 31.14611089528635 |
+| model1 | 2 | fixed | no_passing_schedule_found | — | — |
+| model2 | 2 | constant | mean_forward_window_passed | 6 | 2.634393784785423 |
+| model2 | 2 | warped_cosine | mean_forward_window_passed | 6 | 2.634393784785423 |
+| model2 | 2 | fixed | mean_forward_window_passed | 29 | 1.4500000000000004 |
+| model3 | 2 | constant | mean_forward_window_passed | 78 | 3.8999999999999986 |
+| model3 | 2 | warped_cosine | mean_forward_window_passed | 25 | 3.8675122800149193 |
+| model3 | 2 | fixed | mean_forward_window_passed | 78 | 3.8999999999999986 |

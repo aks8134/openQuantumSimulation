@@ -3,6 +3,8 @@
 For the reviewed **16,834-path, 32-shot, 24-job** production cohort, see
 [RuntimeBatch.md](RuntimeBatch.md) for `--batch-size 9141`,
 `--execution-mode batch`, and resumable Batch submission.
+Preparation supports `--workers 4` and per-group recovery receipts; see
+[ParallelPreparation.md](ParallelPreparation.md) before stopping an older run.
 
 Every new hardware circuit uses the XX DD policy. There is **no DD-off hardware
 condition**. Experiment6 supplies historical DD-off results; different execution
