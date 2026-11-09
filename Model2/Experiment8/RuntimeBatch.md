@@ -30,6 +30,27 @@ Collection never submits, waits on active jobs, loads QPY or launches analysis. 
 
 ## Batch lifetime and interrupted submission
 
+If `prepare` rejects the saved path's calibration, inspect the exact failing
+values without compiling or submitting:
+
+```powershell
+python -u Model2/Experiment8/run_hardware.py inspect-calibration --manifest "$ddManifest"
+```
+
+The screen requires T1 >=80 us, T2 >=60 us, readout error <=2%, and CZ error
+<=0.5%; missing values also fail. The old "coherence/avoidance" message includes
+readout failures. Preparation now prints exact values and saves a sealed JSON
+under `calibration_checks/` even when screening fails. Inspection leaves the
+manifest, mapping, policy and thresholds unchanged, and performs no QPY loading,
+compilation or job submission. The local diagnostic JSON files are included
+when bundling results.
+
+Review the failures before choosing to keep the fixed chain or move to another
+chain. `--calibration-policy record-only` is an existing explicit new-plan
+option for retaining a fixed mapping while recording quality; it is not applied
+automatically and cannot be added to `prepare --resume`. A different chain
+requires its instruction/timing budget to be checked again.
+
 Provider/account default lifetime applies unless overridden. The actual provider `max_time` is printed and saved. TTL begins when the first job starts; at expiry, running jobs may finish while queued jobs may fail. IBM currently documents defaults of eight hours for paid plans and ten minutes for Open. See [Batch lifetime](https://quantum.cloud.ibm.com/docs/en/guides/run-jobs-batch#batch-length).
 
 For an account permitting the requested lifetime, use `submit ... --hardware --batch-max-time "8h"` without recompiling. This option can also be set at planning time. An existing Batch's TTL cannot be changed; omit the override when resuming it.

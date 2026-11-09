@@ -84,10 +84,10 @@ def parse_arguments(arguments=None):
         p.add_argument("--account-file", type=Path)
         if action == "prepare":
             p.add_argument("--resume", type=Path, help="continue this compiled/partially compiled manifest with its saved settings")
-    for action in ("submit", "collect", "render", "analyze", "bundle", "clone-for-hardware", "inspect-job"):
+    for action in ("submit", "collect", "render", "analyze", "bundle", "clone-for-hardware", "inspect-job", "inspect-calibration"):
         p = sub.add_parser(action)
         p.add_argument("--manifest", required=True, type=Path)
-        if action in ("submit", "collect", "inspect-job"):
+        if action in ("submit", "collect", "inspect-job", "inspect-calibration"):
             p.add_argument("--account-file", type=Path)
         if action == "submit":
             mode = p.add_mutually_exclusive_group(required=True)
@@ -323,13 +323,19 @@ def prepare(options, *, backend=None, service=None):
     c = m["configuration"]
     service, backend = dd_runtime.get_backend(options, c["backend"], service=service, backend=backend)
     path = c["requested_physical_path"]
+    from Model2.Experiment8 import calibration_checks
+    diagnostic_file, _ = calibration_checks.record(sys.modules[__name__], backend, m, folder, stage="prepare")
     model = timing.timing_model(backend, path)
     if c.get("timing_model") and model != c["timing_model"]:
         raise ValueError("target timing changed; create a new plan instead of mixing schedules")
-    settings = dict(avoid_qubits=[], min_t1_seconds=80e-6, min_t2_seconds=60e-6,
-        max_cz_error=.005, max_readout_error=.02, max_expansions=2_000_000)
+    settings = calibration_checks.settings()
     if c["calibration_policy"] == "screen":
-        selection = raw.quality_path.validate(backend, path, source, list(range(c["trajectory_count"])), settings)
+        try:
+            selection = raw.quality_path.validate(backend, path, source, list(range(c["trajectory_count"])), settings)
+        except ValueError as error:
+            raise ValueError(f"fixed path failed the current calibration screen; details: {diagnostic_file}. "
+                "T1, T2, readout and CZ values are printed above. No further compilation or submission occurred. "
+                "inspect-calibration --manifest reports the current values without changing this plan") from error
     else:
         raw.circuits.chain_layout(backend, 10, "boundary", path)
         selection = dict(physical_path=path, policy="explicit record-only mapping")
@@ -690,7 +696,7 @@ def bundle(options):
     names = ["manifest.json", "Plan.md"]+[name for name in m["files"] if options.include_qpy or not name.endswith(".qpy")]
     for b in m["batches"]:
         names.extend(b[key] for key in ("counts_file", "details_file") if b.get(key))
-    for subdir in ("analysis", "timing"):
+    for subdir in ("analysis", "timing", "calibration_checks"):
         if (folder/subdir).exists():
             names.extend(p.relative_to(folder).as_posix() for p in (folder/subdir).iterdir()
                          if p.is_file() and p.suffix not in (".html", ".partial"))
@@ -734,6 +740,15 @@ def inspect_job(options, *, service=None):
     return report
 
 
+def inspect_calibration(options, *, backend=None, service=None):
+    folder, manifest, _ = read_saved(options.manifest)
+    _, backend = dd_runtime.get_backend(options, manifest["configuration"]["backend"], backend=backend, service=service)
+    from Model2.Experiment8 import calibration_checks
+    _, report = calibration_checks.record(sys.modules[__name__], backend, manifest, folder, stage="inspection")
+    print("Calibration inspection only; manifest, mapping and policy unchanged. No circuits compiled or jobs submitted.", flush=True)
+    return report
+
+
 def main(options):
     if options.action == "plan":
         return new_plan(options)
@@ -741,7 +756,8 @@ def main(options):
         from Model2.Experiment8.analyze_hardware import analyze
         return analyze(options.manifest, output=options.output_directory)
     return {"prepare":prepare, "submit":submit, "collect":collect, "render":render,
-            "bundle":bundle, "clone-for-hardware":clone_for_hardware, "inspect-job":inspect_job}[options.action](options)
+            "bundle":bundle, "clone-for-hardware":clone_for_hardware, "inspect-job":inspect_job,
+            "inspect-calibration":inspect_calibration}[options.action](options)
 
 
 if __name__ == "__main__":

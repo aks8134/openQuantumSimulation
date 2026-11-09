@@ -1,5 +1,25 @@
 # Experiment8 software validation
 
+## Calibration diagnostics
+
+The diagnostic update passed **six tests** in 109.93 seconds under Runtime
+0.51/Qiskit 2.6.2:
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  PYTHONPATH=/tmp/model2-dd-runtime051 MPLCONFIGDIR=/tmp/model2-e8-calibration-mpl \
+  .venv/bin/python -m pytest -q \
+  tests/test_model2_dd_calibration.py \
+  tests/test_model2_combined_dd.py::test_real_folded_native_circuits_preserve_resets_frames_measurements_and_dd \
+  tests/test_model2_combined_dd.py::test_preparation_resume_preserves_shards_without_recompilation
+```
+
+The new tests verify exact T1/T2/readout/CZ failure reporting, unchanged
+manifest bytes, and rejection before compilation. Passing screens and explicitly
+planned record-only policies still reach compilation. Existing native DD and
+shard-resume checks also pass. Targets and services were local or mocked;
+no IBM account, live query or hardware submission was used.
+
 ## Runtime Batch and 16,834-path update
 
 The following Runtime 0.51/Qiskit 2.6.2 regression run passed **38 tests plus
