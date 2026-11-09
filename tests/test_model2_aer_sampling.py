@@ -11,7 +11,7 @@ import numpy as np
 from qiskit import ClassicalRegister,QuantumCircuit
 from qiskit.quantum_info import DensityMatrix,Kraus
 
-from Model2.Experiment5 import aer_sampling,run_hardware,input_data
+from Model2.Experiment5 import aer_sampling,aer_progress,run_hardware,input_data
 
 
 def exact_density(circuit):
@@ -87,12 +87,44 @@ class AerSamplingTests(unittest.TestCase):
             first=aer_sampling.main(args)
             self.assertTrue(first["complete"])
             with patch.object(aer_sampling.AerSimulator,"run",side_effect=AssertionError("cached samples must be reused")):
-                second=aer_sampling.main(args+["--resume"])
+                second=aer_progress.main(args+["--resume"])
             self.assertEqual(first,second)
             sample=next(Path(folder).glob("*/*.npz"))
             with sample.open("ab") as output: output.write(b" ")
             with self.assertRaisesRegex(ValueError,"samples changed"):
                 aer_sampling.main(args+["--resume"])
+
+    def test_progress_eta_uses_new_work_and_does_not_count_final_save_twice(self):
+        now=[0.]
+        progress=aer_progress.Progress(clock=lambda:now[0])
+        cached={"begin":0,"end":16,"seconds":9999.}
+        new={"begin":16,"end":32,"seconds":1.}
+        study={"configuration":{"paths":64,"shots":64},"chunks":[cached],"complete":False}
+        with contextlib.redirect_stdout(io.StringIO()):
+            now[0]=.01
+            progress.saved(Path("study.json"),study)
+            self.assertIn("ETA pending",progress.message())
+            now[0]=60.01
+            progress.saved(Path("samples_00016_00032.json"),new)
+            study["chunks"].append(new)
+            progress.saved(Path("study.json"),study)
+            self.assertIn("ETA 00:02:00",progress.message())
+            self.assertIn("resumed 16",progress.message())
+            self.assertIn("6,144/12,288",progress.message())
+            progress.saved(Path("study.json"),study)
+        self.assertEqual(progress.new_paths,16)
+        self.assertEqual(progress.resumed,16)
+        self.assertEqual(progress.new_work_seconds,60.)
+
+    def test_progress_restores_checkpoint_writer_after_failure(self):
+        original=aer_sampling.atomic_json
+        original_estimate=aer_sampling.estimate
+        with contextlib.redirect_stdout(io.StringIO()), \
+             patch.object(aer_sampling,"main",side_effect=RuntimeError("test interruption")):
+            with self.assertRaisesRegex(RuntimeError,"test interruption"):
+                aer_progress.main(["--paths","2"])
+        self.assertIs(aer_sampling.atomic_json,original)
+        self.assertIs(aer_sampling.estimate,original_estimate)
 
 
 if __name__=="__main__":

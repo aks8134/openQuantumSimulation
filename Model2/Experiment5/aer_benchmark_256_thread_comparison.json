@@ -1,0 +1,57 @@
+{
+  "threads_4": {
+    "wall_seconds": 394.4841009140946,
+    "scientific_wall_seconds": 382.8495149591472,
+    "import_seconds": 11.623286837944761,
+    "simulation_chunk_seconds": 365.0998852746561,
+    "peak_rss_mib": 202.5859375,
+    "cpu_total_seconds": 177.621047,
+    "average_cpu_cores_used": 0.45026161152862254,
+    "projection": {
+      "paths": 16384,
+      "shots_per_basis": 32,
+      "bases": 3,
+      "threads": 4,
+      "circuits": 49152,
+      "outcomes": 1572864,
+      "wall_seconds": 24514.715387711534,
+      "wall_hours": 6.809643163253204,
+      "status": "extrapolation only; full configuration was not executed",
+      "assumption": "same circuit construction, chunk size, software and comparable CPU load; fixed import cost excluded from scaling"
+    },
+    "study_file": "Model2/Experiment5/runs/benchmark_256x32_4threads_3825ec14f2/samples/aer_d2cbc7ef84e0/study.json"
+  },
+  "threads_8": {
+    "wall_seconds": 400.20445538987406,
+    "scientific_wall_seconds": 391.6656670568045,
+    "import_seconds": 8.4989092128817,
+    "simulation_chunk_seconds": 374.84585424675606,
+    "peak_rss_mib": 197.30859375,
+    "cpu_total_seconds": 184.425181,
+    "average_cpu_cores_used": 0.460827405882664,
+    "projection": {
+      "paths": 16384,
+      "shots_per_basis": 32,
+      "bases": 3,
+      "threads": 8,
+      "circuits": 49152,
+      "outcomes": 1572864,
+      "wall_seconds": 25077.653864540393,
+      "wall_hours": 6.9660149623723315,
+      "status": "extrapolation only; full configuration was not executed",
+      "assumption": "same circuit construction, chunk size, software and comparable CPU load; fixed import cost excluded from scaling"
+    },
+    "study_file": "Model2/Experiment5/runs/benchmark_256x32_8threads_691e142b24/samples/aer_0094aa6fe582/study.json"
+  },
+  "wall_speedup_4_over_8": 0.9857064198093278,
+  "scientific_wall_speedup_4_over_8": 0.9774906180470021,
+  "aer_chunk_speedup_4_over_8": 0.974000061994325,
+  "wall_time_reduction_percent": -1.4500849242147673,
+  "verification": {
+    "physics_code_versions_and_source": "identical",
+    "actual_outcomes_per_run": 24576,
+    "all_sample_hashes_and_counts": "verified",
+    "all_observables_reconstructed": "exact match"
+  },
+  "scope": "One sequential benchmark per thread setting; CPU load was not controlled. Full 16384-path run not started."
+}

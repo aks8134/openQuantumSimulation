@@ -15,8 +15,8 @@ from Model3.Experiment5 import mitigation as mit, run_mitigation as protocol
 from Model2.Experiment6.progress import progress
 
 
-def analyze_counts(manifest, source, *, allow_partial=False):
-    experiment.verify_manifest(manifest, source)
+def analyze_counts(manifest, source, *, allow_partial=False, validator=None, observation_reader=None):
+    (validator or experiment.verify_manifest)(manifest, source)
     if not allow_partial and manifest["status"] != "collected":
         raise ValueError("analysis needs all mitigation jobs collected; saved counts are retained for resume")
     config = manifest["configuration"]
@@ -38,7 +38,7 @@ def analyze_counts(manifest, source, *, allow_partial=False):
         print(f"Reconstructing saved counts: job {batch_index}/{len(batches)}", flush=True)
         paths = {}  # Release decoded bitstring dictionaries after each job.
         records = manifest["circuits"][batch["start"]:batch["stop"]]
-        observations = batch.get("observations", [])
+        observations = observation_reader(batch) if observation_reader else batch.get("observations", [])
         if batch["status"] != "collected" or not batch.get("job_id") or not batch["compiled"] or len(observations) != len(records):
             raise ValueError("incomplete mitigation batch or result length")
         local = {arm: {name: [] for name in experiment.CONTROLS} for arm in ("raw", "twirled")}
@@ -85,7 +85,7 @@ def analyze_counts(manifest, source, *, allow_partial=False):
     with progress(f"Computing independent calibration and uncertainty for {len(batches)} jobs"):
         statistics = protocol.combine_job_calibrations(statistics, values, covariances, controls_by_job,
             groups, factors, ideal, target, replicates=config["bootstrap"], seed=config["seed"], job_ids=job_ids)
-    return dict(experiment=experiment.EXPERIMENT, configuration=config, job_ids=job_ids,
+    return dict(experiment=manifest["experiment"], configuration=config, job_ids=job_ids,
         statistics=statistics, ideal_same_paths=ideal.mean(axis=0), physical_target=target,
         per_path_populations=values, per_path_ideal_populations=ideal,
         analysis=dict(complete=len(batches) == len(manifest["batches"]), collected_jobs=len(batches),

@@ -89,7 +89,7 @@ def _duration(node, circuit, target):
     return int(target.seconds_to_dt(target[node.name][qargs].duration))
 
 
-def schedule(circuit, target, *, policy=None):
+def schedule(circuit, target, *, policy=None, block_ordering_callable=None):
     """Same ALAP policy for both arms; no optimization after DD insertion."""
     # Both passes visit the identical input DAG. IBM's ordering walks many
     # descendants in deep reset circuits; retain that exact order for the second
@@ -98,7 +98,7 @@ def schedule(circuit, target, *, policy=None):
     def ordering(dag):
         key = id(dag)
         if key not in orders:
-            orders[key] = (dag, list(block_order_op_nodes(dag)))
+            orders[key] = (dag, list((block_ordering_callable or block_order_op_nodes)(dag)))
         return iter(orders[key][1])
     if policy is None:
         padder = PadDelay(target=target, schedule_idle_qubits=False, block_ordering_callable=ordering)

@@ -186,12 +186,12 @@ def new_plan(options):
     return folder, manifest, source
 
 
-def verify_manifest(manifest, source=None):
-    if manifest.get("experiment") != EXPERIMENT:
+def verify_manifest(manifest, source=None, *, expected_experiment=EXPERIMENT, expected_sampler_options=SAMPLER_OPTIONS):
+    if manifest.get("experiment") != expected_experiment:
         raise ValueError("not a Model2 mitigation manifest")
     config = manifest["configuration"]
     if (config["steps"] != 44 or config["spec_sha256"] != input_data.SPEC_SHA256
-            or config["sampler_options"] != SAMPLER_OPTIONS or config["controls_per_batch"] is not True
+            or config["sampler_options"] != expected_sampler_options or config["controls_per_batch"] is not True
             or not 2 <= config["trajectory_count"] <= 16384):
         raise ValueError("frozen experiment or explicit manual mitigation options changed")
     path = config["physical_path"]
@@ -371,14 +371,14 @@ def select_path(manifest, source, backend, folder, *, allow_calibration_drift=Fa
     print(f"Mitigation physical path: {config['physical_path']}", flush=True)
 
 
-def validate_circuits(manifest, programs, records, backend=None):
+def validate_circuits(manifest, programs, records, backend=None, *, expected_experiment=EXPERIMENT):
     config = manifest["configuration"]
     layout = config["physical_path"][1:-1]+[config["physical_path"][0], config["physical_path"][-1]]
     if len(programs) != len(records):
         raise ValueError("native batch count mismatch")
     for program, row in zip(programs, records):
         metadata = program.metadata or {}
-        if any(metadata.get(k) != v for k, v in {"experiment": EXPERIMENT, "pub_index": row["pub_index"],
+        if any(metadata.get(k) != v for k, v in {"experiment": expected_experiment, "pub_index": row["pub_index"],
                 "batch": row["batch"], "mitigation_case_id": row["case_id"], "kind": row["kind"]}.items()):
             raise ValueError("native mitigation circuit identity changed")
         control = row["kind"] == "control"
@@ -400,7 +400,7 @@ def validate_circuits(manifest, programs, records, backend=None):
             raise ValueError("native circuit lacks a ten-bit final outcome register")
         measured = [(program.find_bit(item.qubits[0]).index, list(outcome).index(item.clbits[0]))
                     for item in program.data if item.operation.name == "measure" and item.clbits[0] in outcome]
-        if measured != list(zip(layout[:10], range(10))):
+        if sorted(measured) != sorted(zip(layout[:10], range(10))):
             raise ValueError("native final measurements differ from the fixed mapping")
         if raw.circuits.metrics(program) != row["metrics"]:
             raise ValueError("native circuit metrics changed")

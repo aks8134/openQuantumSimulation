@@ -1,0 +1,113 @@
+{
+  "status": "complete",
+  "started_at_utc": "2026-11-08T04:08:31.538523+00:00",
+  "arguments": [
+    "--paths",
+    "256",
+    "--shots",
+    "32",
+    "--threads",
+    "4",
+    "--chunk",
+    "16",
+    "--seed",
+    "29",
+    "--aer-seed",
+    "2026",
+    "--output-directory",
+    "/storage/home/aks8134/OpenQuantumSystem/Model2/Experiment5/runs/benchmark_256x32_4threads_3825ec14f2/samples"
+  ],
+  "command": [
+    "/storage/home/aks8134/OpenQuantumSystem/.venv/bin/python",
+    "Model2/Experiment5/aer_sampling.py",
+    "--paths",
+    "256",
+    "--shots",
+    "32",
+    "--threads",
+    "4",
+    "--chunk",
+    "16",
+    "--seed",
+    "29",
+    "--aer-seed",
+    "2026",
+    "--output-directory",
+    "/storage/home/aks8134/OpenQuantumSystem/Model2/Experiment5/runs/benchmark_256x32_4threads_3825ec14f2/samples"
+  ],
+  "logical_cpus_available": 8,
+  "environment": {
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  },
+  "scope": "Actual noiseless Aer final outcomes, exact bath-traced channel; no IBM connection, controls, mitigation or hardware noise.",
+  "import_seconds": 11.623286837944761,
+  "scientific_wall_seconds": 382.8495149591472,
+  "complete": true,
+  "configuration": {
+    "paths": 256,
+    "shots": 32,
+    "seed": 29,
+    "aer_seed": 2026,
+    "chunk": 16,
+    "threads": 4,
+    "full": false,
+    "spec_sha256": "a718135fd2db8bccd5973d2f476d15030dd3064a1e8fd870db1a012b59d9c2bd",
+    "code_sha256": "41cdb93d24e82fc40189ea93885359b3ff4346427c4ec3646c52e91aa526f3d8"
+  },
+  "versions": {
+    "qiskit": "2.5.2",
+    "qiskit-aer": "0.17.2",
+    "numpy": "2.5.2"
+  },
+  "simulation_chunk_seconds": 365.0998852746561,
+  "actual_evolution_outcomes": 24576,
+  "maximum_target_error": 0.0291748046875,
+  "maximum_mean_channel_error": 0.01810555006130915,
+  "maximum_same_path_error": 0.013874644576885673,
+  "maximum_two_SE": 0.02385057442053688,
+  "empirical_checks_passed": false,
+  "study_file": "Model2/Experiment5/runs/benchmark_256x32_4threads_3825ec14f2/samples/aer_d2cbc7ef84e0/study.json",
+  "study_sha256": "92d62604d6484855faf1e39b979a4df0558ebe46184ef91f6b4aeaf10f13d6f7",
+  "wall_seconds": 394.4841009140946,
+  "peak_rss_kib": 207448,
+  "peak_rss_mib": 202.5859375,
+  "cpu_user_seconds": 172.319092,
+  "cpu_system_seconds": 5.3019549999999995,
+  "finished_at_utc": "2026-11-08T04:15:06.013988+00:00",
+  "verification": {
+    "sample_archive_hashes": "all verified",
+    "study_and_source_hashes": "verified",
+    "sample_shape": [
+      256,
+      3,
+      32
+    ],
+    "actual_outcomes": 24576,
+    "observable_reconstruction": "exact match",
+    "completed_chunks": 16
+  },
+  "cpu_total_seconds": 177.621047,
+  "average_cpu_cores_used": 0.45026161152862254,
+  "chunk_seconds": {
+    "minimum": 21.913999846903607,
+    "median": 22.693773991893977,
+    "maximum": 24.118941157124937,
+    "mean": 22.818742829666007
+  },
+  "projection": {
+    "paths": 16384,
+    "shots_per_basis": 32,
+    "bases": 3,
+    "threads": 4,
+    "circuits": 49152,
+    "outcomes": 1572864,
+    "wall_seconds": 24514.715387711534,
+    "wall_hours": 6.809643163253204,
+    "status": "extrapolation only; full configuration was not executed",
+    "assumption": "same circuit construction, chunk size, software and comparable CPU load; fixed import cost excluded from scaling"
+  },
+  "raw_benchmark_file": "Model2/Experiment5/runs/benchmark_256x32_4threads_3825ec14f2/benchmark.json"
+}

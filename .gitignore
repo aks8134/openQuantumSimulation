@@ -254,6 +254,8 @@ pyproject.toml
 
 # Model2 compiler-timing/DD raw assets, HTML and transfer data stay local.
 /Model2/Experiment7/hardware_runs/
+/Model2/Experiment8/hardware_runs/
+/Model2/Experiment8/analysis/
 /Model2/Experiment7/dd_policy*.json
 /.venv-dd/
 

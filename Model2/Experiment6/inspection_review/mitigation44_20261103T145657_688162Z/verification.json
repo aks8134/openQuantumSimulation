@@ -1,0 +1,545 @@
+{
+  "archive": "Model2/Experiment6/hardware_runs/mitigation44_20261103T145657_688162Z/results_bundle.zip",
+  "plan_sha256_verified": true,
+  "source_sha256_verified": true,
+  "spec_digest_verified": true,
+  "duplicated_analysis_reports_sha256_equal": true,
+  "all_job_ids_matched": true,
+  "complete": true,
+  "jobs": 20,
+  "trajectories": 16384,
+  "circuits": 213292,
+  "shots": 2342912,
+  "all_per_path_populations_reproduced_from_counts": true,
+  "all_job_local_profiles_reproduced": true,
+  "all_final_point_estimates_reproduced": true,
+  "all_ideal_references_reproduced": true,
+  "bootstrap_intervals": "Read from saved 2000-replicate analysis; bootstrap not rerun in this review.",
+  "circuit_archives": "QPY omitted from transfer; no independent binary circuit validation in this review.",
+  "control_summary": {
+    "job_arms": 40,
+    "site_checks": 400,
+    "site_checks_pointwise_interval_excludes_half": 57,
+    "job_arms_with_at_least_one_exclusion": 32,
+    "minimum_response_contrast": 0.720703125,
+    "worst_heldout": {
+      "job": 14,
+      "job_id": "dbmd21674qds73ds36v0",
+      "arm": "twirled",
+      "heldout_max_error": 0.0956566701137539,
+      "worst_site": 2,
+      "physical_qubit": 115,
+      "corrected_at_worst": 0.4043433298862461,
+      "ci95_low_at_worst": 0.3805074665332789,
+      "ci95_high_at_worst": 0.4276147175877292,
+      "sites_with_pointwise_CI_excluding_half": 1,
+      "minimum_response_contrast": 0.9443359375,
+      "maximum_zero_error": 0.02734375,
+      "maximum_one_error": 0.0283203125
+    }
+  },
+  "job_usage": [
+    {
+      "job": 1,
+      "job_id": "dblb631kbkrc73cndj00",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400842,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400842,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-04T04:22:42.208547Z",
+        "finished": "2026-11-04T06:32:15.837608Z",
+        "running": "2026-11-04T04:53:13.077065Z"
+      }
+    },
+    {
+      "job": 2,
+      "job_id": "dbldhnd8mdtc73d5vk3g",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400842,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400842,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-04T07:04:03.155142Z",
+        "finished": "2026-11-04T07:44:02.20285Z",
+        "running": "2026-11-04T07:04:46.97833Z"
+      }
+    },
+    {
+      "job": 3,
+      "job_id": "dblel1d8mdtc73d61f90",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400842,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400842,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-04T08:19:21.876236Z",
+        "finished": "2026-11-04T09:05:32.633038Z",
+        "running": "2026-11-04T08:23:40.39155Z"
+      }
+    },
+    {
+      "job": 4,
+      "job_id": "dblfpo674qds73dqe2f0",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400842,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400842,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-04T09:37:40.831188Z",
+        "finished": "2026-11-04T10:05:21.910787Z",
+        "running": "2026-11-04T09:41:00.714668Z"
+      }
+    },
+    {
+      "job": 5,
+      "job_id": "dblgksd8mdtc73d64n6g",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-04T10:35:34.108445Z",
+        "finished": "2026-11-04T13:34:10.222953Z",
+        "running": "2026-11-04T13:03:41.08391Z"
+      }
+    },
+    {
+      "job": 6,
+      "job_id": "dbljmkd8mdtc73d69c30",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-04T14:04:07.178532Z",
+        "finished": "2026-11-04T15:05:04.154024Z",
+        "running": "2026-11-04T14:13:34.198342Z"
+      }
+    },
+    {
+      "job": 7,
+      "job_id": "dbll1qt8ft8s738t9ltg",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-04T15:36:18.110776Z",
+        "finished": "2026-11-04T16:26:07.290511Z",
+        "running": "2026-11-04T15:57:03.616966Z"
+      }
+    },
+    {
+      "job": 8,
+      "job_id": "dblm9nl8ft8s738tbnq0",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-04T17:01:24.472742Z",
+        "finished": "2026-11-04T23:45:41.915658Z",
+        "running": "2026-11-04T22:31:30.847021Z"
+      }
+    },
+    {
+      "job": 9,
+      "job_id": "dblsmdm74qds73dr3u2g",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-05T00:18:05.605085Z",
+        "finished": "2026-11-05T07:04:57.721878Z",
+        "running": "2026-11-05T06:44:59.361148Z"
+      }
+    },
+    {
+      "job": 10,
+      "job_id": "dbm34ne74qds73drg7jg",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-05T07:38:10.019869Z",
+        "finished": "2026-11-05T10:36:22.046323Z",
+        "running": "2026-11-05T09:34:23.455355Z"
+      }
+    },
+    {
+      "job": 11,
+      "job_id": "dbm66mt8ft8s738u9lo0",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-05T11:07:16.626085Z",
+        "finished": "2026-11-05T13:17:58.196975Z",
+        "running": "2026-11-05T12:47:48.904502Z"
+      }
+    },
+    {
+      "job": 12,
+      "job_id": "dbm8ik674qds73drqv6g",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-05T13:49:10.679786Z",
+        "finished": "2026-11-05T16:36:34.748706Z",
+        "running": "2026-11-05T14:49:40.520966Z"
+      }
+    },
+    {
+      "job": 13,
+      "job_id": "dbmbgg674qds73ds0dpg",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-05T17:09:28.090938Z",
+        "finished": "2026-11-05T18:20:34.380537Z",
+        "running": "2026-11-05T17:36:35.072369Z"
+      }
+    },
+    {
+      "job": 14,
+      "job_id": "dbmd21674qds73ds36v0",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-05T18:55:05.388036Z",
+        "finished": "2026-11-06T00:25:47.498349Z",
+        "running": "2026-11-05T23:33:40.897991Z"
+      }
+    },
+    {
+      "job": 15,
+      "job_id": "dbmicnu74qds73dsbbf0",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-06T00:59:17.045868Z",
+        "finished": "2026-11-06T01:56:22.825364Z",
+        "running": "2026-11-06T01:00:27.335734Z"
+      }
+    },
+    {
+      "job": 16,
+      "job_id": "dbmjn358ft8s738uvu70",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-06T02:29:41.443439Z",
+        "finished": "2026-11-06T04:17:00.706841Z",
+        "running": "2026-11-06T02:50:46.776615Z"
+      }
+    },
+    {
+      "job": 17,
+      "job_id": "dbmlq0m74qds73dsi45g",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-06T04:52:22.661054Z",
+        "finished": "2026-11-06T07:35:35.081963Z",
+        "running": "2026-11-06T07:05:50.269479Z"
+      }
+    },
+    {
+      "job": 18,
+      "job_id": "dbn5e0oqtr0c73acd7g0",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-06T22:39:06.170143Z",
+        "finished": "2026-11-07T00:36:22.42942Z",
+        "running": "2026-11-06T22:50:46.042036Z"
+      }
+    },
+    {
+      "job": 19,
+      "job_id": "dbn7gm0ou4as73b40ccg",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-07T01:01:17.364057Z",
+        "finished": "2026-11-07T13:42:31.422602Z",
+        "running": "2026-11-07T12:41:53.789643Z"
+      }
+    },
+    {
+      "job": 20,
+      "job_id": "dbnj23tt7fqc73ajnofg",
+      "usage": {
+        "qpu_charge_time_seconds": 25,
+        "value": 0.400409,
+        "unit": "resource_units",
+        "status": "complete",
+        "details": [
+          {
+            "value": 0.400409,
+            "unit": "resource_units",
+            "metric": {
+              "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+              "value": 25
+            }
+          }
+        ]
+      },
+      "timestamps": {
+        "created": "2026-11-07T14:09:24.124701Z",
+        "finished": "2026-11-07T15:40:05.084171Z",
+        "running": "2026-11-07T14:20:57.953486Z"
+      }
+    }
+  ],
+  "archive_sha256": "3f61f2d0a36e0678feadb668d15d298314457dab8fd02334226507cb1f512b16",
+  "recorded_qpu_charge_time_seconds": 500
+}
