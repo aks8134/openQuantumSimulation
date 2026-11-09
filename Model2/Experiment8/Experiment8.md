@@ -1,5 +1,9 @@
 # Model2 Experiment8: twirling + ZNE + SPAM + DD
 
+For the reviewed **16,834-path, 32-shot, 24-job** production cohort, see
+[RuntimeBatch.md](RuntimeBatch.md) for `--batch-size 9141`,
+`--execution-mode batch`, and resumable Batch submission.
+
 Every new hardware circuit uses the XX DD policy. There is **no DD-off hardware
 condition**. Experiment6 supplies historical DD-off results; different execution
 dates and calibrations prevent a paired causal estimate of DD's contribution.
@@ -7,7 +11,8 @@ The raw and intermediate profiles in this experiment also have DD enabled.
 
 The physical setup is unchanged: N=10, J=1, Γ/J=2, pL=pR=.25, exchange prefactor
 1/4, Δ=0, half-mixed preparation, jump-first/even-odd evolution, and the frozen
-44-step warped cosine. The full plan uses 16,384 prefix-stable seed-29 paths,
+44-step warped cosine. The original default uses 16,384 seed-29 paths;
+the reviewed Batch production cohort uses 16,834. Both use
 32 shots per raw arm/factor, four randomizations, factors 1/1.25/1.5, 2,048
 control shots per preparation/treatment/job, and 2,000 bootstrap replicates.
 Smaller explicit cohorts use the same first seed streams for inspection.
@@ -135,13 +140,19 @@ large server timing payload, while retaining local DD validation and summary
 counts for every circuit:
 
 ```powershell
-python Model2/Experiment8/run_hardware.py plan --trajectory-count 16384 --shots 32
+python Model2/Experiment8/run_hardware.py plan --backend ibm_phoenix --trajectory-count 16834 --shots 32 --batch-size 9141 --instruction-fraction 0.8 --execution-mode batch
 $full = "<printed production manifest.json path>"
 python Model2/Experiment8/run_hardware.py prepare --resume "$full"
+python Model2/Experiment8/run_hardware.py submit --manifest "$full" --hardware
 ```
 
-The default circuit cap is **512**, including controls. This gives **432 planned
-jobs, 219,472 circuits and 7,405,568 shots** for the full cohort. The four-path
+This explicitly selects the reviewed **24-job, 219,202-circuit, 2,449,664-shot**
+balanced configuration and submits through one IBM Runtime Batch without
+waiting for each job's result. See RuntimeBatch.md for lifetime and recovery.
+
+The unchanged default circuit cap is **512**, including controls. As a
+comparison, that cap gives 443 jobs for 16,834 paths, or **432 planned jobs,
+219,472 circuits and 7,405,568 shots** for the original 16,384 paths. The four-path
 inspection is **1 job, 67 circuits and 12,800 shots**. These totals include the
 complete job-local controls; there is no DD-off arm. They are accounting totals
 for the chosen grouping, not an estimate of QPU seconds or compiler acceptance.

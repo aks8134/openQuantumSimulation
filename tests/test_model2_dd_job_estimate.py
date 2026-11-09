@@ -158,3 +158,25 @@ def test_spawned_worker_uses_only_cached_target_and_source(cached):
         result = pool.submit(estimate.count_unit, "controls", "all").result(timeout=120)
     assert result["context_sha256"] == context["sha256"]
     assert result["circuits"] == 15
+
+
+def test_report_only_preserves_completed_cache_after_transport_code_updates(cached, tmp_path):
+    import json
+    import shutil
+    folder, backend, a, context = cached
+    copy = tmp_path/"cache"
+    shutil.copytree(folder, copy)
+    old = dict(context, versions={"old": "compiler"}, code_hashes={"old": "production transport code"})
+    old = estimate.seal(old)
+    estimate.atomic_json(copy/"context.json", old)
+    for kind, identity in [("controls", "all"), ("trajectory", 0), ("trajectory", 1)]:
+        estimate.atomic_json(estimate.unit_path(copy, kind, identity), numeric_unit(old, kind, identity))
+    (copy/"target.pkl").unlink()
+    (copy/"source.json").unlink()
+    args = ["--backend", backend.name, "--trajectory-count", "2", "--output-directory", str(copy)]
+    with patch.object(estimate, "initialize_worker", side_effect=AssertionError("no old target deserialization")), \
+         patch.object(estimate.run.raw.runtime, "make_service", side_effect=AssertionError("no IBM account")):
+        report = estimate.main(estimate.parse_arguments(args+["--report-only"]))
+    assert report["context_sha256"] == old["sha256"]
+    with pytest.raises(ValueError, match="completed caches remain usable"):
+        estimate.main(estimate.parse_arguments(args))

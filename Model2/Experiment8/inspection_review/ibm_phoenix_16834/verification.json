@@ -1,0 +1,142 @@
+{
+  "input_report_sha256": "a13c2eb23897bb1110da764909e6117d0c5b72f65dec28f47506af2a83cdb13f",
+  "input_context_sha256": "2f39b1b90dbcf27c953c61d2957c4574d6f7fe3dfe5ee4aa0f4ee49233fd8a48",
+  "context_seal_verified": true,
+  "code_checks": {
+    "Model2/Experiment8/estimate_jobs.py": "matches, allowing LF/CRLF conversion",
+    "Model2/Experiment8/run_hardware.py": "matches, allowing LF/CRLF conversion",
+    "Model2/Experiment7/schedule_tools.py": "matches, allowing LF/CRLF conversion",
+    "Model2/Experiment8/ordering.py": "matches, allowing LF/CRLF conversion",
+    "Model3/Experiment5/run_mitigation.py": "matches, allowing LF/CRLF conversion",
+    "Model3/Experiment5/mitigation.py": "matches, allowing LF/CRLF conversion",
+    "Model2/Experiment5/run_hardware.py": "matches, allowing LF/CRLF conversion",
+    "Model3/Experiment5/circuit_depth.py": "matches, allowing LF/CRLF conversion",
+    "Model2/Experiment5/instruction_audit.py": "matches, allowing LF/CRLF conversion",
+    "Model2/Experiment5/input_data.py": "matches, allowing LF/CRLF conversion"
+  },
+  "full_cohort_reported": true,
+  "paths": 16834,
+  "permutation_and_all_csv_coverage_verified": true,
+  "all_accounting_and_reported_limits_verified": true,
+  "global_bottleneck_qubit": 112,
+  "global_bottleneck_path_instructions": 502248664,
+  "controls_per_job_on_bottleneck": 998,
+  "scenarios": {
+    "published_limit": {
+      "jobs": 19,
+      "lower_bound": 19,
+      "circuits": 219127,
+      "shots": 2388224,
+      "maximum_instructions": 26796152,
+      "headroom_to_hard_limit": 3848,
+      "headroom_percent": 0.014358208955222995,
+      "paths_per_job": [
+        676,
+        896,
+        897,
+        898,
+        899
+      ],
+      "max_circuits_per_job": 11702,
+      "max_shots_per_job": 127360,
+      "bottleneck_qubits": [
+        112
+      ],
+      "aggregate_bottleneck_consistency_checked": true
+    },
+    "balanced_runner_published_limit": {
+      "jobs": 19,
+      "lower_bound": 19,
+      "circuits": 219127,
+      "shots": 2388224,
+      "maximum_instructions": 26465318,
+      "headroom_to_hard_limit": 334682,
+      "headroom_percent": 1.2488134328358158,
+      "paths_per_job": [
+        886
+      ],
+      "max_circuits_per_job": 11533,
+      "max_shots_per_job": 125696,
+      "bottleneck_qubits": [
+        112
+      ],
+      "aggregate_bottleneck_consistency_checked": true
+    },
+    "selected_fraction": {
+      "jobs": 24,
+      "lower_bound": 24,
+      "circuits": 219202,
+      "shots": 2449664,
+      "maximum_instructions": 21439915,
+      "headroom_to_hard_limit": 5360085,
+      "headroom_percent": 20.000317164179105,
+      "paths_per_job": [
+        317,
+        717,
+        718,
+        719,
+        720
+      ],
+      "max_circuits_per_job": 9375,
+      "max_shots_per_job": 104448,
+      "bottleneck_qubits": [
+        112
+      ],
+      "aggregate_bottleneck_consistency_checked": true
+    },
+    "balanced_runner_selected_fraction": {
+      "jobs": 24,
+      "lower_bound": 24,
+      "circuits": 219202,
+      "shots": 2449664,
+      "maximum_instructions": 20974163,
+      "headroom_to_hard_limit": 5825837,
+      "headroom_percent": 21.738197761194034,
+      "paths_per_job": [
+        701,
+        702
+      ],
+      "max_circuits_per_job": 9141,
+      "max_shots_per_job": 102144,
+      "bottleneck_qubits": [
+        112
+      ],
+      "aggregate_bottleneck_consistency_checked": true
+    },
+    "current_circuit_cap": {
+      "jobs": 443,
+      "lower_bound": 443,
+      "circuits": 225487,
+      "shots": 7598336,
+      "maximum_instructions": 1147603,
+      "headroom_to_hard_limit": 25652397,
+      "headroom_percent": 95.71789925373135,
+      "paths_per_job": [
+        38
+      ],
+      "max_circuits_per_job": 509,
+      "max_shots_per_job": 17152,
+      "bottleneck_qubits": [
+        112
+      ],
+      "aggregate_bottleneck_consistency_checked": true
+    }
+  },
+  "recommended": {
+    "jobs": 24,
+    "batch_size": 9141,
+    "shots": 2449664,
+    "circuits": 219202
+  },
+  "shots_saved_against_cap": 5148672,
+  "shot_reduction_percent": 67.76052019810653,
+  "native_scope": "Report/context/CSV consistency verified. Raw per-path caches, source and target pickle were not included in the transfer and were not independently recounted. No backend access or jobs.",
+  "execution_blocker_at_initial_review": "Current hardware runner and shared validator accept at most 16384 paths; estimate is for 16834.",
+  "subsequent_production_update": {
+    "cohort_limit": 16834,
+    "runtime_batch_supported": true,
+    "recommended_circuit_cap": 9141,
+    "job_count": 24,
+    "code_hash_check_scope": "Recorded before Batch transport/validation code changes; native construction unchanged."
+  }
+}

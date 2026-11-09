@@ -34,9 +34,21 @@ from Model3.Experiment5 import run_mitigation as protocol
 from Model2.Experiment8.ordering import flat_block_order
 
 EXPERIMENT = "Model2/Experiment8/mitigation_dd_v1"
+MAX_TRAJECTORIES = 16834
 MAX_SHARD_CIRCUITS = 13
 MAX_SHARD_BYTES = 64*1024*1024
 DEFAULT_REFERENCE = ROOT/"Model2/Experiment6/hardware_runs/mitigation44_20261103T145657_688162Z/results_bundle.zip"
+
+
+def batch_time(value):
+    from qiskit_ibm_runtime.utils.converters import hms_to_seconds
+    try:
+        seconds = int(value) if value.isdecimal() else hms_to_seconds(value, "Invalid batch-max-time: ")
+        if seconds <= 0:
+            raise ValueError("batch-max-time must be positive")
+        return seconds
+    except (TypeError, ValueError) as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
 
 
 def sampler_options(capture_timing):
@@ -59,6 +71,10 @@ def parse_arguments(arguments=None):
         p.add_argument("--batch-size", type=int, default=512, help="circuit cap including controls; timing inspection also caps jobs at 128")
         p.add_argument("--bootstrap", type=int, default=2000)
         p.add_argument("--instruction-fraction", type=float, default=.8)
+        p.add_argument("--execution-mode", choices=("job", "batch"), default="job",
+                       help="hardware submission mode; batch queues all jobs in one Runtime Batch")
+        p.add_argument("--batch-max-time", type=batch_time,
+                       help="optional Runtime Batch TTL, e.g. 2h; defaults to the provider/account limit")
         p.add_argument("--capture-timing", action="store_true", help="small inspection cohort only (<=64 paths); IBM scheduler metadata")
         p.add_argument("--physical-path", type=int, nargs=12)
         p.add_argument("--calibration-policy", choices=("screen", "record-only"), default="screen")
@@ -77,6 +93,10 @@ def parse_arguments(arguments=None):
             mode = p.add_mutually_exclusive_group(required=True)
             mode.add_argument("--dry-run", action="store_true")
             mode.add_argument("--hardware", action="store_true")
+            p.add_argument("--new-batch-for-remaining", action="store_true",
+                           help="explicit recovery only: replace a non-accepting Runtime Batch for jobs without IDs")
+            p.add_argument("--batch-max-time", type=batch_time,
+                           help="optional TTL override when creating a Runtime Batch; does not require recompilation")
         if action == "collect":
             p.add_argument("--job-details", action="store_true", help="optional metrics after counts have been checkpointed")
         if action == "render":
@@ -99,17 +119,21 @@ def parse_arguments(arguments=None):
         if any(word.split("=", 1)[0] not in ("--resume", "--account-file") for word in argv if word.startswith("--")):
             parser.error("prepare --resume uses all saved settings; only --account-file may be supplied")
     if a.action in ("plan", "prepare") and not getattr(a, "resume", None):
-        if (not 2 <= a.trajectory_count <= 16384 or a.shots < 8 or a.shots % 4
+        if (not 2 <= a.trajectory_count <= MAX_TRAJECTORIES or a.shots < 8 or a.shots % 4
                 or a.control_shots < 8 or a.control_shots % 4 or a.batch_size < 41 or a.bootstrap < 100
                 or not np.isfinite(a.instruction_fraction) or not 0 < a.instruction_fraction <= 1
                 or not a.backend.strip()):
-            parser.error("need 2..16384 paths, shots/control-shots divisible by four and >=8, cap>=41, bootstrap>=100, fraction in (0,1]")
+            parser.error(f"need 2..{MAX_TRAJECTORIES} paths, shots/control-shots divisible by four and >=8, cap>=41, bootstrap>=100, fraction in (0,1]")
+        if a.batch_max_time is not None and a.execution_mode != "batch":
+            parser.error("--batch-max-time requires --execution-mode batch")
         if a.capture_timing and a.trajectory_count > 64:
             parser.error("capture-timing is restricted to <=64 inspection paths; full production saves counts without server timing")
         if a.physical_path and (len(set(a.physical_path)) != 12 or min(a.physical_path) < 0):
             parser.error("physical-path requires twelve distinct nonnegative qubits")
     if a.action == "render" and a.trajectory < 0:
         parser.error("trajectory must be nonnegative")
+    if a.action == "submit" and a.new_batch_for_remaining and not a.hardware:
+        parser.error("--new-batch-for-remaining is for hardware Batch recovery only")
     return a
 
 
@@ -156,7 +180,14 @@ def register(folder, m, name, **details):
 def verify_manifest(m, source=None):
     c = m["configuration"]
     base.verify_manifest(m, source, expected_experiment=EXPERIMENT,
-                         expected_sampler_options=sampler_options(c["capture_timing"]))
+                         expected_sampler_options=sampler_options(c["capture_timing"]),
+                         maximum_trajectories=MAX_TRAJECTORIES)
+    if c.get("execution_mode", "job") not in ("job", "batch"):
+        raise ValueError("unknown saved execution mode")
+    maximum = c.get("batch_max_time_seconds")
+    if maximum is not None and (c.get("execution_mode", "job") != "batch"
+                                or not isinstance(maximum, int) or maximum <= 0):
+        raise ValueError("invalid saved Runtime Batch maximum time")
     if (c["randomizations"] != 4 or c["fold_factors"] != [1., 1.25, 1.5] or c["seed"] != 29
             or c["seed_transpiler"] != 11 or c["optimization_level"] != 3 or c["dd_condition"] != "on"
             or c["dd_policy"] != dict(sequence="XX", spacings=[.25, .5, .25], min_idle_ratio=10.,
@@ -203,6 +234,7 @@ def new_plan(options):
         seed=29, seed_transpiler=11, optimization_level=3, bootstrap=options.bootstrap,
         batch_size=min(options.batch_size, 128) if options.capture_timing else options.batch_size,
         instruction_fraction=options.instruction_fraction, controls_per_batch=True,
+        execution_mode=options.execution_mode, batch_max_time_seconds=options.batch_max_time,
         calibration_policy=options.calibration_policy, physics=spec["physics"], steps=44,
         spec_sha256=input_data.SPEC_SHA256, physical_path=None, requested_physical_path=list(requested),
         capture_timing=options.capture_timing, sampler_options=sampler_options(options.capture_timing),
@@ -235,6 +267,7 @@ def write_plan(folder, m):
         f"{c['trajectory_count']:,} seed-29 trajectories; {c['shots']} shots per raw arm/factor, four variants per factor.",
         f"**{c['total_jobs']} jobs, {c['total_circuits']:,} circuits, {c['total_shots']:,} shots including controls.**",
         f"Circuit cap {c['batch_size']}; instruction allowance {c['instruction_fraction']:.0%}; compiler timing capture {c['capture_timing']}.",
+        f"Hardware execution mode: {c.get('execution_mode', 'job')}; Runtime Batch max_time seconds: {c.get('batch_max_time_seconds')} (None uses provider default).",
         "These are the saved grouping's counts. Native backend instruction checks must pass before submission; job count is not a QPU-time estimate.", "",
         "Frozen N=10, J=1, Γ/J=2, equal p=.25 reservoirs, half mixed, 44-step warped cosine, jump first/even-odd.",
         "Native CZ folding at factors 1/1.25/1.5 and manual gate/terminal-measurement twirling precede ALAP scheduling and XX insertion.",
@@ -395,17 +428,30 @@ def prepare(options, *, backend=None, service=None):
     return folder, m
 
 
-def submit(options, *, backend=None, service=None, sampler_factory=None):
+def submit(options, *, backend=None, service=None, sampler_factory=None, batch_factory=None):
     folder, m, _ = read_saved(options.manifest)
     c = m["configuration"]
     mode = "dry_run" if options.dry_run else "hardware"
+    use_batch = options.hardware and c.get("execution_mode", "job") == "batch"
+    if getattr(options, "new_batch_for_remaining", False) and not use_batch:
+        raise ValueError("--new-batch-for-remaining requires a saved batch-mode hardware plan")
+    if getattr(options, "batch_max_time", None) is not None and not use_batch:
+        raise ValueError("--batch-max-time submission override requires a saved batch-mode hardware plan")
     if m["status"] not in ("compiled", "collected") or not all(b["compiled"] for b in m["batches"]):
         raise ValueError("finish compilation before submitting any job")
     if m.get("submission_mode") not in (None, mode):
         raise ValueError("mock and hardware counts require separate ledgers; use clone-for-hardware after inspection")
     if any(b["status"] == "submitting" and not b.get("job_id") for b in m["batches"]):
         raise ValueError("submission interrupted before its ID was saved; reconcile the saved job tag with IBM; no automatic retry")
+    if any(b.get("provider_runtime_batch_id") is not None
+           and b["provider_runtime_batch_id"] != b.get("runtime_batch_id") for b in m["batches"]):
+        raise ValueError("a recorded job reports a different Runtime Batch; reconcile it before further submissions")
     if all(b.get("job_id") for b in m["batches"]):
+        if use_batch:
+            from Model2.Experiment8.batch_execution import BatchSubmission
+            lifecycle = BatchSubmission(folder, m, options, backend=backend, service=service,
+                checkpoint=checkpoint, service_factory=raw.runtime.make_service, factory=batch_factory)
+            lifecycle.close()
         print("All job IDs already recorded; use collect to retrieve results.", flush=True)
         return m
     sampler_factory = sampler_factory or dd_runtime.resolve_sampler(dry_run=options.dry_run)
@@ -415,6 +461,12 @@ def submit(options, *, backend=None, service=None, sampler_factory=None):
     if options.hardware and getattr(backend, "is_mock", False):
         raise ValueError("a mock backend cannot produce physical results")
     m["submission_mode"] = mode; checkpoint(folder, m)
+    lifecycle = None
+    if use_batch:
+        from Model2.Experiment8.batch_execution import BatchSubmission
+        lifecycle = BatchSubmission(folder, m, options, backend=backend, service=service,
+            checkpoint=checkpoint, service_factory=raw.runtime.make_service, factory=batch_factory)
+        lifecycle.check_existing()
     for i, batch in enumerate(m["batches"]):
         if batch.get("job_id"):
             print(f"Keeping job {i+1}: {batch['job_id']}", flush=True)
@@ -437,7 +489,7 @@ def submit(options, *, backend=None, service=None, sampler_factory=None):
                 raise ValueError("native submission footprint changed")
         opts = json.loads(json.dumps(c["sampler_options"]))
         opts["environment"] = dict(job_tags=[batch["tag"], "model2-experiment8-dd-on"])
-        sampler = sampler_factory(mode=backend, options=opts)
+        sampler = sampler_factory(mode=lifecycle.mode() if lifecycle else backend, options=opts)
         batch["status"] = "submitting"; checkpoint(folder, m)
         with progress(f"Submitting {mode} job {i+1}"):
             kwargs = {"dry_run":True} if options.dry_run else {}
@@ -445,10 +497,17 @@ def submit(options, *, backend=None, service=None, sampler_factory=None):
             job_id = job.job_id()
             if not isinstance(job_id, str) or not job_id.strip():
                 raise ValueError("no usable job ID returned; reconcile the tagged submission before retrying")
-            batch.update(job_id=job_id, status="submitted"); checkpoint(folder, m)
+            batch.update(job_id=job_id, status="submitted")
+            if lifecycle:
+                batch["runtime_batch_id"] = lifecycle.batch_id
+            checkpoint(folder, m)
+            if lifecycle:
+                lifecycle.check_job(job, batch)
         print(f"Submitted {mode} job {i+1}/{len(m['batches'])}: {job_id}", flush=True)
         del pubs, cache, program, sampler, job
         gc.collect()
+    if lifecycle:
+        lifecycle.close()
     return m
 
 
@@ -620,6 +679,8 @@ def clone_for_hardware(options):
         m["batches"][i] = {k:b[k] for k in ("start", "stop", "compiled", "isa_file", "isa_sha256", "resources", "compiler_versions")}
         m["batches"][i].update(status="not_submitted", job_id=None, tag=f"m2mitdd-{c['run_token']}-{i:04d}")
     m.pop("submission_mode", None); m["status"] = "compiled"
+    for key in ("runtime_batch", "runtime_batch_history"):
+        m.pop(key, None)
     checkpoint(folder, m); write_plan(folder, m)
     return folder, m
 

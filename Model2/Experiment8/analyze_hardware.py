@@ -47,6 +47,9 @@ def analyze(manifest_path, *, output=None):
             current_physical_maximum=p["physical_maximum"], historical_physical_maximum=q["physical_maximum"],
             physical_maximum_change=p["physical_maximum"]-q["physical_maximum"]))
     report["historical_dd_off_reference"] = context
+    report["runtime_execution"] = dict(mode=c.get("execution_mode", "job"),
+        current_batch=m.get("runtime_batch"), previous_batches=m.get("runtime_batch_history", []),
+        job_runtime_batch_ids=[b.get("runtime_batch_id") for b in m["batches"]])
     target = np.asarray(report["physical_target"])
     report["population_target_assessment"] = {
         name:dict(maximum_point_error=float(np.max(abs(p["populations"]-target))),

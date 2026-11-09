@@ -1,5 +1,35 @@
 # Experiment8 software validation
 
+## Runtime Batch and 16,834-path update
+
+The following Runtime 0.51/Qiskit 2.6.2 regression run passed **38 tests plus
+five subtests** in 372.33 seconds:
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MPLCONFIGDIR=/tmp/model2-e8-batch-mpl \
+  .venv/bin/python -m pytest -q \
+  tests/test_model2_runtime_batch.py \
+  tests/test_model2_combined_dd.py \
+  tests/test_model2_dd_job_estimate.py \
+  tests/test_model2_mitigation_collection.py
+```
+
+The new offline cohort test creates the 16,834-path plan and verifies exactly
+24 jobs, 219,202 circuits and 2,449,664 shots at cap 9,141. Experiment6's default
+validator still rejects the larger cohort. Runtime Batch tests use mocked
+providers and verify that all 24 jobs bind to one Batch, IDs are durable before
+further uploads, results are never awaited during submission, and closure does
+not cancel jobs. They cover interrupted upload/resume, ambiguous submission,
+expired-Batch explicit replacement, association mismatch, failed/idempotent
+closure, TTL overrides and job-mode dry-run isolation. Native DD construction,
+spawned count workers, sealed cache reuse and legacy collection tests also pass.
+Completed older count caches can be reported without target deserialization or
+new compilation; partial native caches still enforce compiler consistency.
+
+No IBM account, live backend query, cloud dry-run or QPU submission was used.
+
+## Original mitigation + DD implementation
+
 Validation used local backend targets and mocked IBM jobs. No live account,
 cloud dry-run, QPU submission, or Aer experiment was used.
 

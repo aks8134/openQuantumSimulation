@@ -186,13 +186,14 @@ def new_plan(options):
     return folder, manifest, source
 
 
-def verify_manifest(manifest, source=None, *, expected_experiment=EXPERIMENT, expected_sampler_options=SAMPLER_OPTIONS):
+def verify_manifest(manifest, source=None, *, expected_experiment=EXPERIMENT, expected_sampler_options=SAMPLER_OPTIONS,
+                    maximum_trajectories=16384):
     if manifest.get("experiment") != expected_experiment:
         raise ValueError("not a Model2 mitigation manifest")
     config = manifest["configuration"]
     if (config["steps"] != 44 or config["spec_sha256"] != input_data.SPEC_SHA256
             or config["sampler_options"] != expected_sampler_options or config["controls_per_batch"] is not True
-            or not 2 <= config["trajectory_count"] <= 16384):
+            or not 2 <= config["trajectory_count"] <= maximum_trajectories):
         raise ValueError("frozen experiment or explicit manual mitigation options changed")
     path = config["physical_path"]
     if path is not None and (len(path) != 12 or len(set(path)) != 12 or min(path) < 0):

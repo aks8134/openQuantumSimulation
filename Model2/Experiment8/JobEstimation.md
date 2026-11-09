@@ -17,7 +17,7 @@ The Python command also works in PowerShell. If you literally want 16,834 paths,
 python -u Model2/Experiment8/estimate_jobs.py --backend ibm_phoenix --trajectory-count 16834 --shots 32 --workers 4
 ```
 
-Both counts are supported for estimation. The hardware runner's existing 16,384-path limit is unchanged; a larger accounting cohort is not a statement that the production runner accepts that count or that its accuracy has been validated.
+Both counts are supported for estimation and Experiment8 production planning. Experiment8 now accepts up to 16,834 paths; Experiment6 retains its 16,384-path limit. An instruction estimate does not certify statistical accuracy.
 
 The default physical chain is read from the complete Experiment6 reference bundle. Supply `--physical-path` with twelve physical qubits in left-bath/system/right-bath order to count another chain. The script checks native connectivity, durations and scheduled circuit construction; it does not apply the hardware runner's coherence/readout quality screen. `--account-file PATH` uses another account configuration. Only initial target retrieval uses the account.
 
@@ -43,7 +43,7 @@ The lower bound reserves complete controls in every job and sums every counted p
 
 To resume, run exactly the same command. Each completed path is saved atomically, hashed and verified before reuse. Only a bounded number of worker tasks are active, so interruption cannot leave an unbounded submitted work queue. The frozen target and compiler versions are reused, avoiding a mixture of calibrations across a long count. A changed compiler environment or changed scientific code is refused; use a new output directory for a fresh target/count. Worker count can change on resume.
 
-After counting, regenerate the report offline without querying IBM or compiling:
+After counting, regenerate the report offline without querying IBM or compiling. Completed sealed numeric caches remain readable with report-only after production transport/validation code updates, without deserializing the old target:
 
 ```bash
 python -u Model2/Experiment8/estimate_jobs.py --backend ibm_phoenix --trajectory-count 16384 --shots 32 --report-only

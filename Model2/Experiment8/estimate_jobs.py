@@ -191,9 +191,16 @@ def open_context(options, folder, *, backend=None, service=None):
     if name.exists():
         context = verify_seal(json.loads(name.read_text()))
         if (context["backend"] != options.backend or context["trajectory_count"] != options.trajectory_count
-                or context["versions"] != versions() or context["code_hashes"] != code_hashes()
-                or (options.physical_path and context["physical_path"] != options.physical_path)):
-            raise ValueError("saved count context/settings/compiler changed; use a new output directory")
+                or (options.physical_path and context["physical_path"] != options.physical_path)
+                or context["weights"] != audit.WEIGHTS or context["spec_sha256"] != input_data.SPEC_SHA256):
+            raise ValueError("saved count settings/counting model differ from this request")
+        if options.report_only:
+            print(f"Reading sealed numeric counts from target captured {context['captured_at_utc']}; "
+                  "no account, target deserialization or compilation.", flush=True)
+            return context
+        if context["versions"] != versions() or context["code_hashes"] != code_hashes():
+            raise ValueError("compiler environment/code changed; completed caches remain usable with --report-only. "
+                             "Use a new output directory for new native compilation")
         initialize_worker(folder)
         print(f"Resuming cached target captured {context['captured_at_utc']}; no account lookup.", flush=True)
         return context
@@ -347,7 +354,7 @@ def estimate(units, controls, context, options):
             control_shots_per_preparation_treatment=options.control_shots, randomizations=4, factors=[1.,1.25,1.5],
             dd_policy=context["dd_policy"], counted_paths=len(units), footprint_projection=not exact,
             instruction_fraction=options.instruction_fraction, comparison_circuit_cap=options.circuit_cap,
-            current_hardware_runner_accepts_cohort=count <= 16384),
+            current_hardware_runner_accepts_cohort=count <= run.MAX_TRAJECTORIES),
         counting=dict(limit_source=audit.LIMIT_SOURCE, instruction_limit=audit.INSTRUCTION_LIMIT,
             execution_limit=audit.EXECUTION_LIMIT, weights=audit.WEIGHTS, implicit_init=True,
             instructions_multiplied_by_shots=False, path_circuits=13, control_circuits_per_job=15,
@@ -414,8 +421,8 @@ def save_report(report, folder):
         "The cache freezes the target and compiler environment for reproducibility; resuming does not silently mix "
         "calibrations. Fetch a new target into a new output directory if required. Counts are not server-compiler acceptance "
         "or measured instruction-memory usage.", "",
-        "The estimator accepts 16,834 for accounting if requested, but the current hardware runner still caps new cohorts "
-        "at 16,384; this script does not change that protocol limit.", "",
+        f"The current Experiment8 hardware runner accepts cohorts through {run.MAX_TRAJECTORIES:,}. "
+        "An estimate still does not certify statistical accuracy or install a production manifest.", "",
         f"[IBM job limits]({audit.LIMIT_SOURCE}). Machine-readable details: [job_estimate.json](job_estimate.json)."]
     lines[6:6] = leading + [""]
     (folder/"JobEstimate.md").write_text("\n".join(lines)+"\n")
