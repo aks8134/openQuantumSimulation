@@ -1,205 +1,156 @@
-# Experiment1: offline scaling of the three models through N=100
+# Experiment1: full offline scaling through N=100
 
-This study is feasible for the existing **XX chains** (Delta=0, Model1 h=0).
-The continuous dynamics and ideal randomized-channel means close on N-by-N
-one-body covariance matrices. A full 2^N density matrix, a circuit simulator
-and hardware execution are unnecessary. Adding ZZ interactions invalidates
-this reduction and requires a separate simulation strategy.
+All three models use the agreed normalization:
 
-The experiment has four questions: how physical relaxation time scales with
-N; how many actual digital collision/reset steps prepare an acceptable
-output; how much the warped cosine family reduces that count; and how native
-compiled resources and logical Clifford+T estimates scale. All stages are
-implemented in [study.py](study.py), with explicit inputs in [config.json](config.json).
-Running the experiment is staged: a completed reference study does not imply
-that the schedule or resource studies have completed.
+```
+H = (J/2) sum_i (X_i X_(i+1) + Y_i Y_(i+1)), J=1, gamma=1.
+```
 
-## Physical models and comparison policy
+Boundary injection/loss rates are gamma*p_b and gamma*(1-p_b). N counts
+system qubits, excluding two reusable boundary ancillas.
 
-Use H=c J sum(XX+YY), with boundary injection gamma*p_b and loss
-gamma*(1-p_b). N counts **system qubits**; compiled trajectories allocate
-N+2 including the two reusable boundary ancillas. Physical time uses the
-configured rates; Jt is the dimensionless time. Default J=1 for all cases.
+| Model | p_left, p_right | Initial preparation |
+|---|---|---|
+| Model1 | 0, 0 | One excitation at zero-based site N//2 |
+| Model2 | 0.25, 0.25 | Product half mixture |
+| Model3 | 0.9, 0.1 | Product half mixture |
 
-| Model | c | gamma/J | p_left, p_right | Initial preparation |
-|---|---:|---:|---|---|
-| Model1 | 1/2 | 0.2 | 0, 0 | One excitation at zero-based site N//2 |
-| Model2 | 1/4 | 2 | 0.25, 0.25 | Product half mixture |
-| Model3 | 1/2 | 1 | 0.9, 0.1 | Product half mixture |
+Preparations and reservoirs remain different. The earlier pilot used
+different rates/normalizations and is preserved in [InitialPilot.md](InitialPilot.md).
 
-These are explicit representative choices from Model1/Experiment11,
-Model2/Experiment4 and Model3/Experiment7. Model2's rates are divided by ten
-relative to its J=10, gamma=20 convention, which multiplies physical times
-by ten. Model3 uses its schedule-study gamma=1 rather than Experiment1's
-gamma=2. We do not import a stored winning schedule.
+Configured sizes: 2,4,6,8,10,15,20,30,40,50,60,80,100, giving 39 model/size
+cases. [config.json](config.json) records physical and search inputs.
+No hardware, account service, noisy simulator or mitigation stage is used.
 
-The first panel measures **within-model size scaling**. Cross-model differences
-also reflect hopping normalization, dissipation and preparation. A controlled
-second panel should rerun a copied config with common c=1/2, gamma/J=1 and
-half_mixed preparation. Keep both panels rather than silently redefining the
-models. Sensitivity runs should use vacuum/filled preparations, additional
-gamma/J values, tighter tolerances and an N-dependent continuation window.
-Do not fit one universal exponent across these different protocols.
+For backend-specific resources from these same schedules, use the separate
+[Phoenix compilation script and instructions](PhoenixResources.md). It
+captures a full real backend target, then compiles complete circuits
+locally. The generic resource figures below remain a separate baseline.
 
-Sizes default to 2,4,6,8,10,15,20,30,40,50,60,80,100. `--sizes` can specify
-any integers from 2 through 100, including every size in that range.
+## Acceptance and continuous relaxation
 
-## Acceptance and error budget
+The distance is the maximum over all sites/bonds of population error and
+excitation-current error divided by J. This is local-observable accuracy,
+not full many-body trace distance. Model1 may retain excitation after local
+observables pass; its output total excitation is retained in the report.
 
-The observable distance is the maximum over **all sites and all bonds** of
-population error and excitation-current error divided by J. It is a local
-observable criterion, not full many-body trace distance. The total target
-0.02 is allocated as 0.016 deterministic mean, 0.003 trajectory/measurement
-sampling, and 0.001 rotation synthesis. The runner validates the mean only;
-sampling remains unspent, unvalidated headroom. Resource paths are a small
-compilation sample, not a converged trajectory ensemble or shot estimate.
+The target 0.02 is allocated as 0.016 deterministic mean, 0.003 sampling and
+0.001 synthesis. Only the mean is validated here. The sampling allowance is
+headroom, not a finite-trajectory or measurement-shot guarantee.
 
-For the continuous reference, in the library's real gauge,
+For the exact XX model, N-by-N covariances evolve as
 
 ```
 A = J * generator(model)
 C(t) = C_star + exp(t A) (C(0)-C_star) exp(t A)^T
-B(t) = max(1,4c) ||C(t)-C_star||_F
+B(t) = max(1,4c) ||C(t)-C_star||_F, c=1/2.
 ```
 
-Since A+A^T is negative semidefinite, B(t) is nonincreasing and bounds the
-local distance at **every later physical time**. Bisection finds its crossing
-of 0.016, reporting `settling_time_upper_bound`, the numerical bracket, the
-actual local error there, and the stationary-equation residual. This is an
-exact-model calculation in floating point, but its crossing is a **sufficient
-upper bound on local settling time**, not the earliest local threshold
-crossing. Do not label a plot of this quantity "exact mixing time". The
-Frobenius certificate can be conservative and can affect empirical scaling.
+A+A^T is negative semidefinite, making B(t) nonincreasing and a bound on
+every later local error. Bisection finds its 0.016 crossing. Report this as
+a permanent local-settling-time **upper bound**, not the earliest local
+crossing or many-body mixing time. Numerical brackets and stationary
+residuals are saved. The physical-time cap is 1e7.
 
-Schedule acceptance instead checks the output and **every node** of a
-constant-final-step continuation covering at least 10 physical-time units.
-It is finite-window digital settling; it does not prove permanent settling,
-nor require agreement with the continuous transient. Continuation steps and
-search evaluations are classical validation work and never enter the
-reported executable preparation count. Equal error budgets do not make the
-continuous permanent certificate and digital finite window identical tests.
+Digital schedules must pass at output and at every constant-final-step
+continuation node covering at least 10 physical-time units. This is a
+finite-window mean test, not permanent digital convergence. Continuation
+and search work are classical validation and do not add preparation steps.
+These continuous and digital guarantees are different; their physical
+times are not compared as equivalent mixing-time guarantees.
+Schedules optimize stationary-observable preparation; no tolerance on
+matching the continuous transient is imposed.
 
-## Actual preparation steps and warped cosine
+## Steps and search policy
 
-One digital step applies even bonds, odd bonds, then **one sampled boundary
-pump or loss dilation and reset**. Jumps are rate weighted; the selected
-amplitude is strengthened by its selection probability. The collision
-angle is sqrt(2 gamma dt); its loss probability is sin^2 of that angle,
-not 1-exp(-2 gamma dt). For Model1 the pump branches have zero probability.
-Large steps can have collision resonances; no monotonicity in dt or K is
-assumed.
+K counts executable preparation steps. Each applies even and odd system
+bonds, one rate-weighted sampled boundary pump/loss exchange, then a reset.
+The collision angle is sqrt(2 gamma dt); it gives sin^2 damping, not exact
+exponential damping. Zero-rate Model1 pump branches are never selected.
 
-The methods are a fixed dt=0.05 baseline, searched constant dt, and
-
-```
-dt_k = dt_min + (dt_max-dt_min)/2 * (1+cos(pi*(k/(K-1))^q))
-k = 0,...,K-1; K=1 uses dt_min.
-```
-
-Endpoint names denote schedule endpoints, not the global search limits.
-Search bounds default to dt in [0.001,2], q in [0.1,8], K<=4096, and total
-physical time <=1e7. Two differential-evolution seeds search K and the log
-parameters jointly. A passing fixed baseline within the search bounds is
-retained by the constant search. Constant endpoints remain admissible warped
-schedules; the passing constant incumbent is retained. Each selected schedule is
-independently rebuilt with the existing dense affine channel, including
-every continuation node and output covariance physicality.
-
-Report K_fixed, K_constant, K_warped, sum(dt), their acceptance status and
-reductions 1-K_warped/K_baseline only for passing pairs. These are **smallest
-passing counts found in bounded searches**, not proven minimum counts.
-`ceil(t_continuous/dt)` is not a validated digital step count. Search failure
-is explicitly `no_passing_schedule_found`; it is not physical infeasibility.
-The initial K cap is a workload control, not an expectation that N=100 will
-pass. Increase bounds and optimizer effort in a new config when needed.
-
-The O(N^2) mean step avoids dense N^2-by-N^2 channel matrices and the existing
-packed-covariance optimizer's O(N^4) storage. Long schedules and repeated
-optimization can still be expensive. Profile the pilot before the full
-schedule sweep. A selected schedule gets one independent dense replay;
-large sampled ensembles are not required for this deterministic study.
-
-## Compiled resources and logical fault-tolerant estimates
-
-Compilation uses Qiskit locally, with no backend account. Each accepted
-schedule is compiled for two fixed random paths on both all-to-all and a
-bidirectional line. The boundary ancillas sit beside their system endpoints.
-Optimization level 1 and transpiler seed 11 are fixed. Native basis is
-RZ/SX/X/CX; report full depth, two-qubit depth, CX count, operation counts,
-preparation measurements, resets, and terminal Z readout. These are abstract
-dependency-layer depths, not pulse durations or an IBM-device forecast.
-Additional X/Y observable settings and measurement repetitions are separate
-workloads; the current resource table is per Z-readout trajectory.
-
-Each source step has (N-1) Hamiltonian exchanges plus one bath exchange:
-**NK logical exchange blocks** and K resets. Logical source count is
-therefore O(NK). Compiled counts and depth are measured, not inferred from
-this formula. Full materialized compilation is capped at 200,000 exchange
-blocks per trajectory; capped rows have no invented compiled result.
-
-A second local compilation lowers to Clifford gates plus RZ. Exact
-Clifford-angle rotations cost zero T; odd multiples of pi/4 cost one T or
-T-dagger. For R remaining generic rotations, allocate operator error
+The fixed dt=0.05 baseline directly steps the actual mean channel, with
+K<=262144. Searched constant schedules start with 12 logarithmic and 20
+linear timestep probes, the fixed step and in-bounds swap/collision
+landmarks, followed by joint differential evolution on K and log(dt).
+Warped cosine jointly searches K, log endpoints and log(q):
 
 ```
-eta = synthesis_allowance / (2 * max(1,4c) * R)
-T_estimate = exact_T + R * ceil(3*log2(1/eta))
+dt_k = dt_min + (dt_max-dt_min)/2 * [1+cos(pi*(k/(K-1))^q)]
+k=0,...,K-1; K=1 uses the smaller endpoint.
 ```
 
-The factor 2 and observable norm factor make the allocation consistent with
-a telescoping unitary-error/expectation-error argument, also through ideal
-measurements and resets. The T formula is only a **leading-order estimate**
-from [Ross and Selinger](https://arxiv.org/abs/1403.2975); omitted asymptotic
-terms mean rounding up does not make it a certified upper bound. No actual
-Clifford+T approximation is synthesized here. The exact post-synthesis
-Clifford count and T-depth remain null. Angle classification has floating
-point tolerance. Validate representative rotations with a synthesis tool
-before making publication claims about absolute fault-tolerant counts.
+Bounds: dt in [0.001,2], q in [0.1,8], search K<=4096 and total time <=1e7.
+The search range narrows to a passing incumbent where possible; a fixed
+baseline exceeding the search cap is retained. Constant incumbents are
+valid equal-endpoint warped schedules. Two seeds (1729,1730) get up to 24
+generations and population multiplier 6. Selection uses a 0.5% tolerance
+margin. Each selected schedule is independently replayed by the existing
+dense affine channel, including all continuation nodes and physicality.
 
-Ignoring special angles, this gives roughly
-O(NK log(NK/epsilon_synthesis)) logical T scaling for this construction.
+Counts are best passing results found, not proven minima. Optimizer
+convergence flags are separate from physical acceptance. No failed or
+capped case is converted into a passing result by extrapolation.
+
+## Acceleration and compilation
+
+[full_study.py](full_study.py) runs the sweep with four local worker
+processes and one BLAS thread each. [accelerated.py](accelerated.py) compiles
+[channel.cpp](channel.cpp) locally with g++ -O3 into a source-hashed temporary
+directory. Its O(N^2) update introduces no new channel approximation and is
+checked against the existing independent dense implementation. There is
+no exponentially large state or dense N^2-by-N^2 channel matrix.
+
+[stream_compile.py](stream_compile.py) transpiles symbolic exchange blocks
+locally to RZ/SX/X/CX and separately Clifford+RZ, binds chosen angles and
+composes blocks without inter-block optimization. Counts and dependency
+depths are computed exactly by streaming the compiled dependency maps,
+verified against materialized compositions. This declared block-preserving
+compiler avoids a full-circuit size cap; it is not a globally optimized
+transpilation forecast.
+
+All gates lie on the line with boundary-local ancillas, so this compiler's
+line and all-to-all costs coincide. Source steps have N exchanges and one
+reset. Report compiled operations, depth, two-qubit depth and N+2 logical
+qubits. Dependency depth is not pulse duration. Initial preparation
+measurements and final Z measurements are included. Paths with seeds 29,30
+sample resource differences, not trajectory convergence.
+
+For R generic RZ rotations, allocate eta=0.001/[2 max(1,4c) R]. Exact
+Clifford/T angles are detected numerically; remaining rotations use the
+leading ceil(3 log2(1/eta)) T estimate from
+[Ross and Selinger](https://arxiv.org/abs/1403.2975). Omitted terms mean this
+is neither a certified upper bound nor actual synthesis. Report base
+Clifford gates excluding RZ separately. Exact post-synthesis Clifford count,
 T-depth, magic-state factories, code distance, physical qubits and runtime
-require an error-correction architecture and physical assumptions and are
-not inferred from T count. Reset/measurement costs are retained separately.
-Multiply per-path costs by the required paths, measurement settings and
-shots only after an explicit sampling study.
+are not computed.
 
-## Commands and saved artifacts
+## Run and reproduce
 
-Run from the repository root. The reference sweep through N=100 is the
-recommended first run:
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 MPLCONFIGDIR=/tmp/finalmodel_mpl \
+  .venv/bin/python FinalModel/Experiment1/full_study.py --workers 4
+```
+
+Use the printed run directory to regenerate the audited report and
+standalone PNG/PDF figures:
+
+```bash
+OPENBLAS_NUM_THREADS=1 MPLCONFIGDIR=/tmp/finalmodel_mpl \
+  .venv/bin/python FinalModel/Experiment1/analyze_full.py FinalModel/Experiment1/runs/full_<hash>
+```
+
+`--stage exact|schedules|resources` reruns a stage; `--config` accepts another
+config. Resources require matching schedule checkpoints. Atomic per-case
+checkpoints resume complete cases. Source hashes, installed package
+versions and config identify each run. [study.py](study.py) retains the
+original small-case helper/reference functions; the full runner is the
+recommended entry point.
+
+[Results.md](Results.md) links the complete report. Full numerical JSON
+stays local; compact CSV/Markdown and figures are retained. Fits state their
+range and residuals and are empirical, not asymptotic laws.
 
 ```bash
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MPLCONFIGDIR=/tmp/finalmodel_mpl \
-  .venv/bin/python FinalModel/Experiment1/study.py exact
-```
-
-Then pilot schedule selection and resources with identical overrides:
-
-```bash
-OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
-  .venv/bin/python FinalModel/Experiment1/study.py schedules --sizes 2 4
-OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
-  .venv/bin/python FinalModel/Experiment1/study.py resources --sizes 2 4
-```
-
-After profiling, omit `--sizes` for the configured sweep. `--models model1`
-restricts a stage to one model. A copied config can be passed with `--config`.
-Configuration, source hashes and package versions identify a run directory.
-Rerunning reuses completed case checkpoints; interruption restarts only the
-incomplete case. Resources require schedule checkpoints with exactly the
-same config and overrides. Source changes intentionally create a new run.
-
-Each stage produces compact CSV/Markdown tables. References also produce
-PNG/PDF log-log plots. Full local JSON checkpoints record parameters,
-selected timesteps, search summaries, validation, resource samples and
-provenance. No hardware job or cloud API is used by any stage. Fits should
-be added only after accepted data cover a useful range, with fit ranges,
-residuals and tolerance sensitivity; failed/capped rows are not data points.
-
-Verification:
-
-```bash
-OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
   .venv/bin/python -m unittest discover -s tests -p 'test_finalmodel_scaling.py' -v
 ```

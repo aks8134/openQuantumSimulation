@@ -1,8 +1,8 @@
 {
   "sizes": [2, 4, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100],
   "models": {
-    "model1": {"J": 1.0, "gamma": 0.2, "prefactor": 0.5, "p_left": 0.0, "p_right": 0.0, "preparation": "center_excitation"},
-    "model2": {"J": 1.0, "gamma": 2.0, "prefactor": 0.25, "p_left": 0.25, "p_right": 0.25, "preparation": "half_mixed"},
+    "model1": {"J": 1.0, "gamma": 1.0, "prefactor": 0.5, "p_left": 0.0, "p_right": 0.0, "preparation": "center_excitation"},
+    "model2": {"J": 1.0, "gamma": 1.0, "prefactor": 0.5, "p_left": 0.25, "p_right": 0.25, "preparation": "half_mixed"},
     "model3": {"J": 1.0, "gamma": 1.0, "prefactor": 0.5, "p_left": 0.9, "p_right": 0.1, "preparation": "half_mixed"}
   },
   "mean_tolerance": 0.016,
@@ -15,6 +15,7 @@
   "minimum_power": 0.1,
   "maximum_power": 8.0,
   "step_budget": 4096,
+  "fixed_step_budget": 262144,
   "forward_window": 10.0,
   "validation_step_cap": 100000,
   "optimizer_seeds": [1729, 1730],

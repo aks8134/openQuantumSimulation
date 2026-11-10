@@ -143,12 +143,45 @@ class FinalModelTests(unittest.TestCase):
         from types import SimpleNamespace
         from unittest.mock import patch
         config = copy.deepcopy(self.config)
-        config.update(step_budget=40, optimizer_seeds=[1729])
+        config.update(step_budget=128, optimizer_seeds=[1729])
         with patch.object(study, "differential_evolution", return_value=SimpleNamespace(success=False, fun=99.)):
             result = study.schedules_case(2, config["models"]["model2"], config)
         counts = [result["families"][family]["selected_steps"] for family in ("fixed", "constant", "warped_cosine")]
         self.assertIsNotNone(counts[0])
         self.assertEqual(counts, [counts[0]]*3)
+
+    def test_accelerated_kernel_matches_independent_dense_channel(self):
+        from FinalModel.Experiment1.accelerated import Evaluator
+        for n in (2,5):
+            for spec in self.config["models"].values():
+                parameters=dict(spec,J=1.3,gamma=.7,prefactor=.25)
+                evaluator=Evaluator(n,parameters,self.config)
+                dts=np.array([.03,.7,.2,.08])
+                actual=evaluator.evaluate(dts,save=True)
+                expected=study.evaluate(dts,evaluator.model,parameters,self.config,independent=True)
+                np.testing.assert_allclose(actual["output_covariance"],expected["output_covariance"],atol=3e-14)
+                self.assertAlmostEqual(actual["output_error"],expected["output_error"],places=13)
+                self.assertEqual(actual["passed"],expected["passed"])
+
+    def test_streamed_compilation_matches_materialized_compiled_circuits(self):
+        from FinalModel.Experiment1 import stream_compile
+        for n in (2,5):
+            for spec in self.config["models"].values():
+                for basis in ("native","axial"):
+                    result=stream_compile.compile_path(n,spec,[.1,.3,.08],29,basis,materialize=True)
+                    circuit=result["circuit"]
+                    self.assertEqual(dict(circuit.count_ops()),result["operations"])
+                    self.assertEqual(circuit.depth(),result["depth"])
+                    self.assertEqual(circuit.depth(filter_function=lambda i:i.operation.num_qubits==2),result["two_qubit_depth"])
+
+    def test_parametric_exchange_compiler_preserves_unitary(self):
+        from FinalModel.Experiment1 import stream_compile
+        from qiskit.circuit.library import XXPlusYYGate
+        from qiskit.quantum_info import Operator
+        for basis in ("native","axial"):
+            for angle in (.1,.7,np.pi):
+                np.testing.assert_allclose(Operator(stream_compile.template("exchange",angle,basis)).data,
+                    Operator(XXPlusYYGate(angle)).data,atol=3e-14)
 
     def test_bad_inputs_are_rejected(self):
         for key, value in (("sizes", [101]), ("minimum_dt", 3.), ("mean_tolerance", float("nan")), ("step_budget", 0)):
