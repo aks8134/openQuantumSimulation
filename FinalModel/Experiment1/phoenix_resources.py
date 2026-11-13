@@ -33,7 +33,10 @@ if str(ROOT) not in sys.path:
 
 
 def digest(value):
-    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+    # JSON object keys are strings on disk. Canonicalize before sorting so
+    # timing blocks 1,2,...,10 hash identically before and after serialization.
+    canonical = json.loads(json.dumps(value, allow_nan=False))
+    return hashlib.sha256(json.dumps(canonical, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
 
 
 def file_digest(path):
@@ -317,7 +320,9 @@ def append_readout(native, physical_sites, basis):
 
 
 def native_metrics(circuit, target):
+    from qiskit.circuit import Gate
     counts, two, active = Counter(), Counter(), set()
+    rotations = dict(generic_rz=0, exact_T_or_Tdg=0, exact_rz_Clifford=0)
     for instruction in circuit.data:
         name = instruction.operation.name
         qubits = tuple(circuit.find_bit(q).index for q in instruction.qubits)
@@ -327,14 +332,82 @@ def native_metrics(circuit, target):
         if getattr(instruction.operation, "blocks", ()):
             raise ValueError("Unexpected control flow needs recursive resource accounting")
         counts[name] += 1
+        if name == "rz":
+            units = float(instruction.operation.params[0]) / (math.pi / 4)
+            if abs(units - round(units)) < 1e-10:
+                residue = int(round(units)) % 8
+                rotations["exact_T_or_Tdg"] += int(residue % 2 != 0)
+                rotations["exact_rz_Clifford"] += int(residue in (2, 3, 4, 5, 6))
+            else:
+                rotations["generic_rz"] += 1
         if name != "barrier":
             active.update(qubits)
-            if len(qubits) == 2:
+            if len(qubits) == 2 and isinstance(instruction.operation, Gate):
                 two[name] += 1
     return dict(operation_counts=dict(counts), operations=sum(counts.values()), two_qubit_counts=dict(two),
         two_qubit_gates=sum(two.values()), depth=circuit.depth(),
         two_qubit_depth=circuit.depth(filter_function=lambda i: i.operation.num_qubits == 2 and i.operation.name != "barrier"),
-        allocated_qubits=circuit.num_qubits, active_qubits=len(active), classical_bits=circuit.num_clbits)
+        allocated_qubits=circuit.num_qubits, active_qubits=len(active), classical_bits=circuit.num_clbits,
+        rz_synthesis_counts=rotations)
+
+
+def fault_tolerant_estimate(metrics, allowance, prefactor):
+    counts = metrics["operation_counts"]
+    unknown = sorted(set(counts) - {"rz", "sx", "x", "cz", "id", "barrier", "delay", "reset", "measure",
+                                    "measure_2", "measure_reset", "measure_reset_2"})
+    if unknown:
+        return dict(status="unsupported_native_operations", operations=unknown)
+    rotations = metrics["rz_synthesis_counts"]
+    generic = rotations["generic_rz"]
+    eta = allowance / (2 * max(1., 4 * prefactor) * generic) if generic else None
+    cost = int(math.ceil(3 * math.log2(1 / eta))) if generic else 0
+    return dict(status="leading_order_estimate", generic_RZ=generic,
+        exact_T_or_Tdg=rotations["exact_T_or_Tdg"], per_rotation_operator_error_budget=eta,
+        T_count_estimate=rotations["exact_T_or_Tdg"] + generic * cost,
+        Clifford_before_generic_RZ_synthesis=sum(counts.get(name, 0) for name in ("sx", "x", "cz")) + rotations["exact_rz_Clifford"],
+        T_depth=None, physical_qubits=None,
+        scope="Projection of the complete Phoenix-native circuit into logical Clifford+T; leading 3log2(1/eta), not actual synthesis or a certified bound; SX counts as one Clifford operation")
+
+
+def terminal_block_order(dag):
+    """SDK block order in linear space for flat, terminally closed circuits.
+
+    These preparations finish each active wire in measurement or reset. Every
+    other node then precedes a grouped operation. SDK emission reduces to
+    increasing reset/measurement ancestry level, gates before grouped nodes.
+    General small circuits retain the SDK implementation.
+    """
+    from qiskit.circuit import ControlFlowOp, Measure, Reset
+    from qiskit_ibm_runtime.transpiler.passes.scheduling.utils import block_order_op_nodes
+    nodes = list(dag.topological_op_nodes())
+    has_grouped_after = {}
+    closed = not any(isinstance(node.op, ControlFlowOp) for node in nodes)
+    if closed:
+        for node in reversed(nodes):
+            wires = (*node.qargs, *node.cargs)
+            grouped = isinstance(node.op, (Measure, Reset))
+            follows = any(has_grouped_after.get(wire, False) for wire in wires)
+            if not grouped and not follows:
+                closed = False
+                break
+            for wire in wires:
+                has_grouped_after[wire] = grouped or follows
+    if not closed:
+        if len(nodes) > 100000:
+            raise ValueError("Large circuit is outside the validated linear-space timing-order domain")
+        yield from block_order_op_nodes(dag)
+        return
+    wire_level, gates, grouped_nodes = {}, {}, {}
+    for node in nodes:
+        wires = (*node.qargs, *node.cargs)
+        level = max((wire_level.get(wire, 0) for wire in wires), default=0)
+        grouped = isinstance(node.op, (Measure, Reset))
+        (grouped_nodes if grouped else gates).setdefault(level, []).append(node)
+        for wire in wires:
+            wire_level[wire] = level + int(grouped)
+    for level in sorted(gates.keys() | grouped_nodes.keys()):
+        yield from gates.get(level, ())
+        yield from grouped_nodes.get(level, ())
 
 
 def timing_estimate(circuit, target):
@@ -342,7 +415,7 @@ def timing_estimate(circuit, target):
     from qiskit_ibm_runtime.transpiler.passes.scheduling import ALAPScheduleAnalysis
     if target.dt is None or target.dt <= 0:
         raise ValueError("Target has no positive dt")
-    manager = PassManager([ALAPScheduleAnalysis(target=target)])
+    manager = PassManager([ALAPScheduleAnalysis(target=target, block_ordering_callable=terminal_block_order)])
     manager.run(circuit)
     ends = {}
     for node, (block, start) in manager.property_set["node_start_time"].items():
@@ -359,7 +432,7 @@ def timing_estimate(circuit, target):
                 raise ValueError(f"Missing target duration: {node.name}{qubits}")
             duration = int(target.seconds_to_dt(value))
         ends[int(block)] = max(ends.get(int(block), 0), int(start) + duration)
-    return dict(status="modeled", dynamic_blocks=len(ends), block_duration_dt=ends,
+    return dict(status="modeled", dynamic_blocks=len(ends), block_duration_dt={str(k): v for k, v in ends.items()},
         modeled_block_duration_sum_seconds=sum(ends.values()) * target.dt,
         scope="ALAP block-duration sum from captured instruction durations; controller/reset block-transition overhead is not included; not measured wall-clock runtime")
 
@@ -395,7 +468,8 @@ def compile_one(case, target, metadata, settings, seed, *, initial_layout=None, 
                 timing = timing_estimate(circuit, target)
             except Exception as error:
                 timing = dict(status="unavailable", reason=f"{type(error).__name__}: {error}")
-        row = dict(basis=basis, metrics=metrics, timing=timing)
+        row = dict(basis=basis, metrics=metrics, timing=timing,
+            fault_tolerant=fault_tolerant_estimate(metrics, settings.get("synthesis_allowance", .001), case["physics"]["prefactor"]))
         if settings["save_qpy"]:
             path = Path(output) / f"{case['id']}_seed{seed}_{basis}.qpy"
             temporary = path.with_suffix(".qpy.partial")
@@ -450,11 +524,13 @@ def report(output, *, plot=True):
         for basis in manifest["settings"]["bases"]:
             readout = next((r for r in saved.get("readouts", []) if r["basis"] == basis), {})
             metrics, timing = readout.get("metrics", {}), readout.get("timing", {})
+            ft = readout.get("fault_tolerant", {})
             rows.append(dict(**base, basis=basis, status=saved["status"], CZ=metrics.get("operation_counts", {}).get("cz"),
                 two_qubit_gates=metrics.get("two_qubit_gates"), native_depth=metrics.get("depth"),
                 two_qubit_depth=metrics.get("two_qubit_depth"), active_qubits=metrics.get("active_qubits"),
                 reset=metrics.get("operation_counts", {}).get("reset"), measure=metrics.get("operation_counts", {}).get("measure"),
                 timing_status=timing.get("status"), modeled_block_sum_seconds=timing.get("modeled_block_duration_sum_seconds"),
+                T_estimate=ft.get("T_count_estimate"), Clifford_before_RZ_synthesis=ft.get("Clifford_before_generic_RZ_synthesis"),
                 reason=saved.get("reason")))
     write_csv(output / "resources.csv", rows)
     good = [r for r in rows if r["status"] == "compiled"]
@@ -504,6 +580,7 @@ def compile_command(options):
         raise ValueError("Some requested schedules require more qubits than the captured target")
     settings = dict(layout=options.layout, optimization_level=options.optimization_level,
         transpiler_seed=options.transpiler_seed, seeds=options.seeds, bases=options.bases,
+        synthesis_allowance=payload["source_configuration"]["synthesis_allowance"],
         timing=options.timing, save_qpy=options.save_qpy, physical_path=options.physical_path,
         layout_map=None if options.layout_map is None else json.loads(options.layout_map.read_text(encoding="utf-8")),
         avoid_qubits=options.avoid_qubits, path_search_limit=options.path_search_limit,
