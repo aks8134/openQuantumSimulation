@@ -1,0 +1,25 @@
+{
+  "physics": {"N": 10, "J": 1.0, "gamma": 1.0, "prefactor": 0.5, "p_left": 0.9, "p_right": 0.1, "preparation": "half_mixed"},
+  "schedule": {
+    "mode": "saved",
+    "input": "FinalModel/Experiment1/inputs/phoenix_schedules_half_mixed.json",
+    "family": "warped_cosine"
+  },
+  "sampling": {"trajectories": 16384, "shots": 16, "trajectory_seed": 29, "reference_engine": "auto"},
+  "mitigation": {"randomizations": 4, "fold_factors": [1.0, 1.25, 1.5], "control_shots": 2048, "seed": 29},
+  "hardware": {
+    "backend": "ibm_phoenix",
+    "physical_path": [106, 116, 115, 114, 113, 112, 111, 101, 91, 81, 80, 90],
+    "paths_per_job": 128,
+    "execution_mode": "job",
+    "jobs_per_batch": 4,
+    "batch_max_time": 28800,
+    "optimization_level": 3,
+    "transpiler_seed": 11,
+    "max_execution_time": 300,
+    "max_total_shots": 5000000,
+    "retain_native_qpy": false,
+    "saved_target": "FinalModel/Experiment1/phoenix_targets/ibm_phoenix"
+  },
+  "analysis": {"bootstrap": 2000, "seed": 29, "minimum_calibration_contrast": 0.5, "statistical_tolerance": 0.004, "target_tolerance": 0.02}
+}
