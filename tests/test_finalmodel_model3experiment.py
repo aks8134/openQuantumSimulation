@@ -22,7 +22,7 @@ def config():
     cfg['schedule']={'mode':'manual','step_dts':[.12,.23]}
     cfg['sampling'].update(trajectories=2,shots=16)
     cfg['mitigation']['control_shots']=16
-    cfg['hardware'].update(physical_path=[0,1,2,3],paths_per_job=2)
+    cfg['hardware'].update(physical_path=[0,1,2,3],paths_per_job=2,execution_mode='job')
     cfg['analysis']['bootstrap']=100
     return cfg
 
@@ -64,10 +64,26 @@ class Model3ExperimentTests(unittest.TestCase):
         cfg=model.load_config(model.DIRECTORY/'config.json');case=model.make_case(cfg)
         self.assertEqual(case['steps'],72)
         self.assertAlmostEqual(case['physical_time'],14.86004146644756)
-        self.assertEqual(model.workload(cfg)['total_shots'],4718592)
-        self.assertEqual(model.workload(cfg)['total_circuits'],640896)
+        self.assertEqual(cfg['hardware']['paths_per_job'],192)
+        self.assertEqual(cfg['hardware']['execution_mode'],'batch')
+        self.assertEqual(cfg['hardware']['jobs_per_batch'],8)
+        self.assertEqual(model.workload(cfg)['jobs'],86)
+        self.assertEqual(model.workload(cfg)['total_shots'],4202496)
+        self.assertEqual(model.workload(cfg)['total_circuits'],640266)
         changed=copy.deepcopy(cfg);changed['physics']['gamma']=2
         with self.assertRaisesRegex(ValueError,'Saved schedule physics'):model.make_case(changed)
+
+    def test_prepared_run_matches_agreed_packing_and_current_code(self):
+        folder=model.DIRECTORY/'hardware_runs/model3_full_R16384_S16_P192_20261113'
+        source,manifest,data=model.load_run(folder)
+        self.assertEqual(source['configuration'],model.load_config(model.DIRECTORY/'config.json'))
+        self.assertEqual(source['case']['steps'],72)
+        self.assertEqual(data['choices'].shape,(16384,72))
+        self.assertEqual(manifest['workload']['jobs'],86)
+        self.assertEqual(manifest['workload']['total_shots'],4202496)
+        self.assertEqual(sorted(i for b in manifest['batches'] for i in b['indices']),list(range(16384)))
+        self.assertTrue(all(len(b['indices'])<=192 for b in manifest['batches']))
+        for name,digest in source['code'].items():run.source_integrity((model.ROOT/name).read_bytes(),digest)
 
     def test_same_controls_and_matched_budgets_no_trajectory_split(self):
         cfg=config();records=model.records(cfg,model.batches(cfg)[0])

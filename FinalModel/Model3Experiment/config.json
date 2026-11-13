@@ -10,9 +10,9 @@
   "hardware": {
     "backend": "ibm_phoenix",
     "physical_path": [106, 116, 115, 114, 113, 112, 111, 101, 91, 81, 80, 90],
-    "paths_per_job": 128,
-    "execution_mode": "job",
-    "jobs_per_batch": 4,
+    "paths_per_job": 192,
+    "execution_mode": "batch",
+    "jobs_per_batch": 8,
     "batch_max_time": 28800,
     "optimization_level": 3,
     "transpiler_seed": 11,

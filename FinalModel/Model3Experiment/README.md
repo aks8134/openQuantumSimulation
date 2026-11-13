@@ -63,20 +63,25 @@ reported, while raw, twirled and uncorrected ZNE results remain available.
 | Independent paths | 16,384 |
 | Shots per path/basis/arm or noise factor | 16 |
 | Measurement bases | Z, XY, YX |
-| Matched paths per job | 128 |
-| Jobs | 128 |
+| Matched paths per job (maximum) | 192 |
+| Jobs | 86 |
+| Jobs per Runtime batch | 8 |
+| Runtime batches | 11 |
 | Evolution circuits | 638,976 |
-| Control circuits | 1,920 |
-| Total circuits | 640,896 |
+| Control circuits | 1,290 |
+| Total circuits | 640,266 |
 | Evolution shots | 3,145,728 |
-| Control shots | 1,572,864 |
-| Total shots | 4,718,592 |
+| Control shots | 1,056,768 |
+| Total shots | 4,202,496 |
 
 A complete path group includes all three bases, raw circuits and all
 twirled/folded variants, and is kept within one job. Jobs have their own
 controls and calibration. The preparation input uses the recorded
 Experiment 2 trajectory stream, seed 29, so the ideal references match
 the current scaling study and the separate Aer output check.
+The grouping routine balances the 16,384 paths over 86 jobs, so actual jobs
+contain 190 or 191 paths under the selected 192-path maximum. The first ten
+Runtime batches contain eight jobs each; the last contains six.
 
 The requested S=16 is maintained at each factor. The linear ZNE weights
 amplify independent equal-variance shot standard errors by about 3.58
@@ -121,21 +126,24 @@ Connectivity and native instructions are checked against the execution target.
 
 ### Prepared transfer to the hardware machine
 
-The provided `model3_phoenix_ready.zip` contains the runnable Python modules,
-the default configuration and the frozen 16,384-path input. It contains no
-credentials and no submitted hardware jobs. Extract it into a fresh folder;
-the paths shown in `RUN_MODEL3.txt` are relative to that folder.
+The prepared input is
+`hardware_runs/model3_full_R16384_S16_P192_20261113`. Its `source.json`,
+`paths.npz` and `manifest.json` retain the frozen 16,384 paths and the agreed
+192-path job limit, 86 jobs, and eight jobs per Runtime batch. Include these
+three files when transferring the repository; generated hardware run folders
+are otherwise ignored by Git. The earlier `model3_full_R16384_S16_20261112`
+folder records the previous 128-path plan and should not be used for this run.
 
 In your existing Qiskit environment on the machine with Phoenix access:
 
 ```sh
-python FinalModel/Model3Experiment/run.py execute --run FinalModel/Model3Experiment/hardware_runs/model3_full_R16384_S16_20261112
+python FinalModel/Model3Experiment/run.py execute --run FinalModel/Model3Experiment/hardware_runs/model3_full_R16384_S16_P192_20261113
 ```
 
 For IBM Runtime batch execution, use:
 
 ```sh
-python FinalModel/Model3Experiment/run.py execute --run FinalModel/Model3Experiment/hardware_runs/model3_full_R16384_S16_20261112 --execution-mode batch --jobs-per-batch 4
+python FinalModel/Model3Experiment/run.py execute --run FinalModel/Model3Experiment/hardware_runs/model3_full_R16384_S16_P192_20261113 --execution-mode batch --jobs-per-batch 8
 ```
 
 Use `--account-file YOUR_ACCOUNT_FILE` if needed. The same command resumes
@@ -186,13 +194,14 @@ already submitted jobs; another invocation resumes the same manifest.
 ### IBM Runtime batch execution
 
 `--execution-mode batch` enables actual IBM Runtime `Batch` execution through
-`SamplerV2(mode=runtime_batch)`. The default remains ordinary `job` mode.
+`SamplerV2(mode=runtime_batch)`. The agreed default is `batch` mode with
+eight jobs submitted together. Ordinary `job` mode remains available.
 The equivalent configuration fields in `hardware` are:
 
 ```json
 {
-  "execution_mode": "job",
-  "jobs_per_batch": 4,
+  "execution_mode": "batch",
+  "jobs_per_batch": 8,
   "batch_max_time": 28800
 }
 ```
@@ -205,12 +214,13 @@ This lifetime is separate from the existing 300-second per-job execution cap.
 
 `paths_per_job` controls circuit packing within one job. `jobs_per_batch`
 controls how many jobs are submitted together into one Runtime batch. The
-prepared input retains 128 paths per job and 128 jobs; with four jobs per
-Runtime batch, a fresh full run uses 32 Runtime batches. All measurement
+prepared input uses a 192-path maximum and 86 jobs; with eight jobs per
+Runtime batch, a fresh full run uses 11 Runtime batches. All measurement
 settings, raw/twirled/folded variants and calibration controls remain grouped
 exactly as before. This option does not reduce the circuit or shot counts.
-The discussed 192-path packing is still a separate configuration choice and
-has not been validated for complete live-job acceptance or payload size.
+Complete live-job acceptance and payload size have not been validated by
+submission. The execution summary prints the frozen packing and resolved
+Runtime settings before contacting IBM.
 
 For each group, the code compiles and validates **all** selected jobs before
 opening the Runtime batch. It then submits those jobs without waiting for

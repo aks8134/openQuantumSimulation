@@ -169,6 +169,10 @@ def _execute(folder,account_file=None,max_jobs=None,*,execution_mode=None,jobs_p
     if all(b['status']=='collected' for b in manifest['batches']):
         from FinalModel.Model3Experiment.analysis import analyze
         return analyze(folder)
+    print(f"Frozen run: N={cfg['physics']['N']}, steps={source['case']['steps']}, "
+          f"R={cfg['sampling']['trajectories']}, S={cfg['sampling']['shots']}; "
+          f"paths_per_job={h['paths_per_job']}, total_jobs={manifest['workload']['jobs']}; "
+          f"execution_mode={policy['execution_mode']}, jobs_per_batch={policy['jobs_per_batch']}",flush=True)
     if service is None and backend is None:
         service=original_hardware.make_service(SimpleNamespace(account_file=account_file))
     if backend is None:backend=service.backend(h['backend'],use_fractional_gates=False)
@@ -222,8 +226,8 @@ def parse_arguments(arguments=None):
     comp=sub.add_parser('preview');comp.add_argument('--run',type=Path,required=True);comp.add_argument('--batch',type=int,default=0);comp.add_argument('--paths',type=int,default=1)
     execute=sub.add_parser('execute');execute.add_argument('--run',type=Path,required=True);execute.add_argument('--account-file',type=Path);execute.add_argument('--max-jobs',type=int)
     execute.add_argument('--execution-mode',choices=('job','batch'),help='Override hardware.execution_mode for this invocation')
-    execute.add_argument('--jobs-per-batch',type=int,help='Jobs submitted together per Runtime batch (default 4)')
-    execute.add_argument('--batch-max-time',type=int,metavar='SECONDS',help='Runtime batch maximum TTL in seconds (default 28800)')
+    execute.add_argument('--jobs-per-batch',type=int,help='Jobs submitted together per Runtime batch (uses frozen configuration)')
+    execute.add_argument('--batch-max-time',type=int,metavar='SECONDS',help='Runtime batch maximum TTL in seconds (uses frozen configuration)')
     analysis=sub.add_parser('analyze');analysis.add_argument('--run',type=Path,required=True)
     bundle=sub.add_parser('bundle');bundle.add_argument('--run',type=Path,required=True);bundle.add_argument('--output',type=Path,required=True)
     return parser.parse_args(arguments)
@@ -263,7 +267,7 @@ def export_bundle(folder,output):
             f"Prepared Model 3 input, R={manifest['workload']['paths']} and S={manifest['workload']['shots_per_path_basis_factor']}. No hardware jobs submitted.\n"
             'From this extracted folder, in an environment with Qiskit and Runtime, run:\n'
             f'python FinalModel/Model3Experiment/run.py execute --run {folder.relative_to(ROOT).as_posix()}\n'
-            'For IBM Runtime batch execution, append: --execution-mode batch --jobs-per-batch 4\n'
+            f"For IBM Runtime batch execution, append: --execution-mode batch --jobs-per-batch {source['configuration']['hardware'].get('jobs_per_batch',4)}\n"
             'Batch lifetime can be set with --batch-max-time SECONDS (default 28800).\n'
             'Use --account-file FILE if your account is not already configured.\n'
             'See FinalModel/Model3Experiment/README.md for the protocol and workload.\n')
