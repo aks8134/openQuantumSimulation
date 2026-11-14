@@ -222,8 +222,10 @@ Complete live-job acceptance and payload size have not been validated by
 submission. The execution summary prints the frozen packing and resolved
 Runtime settings before contacting IBM.
 
-For each group, the code compiles and validates **all** selected jobs before
-opening the Runtime batch. It then submits those jobs without waiting for
+For each group, the code prepares **all** selected compiled caches and verifies
+their integrity before opening the Runtime batch. Each job's circuits are
+loaded and checked against the live ISA target immediately before submission.
+It submits the group without waiting for
 individual results, records every job ID, and closes the batch to further
 submissions before collecting results. Closing does not cancel queued or
 running jobs. The next group is compiled after collection, bounding the local
@@ -241,6 +243,58 @@ Job IDs are saved before result collection. A known job is recovered instead
 of resubmitted. A submission interrupted before its ID is saved stops for
 explicit reconciliation on IBM; it is never retried automatically. An
 exclusive execution lock prevents two controllers submitting the same batch.
+
+### Resume the existing run after the gzip/QPY loading fix
+
+Stop the old runner with Ctrl+C and wait for the prompt before updating its
+Python files. Keep the existing run directory, including the locally updated
+`manifest.json`, `source.json`, circuit records, caches and any collected
+counts. Do not run `prepare` again or replace the Windows manifest with the
+original planned manifest from another machine.
+
+Pull the code update and repeat the same command:
+
+```powershell
+git pull
+python .\FinalModel\Model3Experiment\run.py execute `
+  --run .\FinalModel\Model3Experiment\hardware_runs\model3_full_R16384_S16_P192_20261113 `
+  --execution-mode batch `
+  --jobs-per-batch 8
+```
+
+The patch expands each compressed QPY cache **once** into an automatically
+cleaned temporary disk file. For indexed QPY formats it reads one circuit
+payload at a time and passes that unchanged payload in a one-program QPY
+container to the public decoder, avoiding whole-file remainder copies. Older
+formats use the regular seekable disk file directly. It never expands the
+whole cache into a Python byte buffer. The system temporary drive
+needs space for one uncompressed job at a time, which can be several GB.
+New cache writing also uses a seekable disk file before streaming compression,
+avoiding QPY's whole-job in-memory staging for gzip output.
+Precompiled jobs are checked by their sealed metadata and exact QPY-byte hash
+without loading circuit objects during the precompilation pass. Objects are
+loaded once immediately before that job's submission, and the current live
+target is still checked. Original recorded metrics are authenticated by the
+cache hash instead of recalculating every circuit depth on each load.
+
+`cache_fix_compatibility.json` identifies the exact original and replacement
+hashes for `circuits.py` and `run.py`. The runner accepts only that reviewed
+replacement pair, including proven LF/CRLF checkout conversions; all other
+source checks remain strict. It records the execution revision in the mutable
+manifest while leaving the original frozen source and compiled-record hashes
+unchanged. Do not manually edit any hash in `source.json`.
+
+Known job IDs are collected before any new submission. In the reported state,
+jobs 0 and 1 are recovered from IBM; the remaining 84 jobs retain their original
+paths, readout variants and controls. Existing Runtime batches are closed to
+further submissions during recovery, and new work uses new Runtime batches.
+If another job ID was saved before interruption, it is recovered as well.
+
+Progress messages distinguish cache verification, one-time decompression,
+QPY loading, submission and collection. Submission calls still occur in a
+serial client loop; this patch removes the confirmed loading bottleneck and
+does not introduce eight concurrent uploads. It makes no new claim about RU
+consumption per job.
 
 ## Analysis and provenance
 

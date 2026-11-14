@@ -1,0 +1,15 @@
+{
+  "patch_id": "seekable-qpy-cache-v1",
+  "description": "Transport-only cache loading and validation changes; original circuit construction and job membership retained.",
+  "files": {
+    "FinalModel/Model3Experiment/circuits.py": {
+      "previous_sha256": "2775bcee66264fb13408072c27346797986bb831405d2219d0df4b423c08f96c",
+      "replacement_sha256": "ac28308749eb74dd25d77a07f72e1074a4b8b3be57071e3e57df4630edab4f62"
+    },
+    "FinalModel/Model3Experiment/run.py": {
+      "previous_sha256": "c1bf9f5fec858e9d65003da7a3ae8fcd0df16f0f64e1d2f7a76011fbb781cfe1",
+      "replacement_sha256": "06e7e634d004d2b48e1709eb2a9c7cfc9f4720b98537c832e71c09d0666acadd"
+    }
+  },
+  "sha256": "bbdbbf2717b854aa709652f300e576b4f0cf81d21e532ab4d32147e86a563f9b"
+}

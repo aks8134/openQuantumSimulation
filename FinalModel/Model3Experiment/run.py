@@ -63,10 +63,36 @@ def execute(folder,account_file=None,max_jobs=None,*,execution_mode=None,jobs_pe
             sampler_factory=sampler_factory,batch_factory=batch_factory)
 
 
+def audit_execution_code(source):
+    """Allow only the exact reviewed cache patch to an older frozen run."""
+    replacements={};compatibility=None
+    for name,expected in source['code'].items():
+        raw=(ROOT/name).read_bytes()
+        try:source_integrity(raw,expected)
+        except ValueError:
+            if compatibility is None:
+                compatibility=model.store.read_sealed(model.DIRECTORY/'cache_fix_compatibility.json')
+                if (compatibility['patch_id']!='seekable-qpy-cache-v1'
+                        or set(compatibility['files'])!={'FinalModel/Model3Experiment/circuits.py','FinalModel/Model3Experiment/run.py'}):
+                    raise ValueError('Unrecognized cache-fix compatibility declaration')
+            rule=compatibility['files'].get(name)
+            if rule is None or expected!=rule['previous_sha256']:
+                raise ValueError(f'Unsupported source change: {name}; frozen run was not modified') from None
+            match=source_integrity(raw,rule['replacement_sha256'])
+            replacements[name]=dict(original_sha256=expected,replacement_sha256=rule['replacement_sha256'],checkout_match=match)
+    if not replacements:return None
+    # A partial checkout must not announce the fix while retaining the old
+    # loader. Both replacement files must belong to this exact reviewed pair.
+    for name,rule in compatibility['files'].items():
+        source_integrity((ROOT/name).read_bytes(),rule['replacement_sha256'])
+    return dict(patch_id=compatibility['patch_id'],original_source_sha256=source['sha256'],files=replacements)
+
+
 def native_inputs(folder,source,data,batch,target,metadata,backend):
     pubs,rows=circuits.compile_batch(folder/'native',source,data,batch,target,metadata)
     # Always validate against the connected target, including when loading QPY.
-    for qc in pubs:circuits.assert_supported(qc,backend.target)
+    checked=set()
+    for qc in pubs:circuits.assert_supported(qc,backend.target,checked)
     batch['records_file']=f'native/batch_{batch["index"]:05d}.json'
     return pubs,rows
 
@@ -130,6 +156,9 @@ def submit_runtime_batch(folder,source,manifest,data,window,target,metadata,back
     # Compile the entire window BEFORE opening a Runtime batch. Release circuit
     # objects between jobs and use the verified on-disk QPY cache for submission.
     for batch in window:
+        if circuits.verify_cached_batch(folder/'native',source,batch,metadata) is not None:
+            print(f"Verified cached job {batch['index']} without loading its circuits",flush=True)
+            continue
         pubs,rows=native_inputs(folder,source,data,batch,target,metadata,backend)
         del pubs,rows
     remote=batch_factory(backend=backend,max_time=policy['batch_max_time'])
@@ -162,10 +191,16 @@ def _execute(folder,account_file=None,max_jobs=None,*,execution_mode=None,jobs_p
              batch_max_time=None,service=None,backend=None,sampler_factory=None,batch_factory=None):
     folder=Path(folder);source,manifest,data=model.load_run(folder);cfg=source['configuration'];h=cfg['hardware']
     policy=model.execution_options(cfg,execution_mode,jobs_per_batch,batch_max_time)
-    for name,digest in source['code'].items():
-        source_integrity((ROOT/name).read_bytes(),digest)
+    revision=audit_execution_code(source)
     ambiguous=[b['index'] for b in manifest['batches'] if b['status']=='submitting' and not b.get('job_id')]
     if ambiguous:raise ValueError(f'Submission interrupted before a job ID was saved in batches {ambiguous}; reconcile on IBM before resuming. No automatic resubmission.')
+    if revision is not None:
+        fingerprint=model.store.digest(revision)
+        updates=manifest.setdefault('execution_updates',[])
+        if not any(item['revision_sha256']==fingerprint for item in updates):
+            updates.append(dict(revision=revision,revision_sha256=fingerprint,applied_utc=datetime.now(timezone.utc).isoformat()))
+            model.store.atomic_json(folder/'manifest.json',manifest)
+        print('Applied verified cache-loading patch; original source, circuits and saved job IDs retained',flush=True)
     if all(b['status']=='collected' for b in manifest['batches']):
         from FinalModel.Model3Experiment.analysis import analyze
         return analyze(folder)
@@ -248,7 +283,8 @@ def export_bundle(folder,output):
     """Portable code and frozen input; excludes credentials, native caches and counts."""
     folder=Path(folder).resolve();source,manifest,_=model.load_run(folder)
     if any(b.get('job_id') for b in manifest['batches']):raise ValueError('Export a planned, unsubmitted run')
-    files=list(model.DIRECTORY.glob('*.py'))+list(model.DIRECTORY.glob('*.md'))+[model.DIRECTORY/'config.json']
+    files=list(model.DIRECTORY.glob('*.py'))+list(model.DIRECTORY.glob('*.md'))+[
+        model.DIRECTORY/'config.json',model.DIRECTORY/'cache_fix_compatibility.json']
     files.extend(ROOT/name for name in (
         'FinalModel/Experiment1/phoenix_resources.py','FinalModel/Experiment1/study.py',
         'FinalModel/Experiment2/sampling.py','FinalModel/Experiment3/readout.py',

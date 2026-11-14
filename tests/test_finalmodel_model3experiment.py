@@ -1,6 +1,8 @@
 """Physics, native mitigation, pair readout and recoverable Runtime execution."""
 import contextlib
 import copy
+import gzip
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -11,6 +13,7 @@ import zipfile
 from unittest.mock import Mock,patch
 
 import numpy as np
+from qiskit import QuantumCircuit,qpy
 from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit.quantum_info import DensityMatrix,Kraus
 from FinalModel.Model3Experiment import model,circuits,analysis,run,portable
@@ -83,7 +86,86 @@ class Model3ExperimentTests(unittest.TestCase):
         self.assertEqual(manifest['workload']['total_shots'],4202496)
         self.assertEqual(sorted(i for b in manifest['batches'] for i in b['indices']),list(range(16384)))
         self.assertTrue(all(len(b['indices'])<=192 for b in manifest['batches']))
-        for name,digest in source['code'].items():run.source_integrity((model.ROOT/name).read_bytes(),digest)
+        revision=run.audit_execution_code(source)
+        self.assertEqual(revision['patch_id'],'seekable-qpy-cache-v1')
+        self.assertEqual(set(revision['files']),{'FinalModel/Model3Experiment/circuits.py','FinalModel/Model3Experiment/run.py'})
+
+    def test_cached_qpy_uses_seekable_disk_and_closes_it(self):
+        qc=QuantumCircuit(2);qc.h(0);qc.cx(0,1);qc.reset(1);qc.metadata={'case_id':'test'}
+        loader=qpy.load;streams=[];temporary=tempfile.TemporaryFile
+        def remember_temp(*args,**kwargs):
+            stream=temporary(*args,**kwargs);streams.append(stream);return stream
+        def inspect_stream(stream):
+            self.assertNotIsInstance(stream,gzip.GzipFile)
+            self.assertTrue(stream.seekable());self.assertEqual(stream.tell(),0)
+            self.assertIsInstance(stream,io.BytesIO)
+            self.assertLess(stream.getbuffer().nbytes,expanded_size)
+            return loader(stream)
+        with tempfile.TemporaryDirectory() as tmp,contextlib.redirect_stdout(io.StringIO()):
+            path=Path(tmp)/'circuits.qpy.gz'
+            with gzip.open(path,'wb') as f:qpy.dump([qc,qc],f)
+            with gzip.open(path,'rb') as f:expanded_size=len(f.read())
+            with patch.object(circuits.tempfile,'TemporaryFile',side_effect=remember_temp),patch.object(circuits.qpy,'load',side_effect=inspect_stream),patch.object(gzip.GzipFile,'seek',side_effect=AssertionError('QPY must not seek gzip')):
+                loaded=circuits.load_cached_qpy(path)
+            self.assertEqual(loaded,[qc,qc]);self.assertTrue(streams[0].closed)
+            with patch.object(circuits.tempfile,'TemporaryFile',side_effect=remember_temp),patch.object(circuits.qpy,'load',side_effect=RuntimeError('bad QPY')):
+                with self.assertRaisesRegex(RuntimeError,'bad QPY'):circuits.load_cached_qpy(path)
+            self.assertTrue(streams[-1].closed)
+
+    def test_cached_writer_avoids_whole_job_buffer_and_retains_payload(self):
+        qc=QuantumCircuit(2);qc.rx(.37,0);qc.cx(0,1);qc.reset(1)
+        writer=qpy.dump
+        def inspect_writer(pubs,stream):
+            self.assertNotIsInstance(stream,(gzip.GzipFile,io.BytesIO))
+            self.assertIsInstance(stream.fileno(),int);return writer(pubs,stream)
+        with tempfile.TemporaryDirectory() as tmp,contextlib.redirect_stdout(io.StringIO()):
+            old=Path(tmp)/'old.qpy.gz';new=Path(tmp)/'new.qpy.gz'
+            with gzip.open(old,'wb') as f:qpy.dump([qc,qc],f)
+            with patch.object(circuits.qpy,'dump',side_effect=inspect_writer):circuits.write_cached_qpy(new,[qc,qc])
+            with gzip.open(old,'rb') as a,gzip.open(new,'rb') as b:self.assertEqual(a.read(),b.read())
+            self.assertEqual(circuits.load_cached_qpy(new),[qc,qc])
+            legacy=Path(tmp)/'legacy.qpy.gz'
+            with gzip.open(legacy,'wb') as f:qpy.dump([qc],f,version=15)
+            self.assertEqual(circuits.load_cached_qpy(legacy),[qc])
+
+    def test_cache_integrity_does_not_need_depth_recalculation(self):
+        cfg=config();b=backend()
+        with tempfile.TemporaryDirectory() as tmp,contextlib.redirect_stdout(io.StringIO()):
+            folder=self.prepare(tmp,cfg);source,manifest,data=model.load_run(folder)
+            batch=manifest['batches'][0];metadata={'target_sha256':'local-test','compiler_methods':{}}
+            original,rows=circuits.compile_batch(folder/'native',source,data,batch,b.target,metadata)
+            with patch.object(circuits.old_circuits,'metrics',side_effect=AssertionError('repeated depth calculation')):
+                loaded,again=circuits.compile_batch(folder/'native',source,data,batch,b.target,metadata)
+            self.assertEqual(original,loaded);self.assertEqual(rows,again)
+            path=folder/'native/batch_00000.qpy.gz'
+            with path.open('ab') as f:f.write(b'changed')
+            with patch.object(circuits,'load_cached_qpy',side_effect=AssertionError('must verify before loading')):
+                with self.assertRaisesRegex(ValueError,'provenance changed'):
+                    circuits.compile_batch(folder/'native',source,data,batch,b.target,metadata)
+
+    def test_compatibility_rejects_unreviewed_code_changes(self):
+        folder=model.DIRECTORY/'hardware_runs/model3_full_R16384_S16_P192_20261113'
+        source,_,_=model.load_run(folder)
+        changed=copy.deepcopy(source);changed['code']['FinalModel/Model3Experiment/model.py']='0'*64
+        with self.assertRaisesRegex(ValueError,'Unsupported source change'):run.audit_execution_code(changed)
+        rule=model.store.read_sealed(model.DIRECTORY/'cache_fix_compatibility.json')['files']['FinalModel/Model3Experiment/circuits.py']
+        with tempfile.TemporaryDirectory() as tmp,patch.object(run,'ROOT',Path(tmp)):
+            path=Path(tmp)/'FinalModel/Model3Experiment/circuits.py';path.parent.mkdir(parents=True);path.write_text('unreviewed code')
+            fake=dict(sha256='original',code={'FinalModel/Model3Experiment/circuits.py':rule['previous_sha256']})
+            with self.assertRaisesRegex(ValueError,'source hash mismatch'):run.audit_execution_code(fake)
+
+    def test_compatibility_rejects_partial_patch_checkout(self):
+        names=['FinalModel/Model3Experiment/circuits.py','FinalModel/Model3Experiment/run.py']
+        old=[b'old loader',b'old runner'];new=[b'new loader',b'new runner']
+        digest=lambda raw:hashlib.sha256(raw).hexdigest()
+        rules={name:dict(previous_sha256=digest(a),replacement_sha256=digest(b)) for name,a,b in zip(names,old,new)}
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);folder=root/'FinalModel/Model3Experiment';folder.mkdir(parents=True)
+            (folder/'circuits.py').write_bytes(old[0]);(folder/'run.py').write_bytes(new[1])
+            model.store.atomic_json(folder/'cache_fix_compatibility.json',model.store.sealed(dict(patch_id='seekable-qpy-cache-v1',files=rules)))
+            source=dict(sha256='original',code={name:rule['previous_sha256'] for name,rule in rules.items()})
+            with patch.object(run,'ROOT',root),patch.object(model,'DIRECTORY',folder),self.assertRaisesRegex(ValueError,'source hash mismatch'):
+                run.audit_execution_code(source)
 
     def test_same_controls_and_matched_budgets_no_trajectory_split(self):
         cfg=config();records=model.records(cfg,model.batches(cfg)[0])
@@ -338,6 +420,48 @@ class Model3ExperimentTests(unittest.TestCase):
             recovered.close.assert_called_once();forbidden.assert_not_called()
             saved=json.loads((folder/'manifest.json').read_text())
             self.assertEqual(saved['runtime_batches'][0]['status'],'closed')
+
+    def test_legacy_run_resumes_after_cache_interrupt_without_duplicate_jobs(self):
+        cfg=config();cfg['sampling']['trajectories']=6;b=backend();cfg['hardware']['backend']=b.name
+        jobs=[];samplers=[]
+        for index,batch in enumerate(model.batches(cfg)):
+            job=Mock();job.job_id.return_value=f'original-{index}';job.result.return_value=runtime_result(model.records(cfg,batch));jobs.append(job)
+            sampler=Mock();sampler.run.return_value=job;samplers.append(sampler)
+        remote=Mock();remote.session_id='interrupted-original-group'
+        loader=circuits.load_cached_qpy
+        def interrupt_third(path):
+            if Path(path).name=='batch_00002.qpy.gz':raise KeyboardInterrupt()
+            return loader(path)
+        with tempfile.TemporaryDirectory() as tmp,contextlib.redirect_stdout(io.StringIO()),patch.object(analysis,'analyze',return_value='finished'):
+            folder=self.prepare(tmp,cfg);source,manifest,_=model.load_run(folder)
+            rules=model.store.read_sealed(model.DIRECTORY/'cache_fix_compatibility.json')['files']
+            source.pop('sha256')
+            for name,rule in rules.items():source['code'][name]=rule['previous_sha256']
+            source=model.store.sealed(source);manifest['source_sha256']=source['sha256']
+            model.store.atomic_json(folder/'source.json',source);model.store.atomic_json(folder/'manifest.json',manifest)
+            original_source=(folder/'source.json').read_bytes();original_paths=model.store.file_digest(folder/'paths.npz')
+            first_factory=Mock(side_effect=samplers[:2])
+            with patch.object(circuits,'load_cached_qpy',side_effect=interrupt_third),self.assertRaises(KeyboardInterrupt):
+                run.execute(folder,execution_mode='batch',jobs_per_batch=3,backend=b,sampler_factory=first_factory,batch_factory=Mock(return_value=remote))
+            saved=json.loads((folder/'manifest.json').read_text())
+            self.assertEqual([g['job_id'] for g in saved['batches']],['original-0','original-1',None])
+            self.assertEqual(saved['batches'][2]['status'],'not_submitted')
+            remote.close.assert_called_once();self.assertEqual(first_factory.call_count,2)
+            service=Mock();service.job.side_effect=lambda job_id:jobs[int(job_id.split('-')[-1])]
+            next_remote=Mock();next_remote.session_id='resumed-group';new_factory=Mock(return_value=samplers[2])
+            with patch.object(circuits,'load_cached_qpy',wraps=loader) as reads:
+                self.assertEqual(run.execute(folder,execution_mode='batch',jobs_per_batch=3,backend=b,service=service,
+                    sampler_factory=new_factory,batch_factory=Mock(return_value=next_remote)),'finished')
+                self.assertEqual(reads.call_count,1)  # Only the genuinely unsubmitted job is loaded.
+            self.assertEqual(service.job.call_count,2);new_factory.assert_called_once()
+            saved=json.loads((folder/'manifest.json').read_text())
+            self.assertEqual([g['job_id'] for g in saved['batches']],['original-0','original-1','original-2'])
+            self.assertEqual(len(saved['execution_updates']),1)
+            self.assertEqual((folder/'source.json').read_bytes(),original_source)
+            self.assertEqual(model.store.file_digest(folder/'paths.npz'),original_paths)
+            for batch in saved['batches']:
+                compiled=model.store.read_sealed(folder/batch['records_file'])
+                self.assertEqual(compiled['source_sha256'],source['sha256'])
 
 
 if __name__=='__main__':unittest.main()
