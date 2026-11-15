@@ -1,6 +1,6 @@
 {
-  "patch_id": "seekable-qpy-cache-v1",
-  "description": "Transport-only cache loading and validation changes; original circuit construction and job membership retained.",
+  "patch_id": "seekable-qpy-cache-and-job-recovery-v2",
+  "description": "Cache transport and explicit failed-job recovery only; frozen physics, circuits, trajectories and job membership retained.",
   "files": {
     "FinalModel/Model3Experiment/circuits.py": {
       "previous_sha256": "2775bcee66264fb13408072c27346797986bb831405d2219d0df4b423c08f96c",
@@ -8,8 +8,11 @@
     },
     "FinalModel/Model3Experiment/run.py": {
       "previous_sha256": "c1bf9f5fec858e9d65003da7a3ae8fcd0df16f0f64e1d2f7a76011fbb781cfe1",
-      "replacement_sha256": "06e7e634d004d2b48e1709eb2a9c7cfc9f4720b98537c832e71c09d0666acadd"
+      "replacement_sha256": "977377c8037a50b9faa988722d9e3562aee65c983ff0a9202f2077ef6c404c57",
+      "additional_previous_sha256": [
+        "06e7e634d004d2b48e1709eb2a9c7cfc9f4720b98537c832e71c09d0666acadd"
+      ]
     }
   },
-  "sha256": "bbdbbf2717b854aa709652f300e576b4f0cf81d21e532ab4d32147e86a563f9b"
+  "sha256": "9f773dbd67f18f60a8fe24b0de05a0f1423d4bbd541953ff99757a8c68682b45"
 }

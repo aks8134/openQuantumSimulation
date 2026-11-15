@@ -236,8 +236,59 @@ The manifest records Runtime batch IDs, member job indices, maximum lifetime,
 and closure state. After an interruption, known jobs are recovered by ID,
 and an interrupted batch closure is retried before further submission. Jobs
 that fail or expire remain recorded; they are never automatically resubmitted.
+Result collection continues through the other submitted jobs in the selected
+group before reporting unresolved results. No further group is submitted
+while those results remain unresolved.
 `--max-jobs` also limits batch mode, so the last Runtime batch may be smaller
 than `jobs_per_batch`. No Runtime batch is created for result-only recovery.
+
+### Recovering an IBM Runtime job failure
+
+IBM error 1319 means that a job was out of sync and in an unexpected state
+([IBM error registry](https://quantum.cloud.ibm.com/docs/en/errors)).
+It does not by itself identify a problem with the submitted circuit.
+The runner reports the affected job index, IBM job ID and remote status
+in the terminal and `manifest.json`, while saving the results it can
+retrieve from the other submitted jobs.
+
+After updating the code, use this PowerShell command to collect existing
+jobs without submitting, compiling, or replacing any job:
+
+```powershell
+$run = ".\FinalModel\Model3Experiment\hardware_runs\model3_full_R16384_S16_P192_20261113"
+python .\FinalModel\Model3Experiment\run.py execute --run $run --collect-only
+```
+
+This command can wait for queued/running jobs. It skips results already
+collected and leaves unsubmitted groups untouched. If a retrieval fails,
+it tries the remaining submitted jobs before returning a nonzero exit code.
+Run it again to retry retrieval. A retrieval error does not trigger a new
+hardware execution.
+
+If a job remains in `ERROR` or `CANCELLED`, explicitly authorize replacing
+that job by its reported integer index. For example, if the report identifies
+job 17:
+
+```powershell
+python .\FinalModel\Model3Experiment\run.py execute `
+  --run $run --execution-mode batch --jobs-per-batch 8 `
+  --retry-failed-job 17
+```
+
+Use the actual reported index; the last successful output line alone does
+not establish which job failed. Repeat `--retry-failed-job INDEX` for several
+failed jobs. The command rechecks each job's remote status before changing
+the manifest and refuses to replace completed, active, unknown-status, or
+already collected jobs. It archives the previous ID and failure details
+under `previous_attempts`, then resumes the same frozen circuit groups and
+remaining preparation work. Existing counts and all recorded previous IDs
+are preserved. Replacement attempts can incur additional usage beyond the
+original 86-job plan. After an interruption, resume with the ordinary execute
+command; do not repeat the retry flag for a replacement already submitted.
+
+If IBM continues returning 1319, provide the affected job ID to IBM support.
+Do not delete or regenerate the run directory or edit job IDs manually.
+`--collect-only` and `--retry-failed-job` are mutually exclusive.
 
 Job IDs are saved before result collection. A known job is recovered instead
 of resubmitted. A submission interrupted before its ID is saved stops for
@@ -278,7 +329,8 @@ target is still checked. Original recorded metrics are authenticated by the
 cache hash instead of recalculating every circuit depth on each load.
 
 `cache_fix_compatibility.json` identifies the exact original and replacement
-hashes for `circuits.py` and `run.py`. The runner accepts only that reviewed
+hashes for `circuits.py` and `run.py`, including the preceding cache-only
+runner revision. The runner accepts only that reviewed
 replacement pair, including proven LF/CRLF checkout conversions; all other
 source checks remain strict. It records the execution revision in the mutable
 manifest while leaving the original frozen source and compiled-record hashes

@@ -55,16 +55,19 @@ def execution_lock(path):
 
 
 def execute(folder,account_file=None,max_jobs=None,*,execution_mode=None,jobs_per_batch=None,
-            batch_max_time=None,service=None,backend=None,sampler_factory=None,batch_factory=None):
+            batch_max_time=None,collect_only=False,retry_failed_jobs=(),
+            service=None,backend=None,sampler_factory=None,batch_factory=None):
     if max_jobs is not None and max_jobs<1:raise ValueError('max-jobs must be positive')
+    if collect_only and retry_failed_jobs:raise ValueError('--collect-only cannot be combined with --retry-failed-job')
     with execution_lock(Path(folder)/'execution.lock'):
         return _execute(folder,account_file,max_jobs,execution_mode=execution_mode,jobs_per_batch=jobs_per_batch,
-            batch_max_time=batch_max_time,service=service,backend=backend,
+            batch_max_time=batch_max_time,collect_only=collect_only,retry_failed_jobs=retry_failed_jobs,
+            service=service,backend=backend,
             sampler_factory=sampler_factory,batch_factory=batch_factory)
 
 
 def audit_execution_code(source):
-    """Allow only the exact reviewed cache patch to an older frozen run."""
+    """Allow only the exact reviewed execution fixes to an older frozen run."""
     replacements={};compatibility=None
     for name,expected in source['code'].items():
         raw=(ROOT/name).read_bytes()
@@ -72,11 +75,11 @@ def audit_execution_code(source):
         except ValueError:
             if compatibility is None:
                 compatibility=model.store.read_sealed(model.DIRECTORY/'cache_fix_compatibility.json')
-                if (compatibility['patch_id']!='seekable-qpy-cache-v1'
+                if (compatibility['patch_id']!='seekable-qpy-cache-and-job-recovery-v2'
                         or set(compatibility['files'])!={'FinalModel/Model3Experiment/circuits.py','FinalModel/Model3Experiment/run.py'}):
                     raise ValueError('Unrecognized cache-fix compatibility declaration')
             rule=compatibility['files'].get(name)
-            if rule is None or expected!=rule['previous_sha256']:
+            if rule is None or expected not in [rule['previous_sha256'],*rule.get('additional_previous_sha256',[])]:
                 raise ValueError(f'Unsupported source change: {name}; frozen run was not modified') from None
             match=source_integrity(raw,rule['replacement_sha256'])
             replacements[name]=dict(original_sha256=expected,replacement_sha256=rule['replacement_sha256'],checkout_match=match)
@@ -130,6 +133,7 @@ def collect_job(folder,source,manifest,batch,job):
     output=folder/'counts'/f"batch_{batch['index']:05d}.json"
     model.store.atomic_json(output,payload)
     batch.update(status='collected',result_file=str(output.relative_to(folder)),result_sha256=payload['sha256'])
+    batch.pop('collection_error',None)
     try:batch['job_metrics']=json.loads(json.dumps(job.metrics(),default=str))
     except Exception as exc:batch['job_metrics_unavailable']=type(exc).__name__
     model.store.atomic_json(folder/'manifest.json',manifest)
@@ -139,6 +143,68 @@ def collect_job(folder,source,manifest,batch,job):
         batch['native_qpy_retained']=False
         model.store.atomic_json(folder/'manifest.json',manifest)
     print(f"Collected job {batch['index']}; {len(rows)} PUBs",flush=True)
+
+
+class JobCollectionError(RuntimeError):
+    """Submitted jobs remain unresolved after all selected results were tried."""
+
+
+def job_status(job):
+    status=job.status()
+    return status if isinstance(status,str) else status.name
+
+
+def collect_jobs(folder,source,manifest,batches,get_job):
+    """Save the other submitted results even when one Runtime job fails."""
+    from qiskit_ibm_runtime.exceptions import IBMError
+    from qiskit.providers.exceptions import JobError
+    failures=[]
+    for batch in batches:
+        job=None
+        try:
+            job=get_job(batch)
+            collect_job(folder,source,manifest,batch,job)
+        except (IBMError,JobError) as exc:
+            detail=dict(job_id=batch['job_id'],exception=type(exc).__name__,message=str(exc),
+                        observed_utc=datetime.now(timezone.utc).isoformat())
+            if job is not None:
+                try:detail['runtime_status']=job_status(job)
+                except Exception as status_exc:detail['status_unavailable']=type(status_exc).__name__
+            batch['collection_error']=detail
+            model.store.atomic_json(folder/'manifest.json',manifest)
+            failures.append(f"job {batch['index']} ({batch['job_id']}), status={detail.get('runtime_status','UNKNOWN')}")
+            print(f"Could not collect {failures[-1]}: {exc}",flush=True)
+    if failures:
+        raise JobCollectionError('Unresolved results: '+ '; '.join(failures)+'. Other selected results were saved. '
+            'No failed job was automatically resubmitted. Use --collect-only to try retrieval again; '
+            'for a job confirmed ERROR or CANCELLED, --retry-failed-job INDEX explicitly authorizes a replacement and additional usage.')
+
+
+def authorize_failed_retries(folder,manifest,selected,indices,service):
+    """Archive only explicitly selected, remotely confirmed terminal failures."""
+    checked=[];selected={b['index']:b for b in selected}
+    # Validate the whole request before changing any saved job ID.
+    for index in sorted(set(indices)):
+        batch=selected.get(index)
+        if batch is None:raise ValueError(f'Job {index} is not an uncollected job selected by this invocation')
+        if not batch.get('job_id'):raise ValueError(f'Job {index} has no existing job ID to replace')
+        if batch.get('result_file') or (folder/'counts'/f'batch_{index:05d}.json').exists():
+            raise ValueError(f'Job {index} already has saved results; refusing replacement')
+        job=service.job(batch['job_id']);status=job_status(job)
+        if status not in ('ERROR','CANCELLED'):
+            raise ValueError(f'Job {index} ({batch["job_id"]}) is {status}; replacement requires ERROR or CANCELLED. '
+                             'Use --collect-only to retrieve existing results.')
+        checked.append((batch,status))
+    for batch,status in checked:
+        old_id=batch['job_id']
+        keys=('job_id','execution_mode','runtime_batch_id','collection_error','job_metrics','job_metrics_unavailable')
+        attempt={key:batch[key] for key in keys if key in batch}
+        attempt.update(runtime_status=status,retry_authorized_utc=datetime.now(timezone.utc).isoformat())
+        batch.setdefault('previous_attempts',[]).append(attempt)
+        for key in keys:batch.pop(key,None)
+        batch.update(status='not_submitted',job_id=None)
+        print(f'Authorized replacement of job {batch["index"]}: archived {old_id} ({status}); additional usage may apply',flush=True)
+    if checked:model.store.atomic_json(folder/'manifest.json',manifest)
 
 
 def close_runtime_batch(folder,manifest,record,remote):
@@ -188,7 +254,8 @@ def submit_runtime_batch(folder,source,manifest,data,window,target,metadata,back
 
 
 def _execute(folder,account_file=None,max_jobs=None,*,execution_mode=None,jobs_per_batch=None,
-             batch_max_time=None,service=None,backend=None,sampler_factory=None,batch_factory=None):
+             batch_max_time=None,collect_only=False,retry_failed_jobs=(),
+             service=None,backend=None,sampler_factory=None,batch_factory=None):
     folder=Path(folder);source,manifest,data=model.load_run(folder);cfg=source['configuration'];h=cfg['hardware']
     policy=model.execution_options(cfg,execution_mode,jobs_per_batch,batch_max_time)
     revision=audit_execution_code(source)
@@ -200,7 +267,11 @@ def _execute(folder,account_file=None,max_jobs=None,*,execution_mode=None,jobs_p
         if not any(item['revision_sha256']==fingerprint for item in updates):
             updates.append(dict(revision=revision,revision_sha256=fingerprint,applied_utc=datetime.now(timezone.utc).isoformat()))
             model.store.atomic_json(folder/'manifest.json',manifest)
-        print('Applied verified cache-loading patch; original source, circuits and saved job IDs retained',flush=True)
+        print('Applied verified execution fixes; original source, circuits and job history retained',flush=True)
+    pending=[b for b in manifest['batches'] if b['status']!='collected']
+    if max_jobs is not None:pending=pending[:max_jobs]
+    if retry_failed_jobs and any(index not in {b['index'] for b in pending} for index in retry_failed_jobs):
+        raise ValueError('--retry-failed-job must select an uncollected job included by --max-jobs')
     if all(b['status']=='collected' for b in manifest['batches']):
         from FinalModel.Model3Experiment.analysis import analyze
         return analyze(folder)
@@ -210,6 +281,17 @@ def _execute(folder,account_file=None,max_jobs=None,*,execution_mode=None,jobs_p
           f"execution_mode={policy['execution_mode']}, jobs_per_batch={policy['jobs_per_batch']}",flush=True)
     if service is None and backend is None:
         service=original_hardware.make_service(SimpleNamespace(account_file=account_file))
+    if retry_failed_jobs:
+        if service is None:raise ValueError('service required to verify failed jobs before replacement')
+        authorize_failed_retries(folder,manifest,pending,retry_failed_jobs,service)
+    if collect_only:
+        known=[b for b in pending if b.get('job_id')]
+        if known and service is None:raise ValueError('service required to recover existing jobs')
+        collect_jobs(folder,source,manifest,known,lambda b:service.job(b['job_id']))
+        if all(b['status']=='collected' for b in manifest['batches']):
+            manifest['status']='collected';model.store.atomic_json(folder/'manifest.json',manifest)
+        print(f"Collection-only pass complete: {sum(b['status']=='collected' for b in manifest['batches'])} jobs collected; no jobs submitted",flush=True)
+        return manifest
     if backend is None:backend=service.backend(h['backend'],use_fractional_gates=False)
     if backend.name!=h['backend']:raise ValueError('wrong live backend')
     live=folder/'live_target'
@@ -228,25 +310,23 @@ def _execute(folder,account_file=None,max_jobs=None,*,execution_mode=None,jobs_p
         if service is None:raise ValueError('service required to close an interrupted Runtime batch')
         remote=batch_factory.from_id(group['runtime_batch_id'],service=service)
         close_runtime_batch(folder,manifest,group,remote)
-    pending=[b for b in manifest['batches'] if b['status']!='collected']
-    if max_jobs is not None:pending=pending[:max_jobs]
     # Recover every selected known job before submitting anything new. A failed
     # or expired job remains recorded and is never silently replaced.
-    for batch in pending:
-        if not batch.get('job_id'):continue
-        if service is None:raise ValueError('service required to recover an existing job')
-        collect_job(folder,source,manifest,batch,service.job(batch['job_id']))
+    known=[b for b in pending if b.get('job_id')]
+    if known and service is None:raise ValueError('service required to recover an existing job')
+    collect_jobs(folder,source,manifest,known,lambda b:service.job(b['job_id']))
     planned=[b for b in pending if b['status']!='collected']
     if policy['execution_mode']=='job':
         for batch in planned:
             job=submit_job(folder,source,manifest,data,batch,target,metadata,backend,sampler_factory,backend)
-            collect_job(folder,source,manifest,batch,job)
+            collect_jobs(folder,source,manifest,[batch],lambda _:job)
     else:
         size=policy['jobs_per_batch']
         for start in range(0,len(planned),size):
             jobs=submit_runtime_batch(folder,source,manifest,data,planned[start:start+size],target,metadata,
                                       backend,sampler_factory,batch_factory,policy)
-            for batch,job in jobs:collect_job(folder,source,manifest,batch,job)
+            submitted={batch['index']:job for batch,job in jobs}
+            collect_jobs(folder,source,manifest,[batch for batch,job in jobs],lambda b:submitted[b['index']])
     if all(b['status']=='collected' for b in manifest['batches']):
         manifest['status']='collected';model.store.atomic_json(folder/'manifest.json',manifest)
         from FinalModel.Model3Experiment.analysis import analyze
@@ -263,6 +343,10 @@ def parse_arguments(arguments=None):
     execute.add_argument('--execution-mode',choices=('job','batch'),help='Override hardware.execution_mode for this invocation')
     execute.add_argument('--jobs-per-batch',type=int,help='Jobs submitted together per Runtime batch (uses frozen configuration)')
     execute.add_argument('--batch-max-time',type=int,metavar='SECONDS',help='Runtime batch maximum TTL in seconds (uses frozen configuration)')
+    recovery=execute.add_mutually_exclusive_group()
+    recovery.add_argument('--collect-only',action='store_true',help='Retrieve saved job IDs only; never compile or submit jobs')
+    recovery.add_argument('--retry-failed-job',type=int,action='append',default=[],metavar='INDEX',
+        help='Explicitly replace this job only after verifying ERROR/CANCELLED; repeat for multiple jobs; additional usage may apply')
     analysis=sub.add_parser('analyze');analysis.add_argument('--run',type=Path,required=True)
     bundle=sub.add_parser('bundle');bundle.add_argument('--run',type=Path,required=True);bundle.add_argument('--output',type=Path,required=True)
     return parser.parse_args(arguments)
@@ -272,8 +356,13 @@ def main(arguments=None):
     options=parse_arguments(arguments)
     if options.action=='prepare':return model.prepare(options.config,options.output)
     if options.action=='preview':return preview(options.run,options.batch,options.paths)
-    if options.action=='execute':return execute(options.run,options.account_file,options.max_jobs,
-        execution_mode=options.execution_mode,jobs_per_batch=options.jobs_per_batch,batch_max_time=options.batch_max_time)
+    if options.action=='execute':
+        try:return execute(options.run,options.account_file,options.max_jobs,
+            execution_mode=options.execution_mode,jobs_per_batch=options.jobs_per_batch,batch_max_time=options.batch_max_time,
+            collect_only=options.collect_only,retry_failed_jobs=options.retry_failed_job)
+        except JobCollectionError as exc:
+            print(str(exc),file=sys.stderr,flush=True)
+            raise SystemExit(1) from None
     if options.action=='bundle':return export_bundle(options.run,options.output)
     from FinalModel.Model3Experiment.analysis import analyze
     return analyze(options.run)

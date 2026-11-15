@@ -16,6 +16,7 @@ import numpy as np
 from qiskit import QuantumCircuit,qpy
 from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit.quantum_info import DensityMatrix,Kraus
+from qiskit_ibm_runtime.exceptions import RuntimeJobFailureError,IBMRuntimeError
 from FinalModel.Model3Experiment import model,circuits,analysis,run,portable
 
 
@@ -87,7 +88,7 @@ class Model3ExperimentTests(unittest.TestCase):
         self.assertEqual(sorted(i for b in manifest['batches'] for i in b['indices']),list(range(16384)))
         self.assertTrue(all(len(b['indices'])<=192 for b in manifest['batches']))
         revision=run.audit_execution_code(source)
-        self.assertEqual(revision['patch_id'],'seekable-qpy-cache-v1')
+        self.assertEqual(revision['patch_id'],'seekable-qpy-cache-and-job-recovery-v2')
         self.assertEqual(set(revision['files']),{'FinalModel/Model3Experiment/circuits.py','FinalModel/Model3Experiment/run.py'})
 
     def test_cached_qpy_uses_seekable_disk_and_closes_it(self):
@@ -162,7 +163,7 @@ class Model3ExperimentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);folder=root/'FinalModel/Model3Experiment';folder.mkdir(parents=True)
             (folder/'circuits.py').write_bytes(old[0]);(folder/'run.py').write_bytes(new[1])
-            model.store.atomic_json(folder/'cache_fix_compatibility.json',model.store.sealed(dict(patch_id='seekable-qpy-cache-v1',files=rules)))
+            model.store.atomic_json(folder/'cache_fix_compatibility.json',model.store.sealed(dict(patch_id='seekable-qpy-cache-and-job-recovery-v2',files=rules)))
             source=dict(sha256='original',code={name:rule['previous_sha256'] for name,rule in rules.items()})
             with patch.object(run,'ROOT',root),patch.object(model,'DIRECTORY',folder),self.assertRaisesRegex(ValueError,'source hash mismatch'):
                 run.audit_execution_code(source)
@@ -283,6 +284,100 @@ class Model3ExperimentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp,patch.object(run.original_hardware,'make_service',side_effect=AssertionError('no account')):
             folder=self.prepare(tmp,cfg)
             with self.assertRaisesRegex(ValueError,'jobs_per_batch'):run.execute(folder,jobs_per_batch=0)
+
+    def test_collection_only_recovers_ids_without_backend_compilation_or_submission(self):
+        cfg=config();cfg['sampling']['trajectories']=4
+        forbidden=Mock(side_effect=AssertionError('collection must not access hardware submission or compilation'))
+        with tempfile.TemporaryDirectory() as tmp,contextlib.redirect_stdout(io.StringIO()):
+            folder=self.prepare(tmp,cfg);source,manifest,_=model.load_run(folder)
+            batch=manifest['batches'][0];batch.update(status='submitted',job_id='existing',records_file='native/records.json')
+            rows=model.records(cfg,batch);model.store.atomic_json(folder/batch['records_file'],model.store.sealed(dict(circuits=rows)))
+            model.store.atomic_json(folder/'manifest.json',manifest)
+            job=Mock();job.result.return_value=runtime_result(rows)
+            service=Mock();service.job.return_value=job;service.backend=forbidden
+            with patch.object(circuits,'compile_batch',forbidden),patch.object(model.store,'capture_snapshot',forbidden):
+                result=run.execute(folder,collect_only=True,service=service,sampler_factory=forbidden,batch_factory=forbidden)
+            self.assertEqual([b['status'] for b in result['batches']],['collected','not_submitted'])
+            service.job.assert_called_once_with('existing');forbidden.assert_not_called()
+            args=run.parse_arguments(['execute','--run',str(folder),'--collect-only']);self.assertTrue(args.collect_only)
+            with self.assertRaisesRegex(ValueError,'cannot be combined'):
+                run.execute(folder,collect_only=True,retry_failed_jobs=[1])
+
+    def test_runtime_failure_saves_other_results_then_explicit_retry_preserves_history(self):
+        cfg=config();cfg['sampling']['trajectories']=8;b=backend();cfg['hardware']['backend']=b.name
+        jobs=[];samplers=[]
+        for index,batch in enumerate(model.batches(cfg)[:3]):
+            job=Mock();job.job_id.return_value=f'original-{index}';job.status.return_value='DONE'
+            job.result.return_value=runtime_result(model.records(cfg,batch));jobs.append(job)
+            sampler=Mock();sampler.run.return_value=job;samplers.append(sampler)
+        jobs[1].result.side_effect=RuntimeJobFailureError('Error code 1319; Job was out of sync and in an unexpected state')
+        jobs[1].status.return_value='ERROR'
+        remote=Mock();remote.session_id='original-runtime-group'
+        with tempfile.TemporaryDirectory() as tmp,contextlib.redirect_stdout(io.StringIO()):
+            folder=self.prepare(tmp,cfg);source_before=(folder/'source.json').read_bytes();paths_before=model.store.file_digest(folder/'paths.npz')
+            with self.assertRaisesRegex(run.JobCollectionError,'job 1 \\(original-1\\)'):
+                run.execute(folder,execution_mode='batch',jobs_per_batch=3,backend=b,
+                    sampler_factory=Mock(side_effect=samplers),batch_factory=Mock(return_value=remote))
+            source,saved,_=model.load_run(folder)
+            self.assertEqual([x['status'] for x in saved['batches']],['collected','submitted','collected','not_submitted'])
+            self.assertEqual(saved['batches'][1]['collection_error']['runtime_status'],'ERROR')
+            self.assertIn('1319',saved['batches'][1]['collection_error']['message'])
+            success_bytes=[(folder/saved['batches'][i]['result_file']).read_bytes() for i in (0,2)]
+            compiled_before=model.store.read_sealed(folder/saved['batches'][1]['records_file'])
+            service=Mock();service.job.return_value=jobs[1]
+            forbidden=Mock(side_effect=AssertionError('must not submit on a collection failure'))
+            with self.assertRaises(run.JobCollectionError):
+                run.execute(folder,collect_only=True,service=service,sampler_factory=forbidden,batch_factory=forbidden)
+            forbidden.assert_not_called();service.backend.assert_not_called()
+            replacement=Mock();replacement.job_id.return_value='replacement-1'
+            replacement.result.return_value=runtime_result(compiled_before['circuits'])
+            sampler=Mock();sampler.run.return_value=replacement
+            resumed=Mock();resumed.session_id='replacement-runtime-group'
+            result=run.execute(folder,max_jobs=1,retry_failed_jobs=[1],execution_mode='batch',
+                service=service,backend=b,sampler_factory=Mock(return_value=sampler),batch_factory=Mock(return_value=resumed))
+            self.assertEqual([x['status'] for x in result['batches']],['collected','collected','collected','not_submitted'])
+            batch=result['batches'][1]
+            self.assertEqual(batch['job_id'],'replacement-1');self.assertNotIn('collection_error',batch)
+            self.assertEqual(batch['previous_attempts'][0]['job_id'],'original-1')
+            self.assertEqual(batch['previous_attempts'][0]['runtime_batch_id'],'original-runtime-group')
+            self.assertIn('1319',batch['previous_attempts'][0]['collection_error']['message'])
+            self.assertEqual(model.store.read_sealed(folder/batch['records_file']),compiled_before)
+            self.assertEqual((folder/'source.json').read_bytes(),source_before)
+            self.assertEqual(model.store.file_digest(folder/'paths.npz'),paths_before)
+            for i,raw in zip((0,2),success_bytes):self.assertEqual((folder/result['batches'][i]['result_file']).read_bytes(),raw)
+            sampler.run.assert_called_once()
+            self.assertEqual([p[2] for p in sampler.run.call_args.args[0]],[r['shots'] for r in compiled_before['circuits']])
+
+    def test_retry_requires_confirmed_failure_and_validates_all_before_mutating(self):
+        cfg=config();cfg['sampling']['trajectories']=4
+        with tempfile.TemporaryDirectory() as tmp,contextlib.redirect_stdout(io.StringIO()):
+            folder=self.prepare(tmp,cfg);source,manifest,_=model.load_run(folder)
+            for i,batch in enumerate(manifest['batches']):batch.update(status='submitted',job_id=f'old-{i}')
+            model.store.atomic_json(folder/'manifest.json',manifest);before=copy.deepcopy(manifest)
+            first=Mock();first.status.return_value='ERROR'
+            second=Mock();service=Mock();service.job.side_effect=lambda job_id:first if job_id=='old-0' else second
+            for status in ('DONE','RUNNING','QUEUED','UNKNOWN'):
+                second.status.return_value=status
+                with self.assertRaisesRegex(ValueError,'requires ERROR or CANCELLED'):
+                    run.authorize_failed_retries(folder,manifest,manifest['batches'],[0,1],service)
+                self.assertEqual(manifest,before)
+            second.status.side_effect=IBMRuntimeError('status unavailable')
+            with self.assertRaises(IBMRuntimeError):run.authorize_failed_retries(folder,manifest,manifest['batches'],[1],service)
+            self.assertEqual(manifest,before)
+            second.status.side_effect=None;second.status.return_value='CANCELLED'
+            output=folder/'counts/batch_00001.json';output.parent.mkdir();output.write_text('existing result')
+            with self.assertRaisesRegex(ValueError,'saved results'):run.authorize_failed_retries(folder,manifest,manifest['batches'],[1],service)
+            self.assertEqual(manifest,before)
+            output.unlink();run.authorize_failed_retries(folder,manifest,manifest['batches'],[1],service)
+            self.assertEqual(manifest['batches'][1]['previous_attempts'][0]['runtime_status'],'CANCELLED')
+
+    def test_recovery_accepts_the_previous_cache_patch_as_a_frozen_source(self):
+        source,_,_=model.load_run(model.DIRECTORY/'hardware_runs/model3_full_R16384_S16_P192_20261113')
+        previous=copy.deepcopy(source)
+        previous['code']['FinalModel/Model3Experiment/circuits.py']='ac28308749eb74dd25d77a07f72e1074a4b8b3be57071e3e57df4630edab4f62'
+        previous['code']['FinalModel/Model3Experiment/run.py']='06e7e634d004d2b48e1709eb2a9c7cfc9f4720b98537c832e71c09d0666acadd'
+        revision=run.audit_execution_code(previous)
+        self.assertEqual(set(revision['files']),{'FinalModel/Model3Experiment/run.py'})
 
     def test_batch_submits_whole_window_before_collection_and_honors_limit(self):
         cfg=config();cfg['sampling']['trajectories']=6;b=backend();cfg['hardware']['backend']=b.name
