@@ -17,7 +17,7 @@
     "total_circuits": 640266,
     "total_shots": 4202496
   },
-  "status": "planned",
+  "status": "collected",
   "batches": [
     {
       "index": 0,
@@ -214,8 +214,40 @@
         10694,
         10311
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbrp7qfv5hds73di5n60",
+      "records_file": "native/batch_00000.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "5ba2deb8-547c-4e25-a69d-38f966a480b6",
+      "result_file": "counts\\batch_00000.json",
+      "result_sha256": "c74325fd0dc5781ecf7f826fe404a8dcacd38c56bb7be23072c56d2d4e5a668d",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-13T22:49:18.491494Z",
+          "finished": "2026-11-14T10:06:51.379298Z",
+          "running": "2026-11-14T09:32:48.744976Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2409806592
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 1,
@@ -412,8 +444,40 @@
         1745,
         13155
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbs3nj8k09pc73avnhkg",
+      "records_file": "native/batch_00001.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "5ba2deb8-547c-4e25-a69d-38f966a480b6",
+      "result_file": "counts\\batch_00001.json",
+      "result_sha256": "b4b648a7ffde70a3155e05b5699347ba207380c38f9d590ec0fed9662cfc8234",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T10:45:38.332627Z",
+          "finished": "2026-11-14T11:22:13.800778Z",
+          "running": "2026-11-14T10:48:39.930568Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410180608
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 2,
@@ -610,8 +674,40 @@
         1919,
         7016
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsc5f8k09pc73b00cdg",
+      "records_file": "native/batch_00002.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "result_file": "counts\\batch_00002.json",
+      "result_sha256": "4dd7ba079b2a6bcfc442d11873b8d286045d601fc78e3ec3e0f63e1116c7905b",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T20:21:23.184173Z",
+          "finished": "2026-11-14T22:03:00.263803Z",
+          "running": "2026-11-14T21:35:11.316023Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410378496
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 3,
@@ -808,8 +904,40 @@
         11655,
         866
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbscc8mjjaos73ak14v0",
+      "records_file": "native/batch_00003.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "result_file": "counts\\batch_00003.json",
+      "result_sha256": "8b3f08cbe4eecb32b7846aff1f7ae348e70ba31bc3ed59871d218ee206e63846",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T20:35:51.973791Z",
+          "finished": "2026-11-14T22:03:26.362344Z",
+          "running": "2026-11-14T21:35:12.140547Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2409762560
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 4,
@@ -1006,8 +1134,40 @@
         6175,
         9690
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbscj17v5hds73diq7q0",
+      "records_file": "native/batch_00004.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "result_file": "counts\\batch_00004.json",
+      "result_sha256": "3c469da113294363e175e3dcafd7aae4c51de2aafab3bfa9c540c01af6932ba8",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T20:50:18.909622Z",
+          "finished": "2026-11-14T22:03:29.052521Z",
+          "running": "2026-11-14T21:35:14.40497Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412001792
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 5,
@@ -1204,8 +1364,40 @@
         5343,
         8702
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbscpoejjaos73ak1j1g",
+      "records_file": "native/batch_00005.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "result_file": "counts\\batch_00005.json",
+      "result_sha256": "71d82601fdae7db8792359a24d52118da5771021c7f7468d5933169c224e5070",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T21:04:39.813965Z",
+          "finished": "2026-11-14T22:03:05.289795Z",
+          "running": "2026-11-14T21:35:15.806402Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410326016
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 6,
@@ -1402,8 +1594,40 @@
         5082,
         5519
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsd0fhabdes73fr0tc0",
+      "records_file": "native/batch_00006.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "result_file": "counts\\batch_00006.json",
+      "result_sha256": "e1460c24afc8c389b1876425a202977852ff6b89ecb40621c99428216d116c2b",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T21:18:59.556552Z",
+          "finished": "2026-11-14T22:03:08.295531Z",
+          "running": "2026-11-14T21:35:16.080109Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410393600
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 7,
@@ -1600,8 +1824,40 @@
         4260,
         11168
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsd706jjaos73ak1vmg",
+      "records_file": "native/batch_00007.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "result_file": "counts\\batch_00007.json",
+      "result_sha256": "d939d026705e6d7fa19abc9b985255efd3e713d9a4a6a5b9394c8e081bedf82a",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T21:32:53.762638Z",
+          "finished": "2026-11-14T22:03:25.364993Z",
+          "running": "2026-11-14T21:35:18.299566Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412195840
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 8,
@@ -1798,8 +2054,40 @@
         7417,
         10910
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsdd08k09pc73b01k00",
+      "records_file": "native/batch_00008.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "result_file": "counts\\batch_00008.json",
+      "result_sha256": "46e9555ad975b766ec04b8b30be4e368097b64f4706bf4e5d36b3cb4cff183fc",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T21:45:43.73547Z",
+          "finished": "2026-11-14T22:07:45.614959Z",
+          "running": "2026-11-14T21:45:44.413206Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412086784
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 9,
@@ -1996,8 +2284,40 @@
         15473,
         7401
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsdjmgk09pc73b01s10",
+      "records_file": "native/batch_00009.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "result_file": "counts\\batch_00009.json",
+      "result_sha256": "0c739eb83016fe77520eda93695dc462055489cbca5f332d9eaf77009057010b",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-14T21:59:59.381479Z",
+          "finished": "2026-11-14T22:21:37.518745Z",
+          "running": "2026-11-14T22:00:00.092442Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412425472
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 10,
@@ -2194,8 +2514,40 @@
         5931,
         5038
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsheaujjaos73ak6fmg",
+      "records_file": "native/batch_00010.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+      "result_file": "counts\\batch_00010.json",
+      "result_sha256": "cad3f708cfb9e9b87d5299b87ef77a2dde16dd6be2fefe0d1d8dc517bb24dc13",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T02:21:37.342943Z",
+          "finished": "2026-11-15T02:43:02.947185Z",
+          "running": "2026-11-15T02:21:47.847594Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411152640
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 11,
@@ -2392,8 +2744,40 @@
         9327,
         46
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbshk10k09pc73b06a1g",
+      "records_file": "native/batch_00011.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+      "result_file": "counts\\batch_00011.json",
+      "result_sha256": "5109ba495eabdfb05345972ad7ef6e512f16f17b7bbdb01b77938cc561b61c7c",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T02:33:46.035481Z",
+          "finished": "2026-11-15T02:55:21.829954Z",
+          "running": "2026-11-15T02:33:47.648228Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410773248
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 12,
@@ -2590,8 +2974,40 @@
         11642,
         1449
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbshpogk09pc73b06g00",
+      "records_file": "native/batch_00012.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+      "result_file": "counts\\batch_00012.json",
+      "result_sha256": "e728c9cbc318d8b80656633926c23de9615e9e104c1951b7027bcbdc9e949a44",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T02:45:59.980395Z",
+          "finished": "2026-11-15T03:08:26.467771Z",
+          "running": "2026-11-15T02:46:01.159353Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411413248
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 13,
@@ -2788,8 +3204,40 @@
         8896,
         4405
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbshvjpabdes73fr67p0",
+      "records_file": "native/batch_00013.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+      "result_file": "counts\\batch_00013.json",
+      "result_sha256": "84aa6bab09aea6d0d00e1f1d4ffc1572748048832ef61fd86dd85d67c970b33d",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T02:58:27.39116Z",
+          "finished": "2026-11-15T03:19:52.026991Z",
+          "running": "2026-11-15T02:58:29.144688Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411459584
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 14,
@@ -2986,8 +3434,40 @@
         8043,
         1041
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsi5epabdes73fr6do0",
+      "records_file": "native/batch_00014.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+      "result_file": "counts\\batch_00014.json",
+      "result_sha256": "670245afb35b7a76a9f821659d83ee952cd7a26e62ab3400da859a58fd93e5f2",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T03:10:57.399133Z",
+          "finished": "2026-11-15T03:32:40.91972Z",
+          "running": "2026-11-15T03:10:58.526812Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411812864
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 15,
@@ -3184,8 +3664,40 @@
         14730,
         10039
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsib5gk09pc73b071d0",
+      "records_file": "native/batch_00015.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+      "result_file": "counts\\batch_00015.json",
+      "result_sha256": "7214ff1c845de51720548c81852423a5cbd63a4d92d7939d18a3325c6baf1868",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T03:23:07.775196Z",
+          "finished": "2026-11-15T03:44:37.00475Z",
+          "running": "2026-11-15T03:23:08.883396Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412219136
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 16,
@@ -3382,8 +3894,40 @@
         10452,
         6903
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsigs1abdes73fr6ph0",
+      "records_file": "native/batch_00016.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+      "result_file": "counts\\batch_00016.json",
+      "result_sha256": "31c3fa170bcd56f4b4605e913957ca7bc8c0e1fa2e86277b98be564668f79c05",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T03:35:18.551019Z",
+          "finished": "2026-11-15T03:57:18.586819Z",
+          "running": "2026-11-15T03:35:19.74887Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411125504
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 17,
@@ -3580,8 +4124,56 @@
         6641,
         8587
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00017.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbsimpmjjaos73ak7oj0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+          "collection_error": {
+            "job_id": "dbsimpmjjaos73ak7oj0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 1319; Job was out of sync and in an unexpected state'",
+            "observed_utc": "2026-11-15T06:10:14.609729+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-15T06:11:48.076398+00:00"
+        }
+      ],
+      "job_id": "dbsnon7v5hds73dj6thg",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+      "result_file": "counts\\batch_00017.json",
+      "result_sha256": "23b6de037c98d3c539aef61ba5e45ed2cf9b97fe01f71e1eae99fe2805f097e0",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T09:33:23.694077Z",
+          "finished": "2026-11-15T09:55:09.106543Z",
+          "running": "2026-11-15T09:33:24.835472Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411662848
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 18,
@@ -3778,8 +4370,40 @@
         6870,
         13460
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsnu6fv5hds73dj75hg",
+      "records_file": "native/batch_00018.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+      "result_file": "counts\\batch_00018.json",
+      "result_sha256": "a0fc8157a8523c6161b3a68326651f0138149a4cef18bea2450bd79b9204f98e",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T09:45:04.497855Z",
+          "finished": "2026-11-15T10:06:32.687402Z",
+          "running": "2026-11-15T09:45:05.741937Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410888448
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 19,
@@ -3976,8 +4600,40 @@
         10751,
         5292
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbso3jfv5hds73dj7dbg",
+      "records_file": "native/batch_00019.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+      "result_file": "counts\\batch_00019.json",
+      "result_sha256": "18898ef7dd25dbaa34c0890838935316b3398b9119d0a2acf0be2b2df4625339",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T09:56:36.24541Z",
+          "finished": "2026-11-15T10:18:02.851643Z",
+          "running": "2026-11-15T09:56:37.277631Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411715072
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 20,
@@ -4174,8 +4830,40 @@
         4183,
         12614
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbso97habdes73frdqag",
+      "records_file": "native/batch_00020.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+      "result_file": "counts\\batch_00020.json",
+      "result_sha256": "fee8dbc420d9ad44a5a79b58bfd1163cba82a11847023261a4d0c36885bb05f9",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T10:08:35.702764Z",
+          "finished": "2026-11-15T10:30:34.487741Z",
+          "running": "2026-11-15T10:08:36.482889Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410423808
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 21,
@@ -4372,8 +5060,40 @@
         9481,
         2957
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsofpok09pc73b0een0",
+      "records_file": "native/batch_00021.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+      "result_file": "counts\\batch_00021.json",
+      "result_sha256": "535672265ddf265942653a64970e062dbb20010a689de896cf8ad741934a9365",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T10:22:36.530346Z",
+          "finished": "2026-11-15T10:44:20.300799Z",
+          "running": "2026-11-15T10:22:38.129931Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410150400
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 22,
@@ -4570,8 +5290,40 @@
         4815,
         12651
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsom4pabdes73fre8b0",
+      "records_file": "native/batch_00022.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+      "result_file": "counts\\batch_00022.json",
+      "result_sha256": "2c5ddbef529c46baf008091da62e5e0e9827d230ec46e0ea567bfc1a227b002a",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T10:36:09.01452Z",
+          "finished": "2026-11-15T10:57:46.101942Z",
+          "running": "2026-11-15T10:36:10.341687Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410804224
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 23,
@@ -4768,8 +5520,56 @@
         15183,
         15073
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00023.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbsosqok09pc73b0eveg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+          "collection_error": {
+            "job_id": "dbsosqok09pc73b0eveg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 1319; Job was out of sync and in an unexpected state'",
+            "observed_utc": "2026-11-15T11:15:04.505655+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-15T11:46:01.510093+00:00"
+        }
+      ],
+      "job_id": "dbssemnq0h0s73bk2ld0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "result_file": "counts\\batch_00023.json",
+      "result_sha256": "79bf9dc67a61202d4f782e296bb1a96d721589dab5209f5f529108c3a4654901",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T14:53:19.535312Z",
+          "finished": "2026-11-15T15:15:08.962176Z",
+          "running": "2026-11-15T14:53:20.78298Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411084800
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 24,
@@ -4966,8 +5766,40 @@
         10548,
         6534
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbsp3jok09pc73b0f8gg",
+      "records_file": "native/batch_00024.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+      "result_file": "counts\\batch_00024.json",
+      "result_sha256": "8aa88630b482392973daa1c89d3c35c5f0ffc2acfe2fca5e69edf8372ce65073",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T11:04:53.916609Z",
+          "finished": "2026-11-15T11:26:49.640476Z",
+          "running": "2026-11-15T11:04:55.537297Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410199552
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 25,
@@ -5164,8 +5996,40 @@
         9592,
         13840
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbssjmfq0h0s73bk2qrg",
+      "records_file": "native/batch_00025.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "result_file": "counts\\batch_00025.json",
+      "result_sha256": "ca25eb6bc87303566a90bfaba09847bddf2ce31a1e7e03c8a064a49cbb6011b1",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T15:03:59.754235Z",
+          "finished": "2026-11-15T15:25:35.093119Z",
+          "running": "2026-11-15T15:04:00.885556Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411008256
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 26,
@@ -5362,8 +6226,40 @@
         13975,
         11693
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbssorjeq3sc73ev4ap0",
+      "records_file": "native/batch_00026.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "result_file": "counts\\batch_00026.json",
+      "result_sha256": "fa0ca8f8602e63eb3aa5de8e3428f62e7347596c1545685d19f914bf8959b5d7",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T15:15:00.473684Z",
+          "finished": "2026-11-15T16:05:56.248618Z",
+          "running": "2026-11-15T15:15:01.811086Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411233024
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 27,
@@ -5560,8 +6456,40 @@
         3800,
         3308
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbssu0hvvpic738m9o5g",
+      "records_file": "native/batch_00027.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "result_file": "counts\\batch_00027.json",
+      "result_sha256": "63067add2487bc7881b06df496f81ec6a4710d1a6a22faa5023ae55b1e7795af",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T15:26:00.688668Z",
+          "finished": "2026-11-15T17:00:31.905791Z",
+          "running": "2026-11-15T15:26:01.94055Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412414720
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 28,
@@ -5758,8 +6686,40 @@
         15716,
         694
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbst353eq3sc73ev4m9g",
+      "records_file": "native/batch_00028.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "result_file": "counts\\batch_00028.json",
+      "result_sha256": "9e6f574d2b643bb550c2260b1b79ef289b7f77421c805280ba2b549a6fb9c783",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T15:36:58.877454Z",
+          "finished": "2026-11-15T17:23:24.688086Z",
+          "running": "2026-11-15T15:43:52.557478Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410527232
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 29,
@@ -5956,8 +6916,40 @@
         12861,
         12291
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbst89nq0h0s73bk3gs0",
+      "records_file": "native/batch_00029.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "result_file": "counts\\batch_00029.json",
+      "result_sha256": "311a4f13b7ee014191025ada15ff09b6d5cbdcb2b2e391299dbdecaa12057299",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T15:47:56.011475Z",
+          "finished": "2026-11-15T17:50:45.508515Z",
+          "running": "2026-11-15T15:52:45.579156Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412887040
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 30,
@@ -6154,8 +7146,40 @@
         6084,
         15677
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbstdg7asvbs73b92s00",
+      "records_file": "native/batch_00030.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "result_file": "counts\\batch_00030.json",
+      "result_sha256": "9d5039cfa1703efa06c6b17cd2f16729d3fb928357a646b70fe84aec5580df30",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T15:59:02.295064Z",
+          "finished": "2026-11-15T18:04:53.331719Z",
+          "running": "2026-11-15T16:00:43.354054Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411387904
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 31,
@@ -6352,8 +7376,40 @@
         9686,
         4921
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbstim3eq3sc73ev56hg",
+      "records_file": "native/batch_00031.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "result_file": "counts\\batch_00031.json",
+      "result_sha256": "27a9caa1eb574fc865c204576b9aac65c93f4438b970badc402a1edc5a160380",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T16:10:05.729158Z",
+          "finished": "2026-11-15T18:09:50.073725Z",
+          "running": "2026-11-15T16:12:30.112771Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411579648
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 32,
@@ -6550,8 +7606,40 @@
         5035,
         14560
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt2hj7asvbs73b983pg",
+      "records_file": "native/batch_00032.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "result_file": "counts\\batch_00032.json",
+      "result_sha256": "af1f63d19b6f0f5210ac9af541ddc1202cae99a92fba99804e73991926f2877b",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T21:49:13.477169Z",
+          "finished": "2026-11-15T22:31:46.241752Z",
+          "running": "2026-11-15T22:09:15.094733Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2409281024
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 33,
@@ -6748,8 +7836,40 @@
         179,
         9452
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt2mr7asvbs73b98940",
+      "records_file": "native/batch_00033.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "result_file": "counts\\batch_00033.json",
+      "result_sha256": "11079bcbe0cffe4c1975cc78e1ab65c23bc7123c2876a8e916f4399cc6399be9",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T22:00:17.758131Z",
+          "finished": "2026-11-15T22:32:27.072755Z",
+          "running": "2026-11-15T22:09:16.276416Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410009088
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 34,
@@ -6946,8 +8066,40 @@
         3952,
         16230
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt2s7fq0h0s73bk98ng",
+      "records_file": "native/batch_00034.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "result_file": "counts\\batch_00034.json",
+      "result_sha256": "48c53d1eee99eb10f0ec5726f195f5a41e897627934e48524628bcdcc3e1eb03",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T22:11:46.524482Z",
+          "finished": "2026-11-15T22:33:46.036293Z",
+          "running": "2026-11-15T22:11:47.165021Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2409323776
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 35,
@@ -7144,8 +8296,40 @@
         6951,
         12813
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt31j7asvbs73b98ki0",
+      "records_file": "native/batch_00035.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "result_file": "counts\\batch_00035.json",
+      "result_sha256": "82d137273395c1eeb6baec99be58ac5733278ece90fc1ceee644d1eb07aec987",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T22:23:14.707254Z",
+          "finished": "2026-11-15T22:44:46.956965Z",
+          "running": "2026-11-15T22:23:15.72447Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410568704
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 36,
@@ -7342,8 +8526,40 @@
         4284,
         15121
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt3711vvpic738mg800",
+      "records_file": "native/batch_00036.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "result_file": "counts\\batch_00036.json",
+      "result_sha256": "e58c52a3b1d94fd90bb278903d9464e96159c44dbfdb6eca115e2d9d843d38a6",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T22:34:59.27452Z",
+          "finished": "2026-11-15T22:57:17.14018Z",
+          "running": "2026-11-15T22:35:00.381383Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411522560
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 37,
@@ -7540,8 +8756,40 @@
         10797,
         9728
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt3canasvbs73b99060",
+      "records_file": "native/batch_00037.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "result_file": "counts\\batch_00037.json",
+      "result_sha256": "8485f53f35757ed738dcc28af81c7d434508d7061b53591cc49f8b6eb8241537",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T22:46:08.867629Z",
+          "finished": "2026-11-15T23:07:34.226239Z",
+          "running": "2026-11-15T22:46:09.771415Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412684800
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 38,
@@ -7738,8 +8986,40 @@
         8950,
         3500
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt3hl7q0h0s73bka01g",
+      "records_file": "native/batch_00038.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "result_file": "counts\\batch_00038.json",
+      "result_sha256": "68f06d2ba782c43b37b44be9af9f15dc13d4ad838002eb22436019a4c8081c87",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T22:57:33.137132Z",
+          "finished": "2026-11-15T23:19:11.635167Z",
+          "running": "2026-11-15T22:57:34.062103Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2409624576
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 39,
@@ -7936,8 +9216,40 @@
         12630,
         8295
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt3n2nasvbs73b99bsg",
+      "records_file": "native/batch_00039.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "result_file": "counts\\batch_00039.json",
+      "result_sha256": "dc45002305d2c2f841907af20c07f657ae5e7c63fcbc87203833bc348ab563a8",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-15T23:09:06.02428Z",
+          "finished": "2026-11-15T23:30:42.566604Z",
+          "running": "2026-11-15T23:09:06.781067Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2413040896
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 40,
@@ -8134,8 +9446,40 @@
         13740,
         4178
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt7enfq0h0s73bke750",
+      "records_file": "native/batch_00040.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "result_file": "counts\\batch_00040.json",
+      "result_sha256": "7eb3bcde2b52a0232312057f1b29e4db12f970e6ee3a1257c4332ba825af5754",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-16T03:24:18.919535Z",
+          "finished": "2026-11-16T03:46:00.271255Z",
+          "running": "2026-11-16T03:24:20.331905Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2412125184
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 41,
@@ -8332,8 +9676,40 @@
         8085,
         3908
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt7k37asvbs73b9dhr0",
+      "records_file": "native/batch_00041.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "result_file": "counts\\batch_00041.json",
+      "result_sha256": "2902ed1ec43262c4d6d52242a0e49f1cee92154d34f582863f118c2c0a6ce39d",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-16T03:35:46.814516Z",
+          "finished": "2026-11-16T03:57:48.733791Z",
+          "running": "2026-11-16T03:35:48.052899Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410155264
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 42,
@@ -8530,8 +9906,40 @@
         5043,
         12231
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt7pcbeq3sc73evfsb0",
+      "records_file": "native/batch_00042.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "result_file": "counts\\batch_00042.json",
+      "result_sha256": "964054f2705b491cdb2f31733abfd2749ed0fcc6ebfa0369d42df775b05ba2d3",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-16T03:47:15.090134Z",
+          "finished": "2026-11-16T04:08:50.547092Z",
+          "running": "2026-11-16T03:47:16.599366Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2410186752
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 43,
@@ -8728,8 +10136,40 @@
         14309,
         13001
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt7ushvvpic738ml8m0",
+      "records_file": "native/batch_00043.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "result_file": "counts\\batch_00043.json",
+      "result_sha256": "b13c7a3050894448fed9658c1632170ab745a5056ca95adc14b826f7ccbeeca2",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-16T03:58:48.712183Z",
+          "finished": "2026-11-16T04:20:39.730859Z",
+          "running": "2026-11-16T03:58:49.964767Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.293806,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.293806,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2411883264
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 44,
@@ -8925,8 +10365,40 @@
         14961,
         8040
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt849fq0h0s73bkerrg",
+      "records_file": "native/batch_00044.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "result_file": "counts\\batch_00044.json",
+      "result_sha256": "05980699079d5de7d3fe418b0ceab1293db38569df99b55b6240fb6f2e37addf",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-16T04:10:19.521154Z",
+          "finished": "2026-11-16T04:31:45.574692Z",
+          "running": "2026-11-16T04:10:20.52102Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399692800
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 45,
@@ -9122,8 +10594,40 @@
         11879,
         2448
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt89l9vvpic738mljq0",
+      "records_file": "native/batch_00045.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "result_file": "counts\\batch_00045.json",
+      "result_sha256": "69c98c84067c6f9cfd6bf790a6706673397cc87c25d297bfb6dff052ec1ca6fe",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-16T04:21:59.509836Z",
+          "finished": "2026-11-16T04:44:45.947001Z",
+          "running": "2026-11-16T04:22:00.547841Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399619328
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 46,
@@ -9319,8 +10823,40 @@
         2491,
         14541
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt8f8hvvpic738mlqr0",
+      "records_file": "native/batch_00046.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "result_file": "counts\\batch_00046.json",
+      "result_sha256": "f9dea93bf5f3f03670681f6cbe9795da671bd1153df8ca4e82350974f7202b69",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-16T04:33:44.431151Z",
+          "finished": "2026-11-16T04:55:56.900096Z",
+          "running": "2026-11-16T04:33:45.493093Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2397982464
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 47,
@@ -9516,8 +11052,40 @@
         8356,
         13656
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbt8kj1vvpic738mlvsg",
+      "records_file": "native/batch_00047.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "result_file": "counts\\batch_00047.json",
+      "result_sha256": "d4bbcd911ce69da5d922bcdbf585f17464e1681654f54f216a69e7993cb15a43",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-16T04:45:04.923643Z",
+          "finished": "2026-11-16T05:06:41.316647Z",
+          "running": "2026-11-16T04:45:06.130576Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2397047040
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 48,
@@ -9713,8 +11281,69 @@
         13708,
         9929
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00048.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbtc4p7asvbs73b9igp0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+          "collection_error": {
+            "job_id": "dbtc4p7asvbs73b9igp0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9701; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9701'",
+            "observed_utc": "2026-11-16T10:35:47.556375+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T20:05:33.494521+00:00"
+        },
+        {
+          "job_id": "dbtm9cmhrjis73e7egg0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+          "collection_error": {
+            "job_id": "dbtm9cmhrjis73e7egg0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T22:18:52.508550+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T23:26:19.500016+00:00"
+        }
+      ],
+      "job_id": "dbu8fd9jbrss73a7e1o0",
+      "execution_mode": "job",
+      "result_file": "counts\\batch_00048.json",
+      "result_sha256": "d40829d2f344b4e65a004f5a40a57ee9f0940c31b2b16f9b9ba083e9247477a0",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T16:58:34.393916Z",
+          "finished": "2026-11-17T18:19:09.824474Z",
+          "running": "2026-11-17T17:47:44.117239Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2401394944
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 49,
@@ -9910,8 +11539,70 @@
         6017,
         14993
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00049.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbtc9unq0h0s73bkjgjg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+          "collection_error": {
+            "job_id": "dbtc9unq0h0s73bkjgjg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T10:37:36.148331+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T20:05:33.494521+00:00"
+        },
+        {
+          "job_id": "dbtmf83rto6s73ft1msg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+          "collection_error": {
+            "job_id": "dbtmf83rto6s73ft1msg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T22:18:52.889871+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-17T18:35:20.742012+00:00"
+        }
+      ],
+      "job_id": "dbuaeq49po4c73ceprm0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "result_file": "counts\\batch_00049.json",
+      "result_sha256": "4224455cc60d29c6c53633445816d8250f34cacde5e724099f5673d98eb421a0",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T19:13:51.719721Z",
+          "finished": "2026-11-17T19:54:49.825844Z",
+          "running": "2026-11-17T19:17:14.487569Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399501056
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 50,
@@ -10107,8 +11798,70 @@
         1819,
         7490
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00050.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbtcf47q0h0s73bkjllg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+          "collection_error": {
+            "job_id": "dbtcf47q0h0s73bkjllg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9701; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9701'",
+            "observed_utc": "2026-11-16T10:37:36.504002+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T20:05:33.494521+00:00"
+        },
+        {
+          "job_id": "dbtmkk32kf8s73c9bqb0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+          "collection_error": {
+            "job_id": "dbtmkk32kf8s73c9bqb0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T22:18:53.229152+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-17T18:35:20.742012+00:00"
+        }
+      ],
+      "job_id": "dbuajvie8crs738bain0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "result_file": "counts\\batch_00050.json",
+      "result_sha256": "5ce058da892224637afad87c9038ff93538152090ca37078a2dcc598a3939cc6",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T19:24:52.564791Z",
+          "finished": "2026-11-17T19:55:16.093605Z",
+          "running": "2026-11-17T19:24:53.540693Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399007232
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 51,
@@ -10304,8 +12057,70 @@
         1649,
         14904
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00051.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbtckbhvvpic738mqe50",
+          "execution_mode": "batch",
+          "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+          "collection_error": {
+            "job_id": "dbtckbhvvpic738mqe50",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T10:37:36.868268+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T20:05:33.494521+00:00"
+        },
+        {
+          "job_id": "dbtmq132kf8s73c9bvog",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+          "collection_error": {
+            "job_id": "dbtmq132kf8s73c9bvog",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T22:18:53.604252+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-17T18:35:20.742012+00:00"
+        }
+      ],
+      "job_id": "dbuapepjbrss73a7h2i0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "result_file": "counts\\batch_00051.json",
+      "result_sha256": "e3b10c384157aadd2d7d46db0429f68b4caaca40cbc19e5ce943ebdfff44d4ce",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T19:36:33.74731Z",
+          "finished": "2026-11-17T19:58:55.261542Z",
+          "running": "2026-11-17T19:36:34.885888Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399580928
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 52,
@@ -10501,8 +12316,70 @@
         11486,
         16213
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00052.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbtcpgnasvbs73b9j6kg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+          "collection_error": {
+            "job_id": "dbtcpgnasvbs73b9j6kg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9701; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9701'",
+            "observed_utc": "2026-11-16T10:37:37.250419+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T20:05:33.494521+00:00"
+        },
+        {
+          "job_id": "dbtmver2kf8s73c9c6jg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+          "collection_error": {
+            "job_id": "dbtmver2kf8s73c9c6jg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T22:18:54.051174+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-17T18:35:20.742012+00:00"
+        }
+      ],
+      "job_id": "dbuav7n82tmc73dt1rm0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "result_file": "counts\\batch_00052.json",
+      "result_sha256": "35e27622a473deafe07e645ebd5519c8d45b468e5034ec01851d9bbfd984a540",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T19:48:52.482651Z",
+          "finished": "2026-11-17T20:11:07.307809Z",
+          "running": "2026-11-17T19:48:53.371206Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398261248
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 53,
@@ -10698,8 +12575,70 @@
         1442,
         623
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00053.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbtcupnq0h0s73bkk7ag",
+          "execution_mode": "batch",
+          "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+          "collection_error": {
+            "job_id": "dbtcupnq0h0s73bkk7ag",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T10:37:37.607428+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T20:05:33.494521+00:00"
+        },
+        {
+          "job_id": "dbtn4quhrjis73e7fh5g",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+          "collection_error": {
+            "job_id": "dbtn4quhrjis73e7fh5g",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T22:18:54.407469+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-17T18:35:20.742012+00:00"
+        }
+      ],
+      "job_id": "dbub52f82tmc73dt22hg",
+      "execution_mode": "batch",
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "result_file": "counts\\batch_00053.json",
+      "result_sha256": "9e66d031c833747edf633b2ca36d107aef3cf90f779b13482e03bd2913234a2b",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T20:01:19.878858Z",
+          "finished": "2026-11-17T20:23:08.050583Z",
+          "running": "2026-11-17T20:01:21.205244Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400066048
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 54,
@@ -10895,8 +12834,70 @@
         8294,
         14336
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00054.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbtd409vvpic738mqvf0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+          "collection_error": {
+            "job_id": "dbtd409vvpic738mqvf0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9701; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9701'",
+            "observed_utc": "2026-11-16T10:37:37.964153+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T20:05:33.494521+00:00"
+        },
+        {
+          "job_id": "dbtna9jrto6s73ft2nfg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+          "collection_error": {
+            "job_id": "dbtna9jrto6s73ft2nfg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T22:18:54.754057+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-17T18:35:20.742012+00:00"
+        }
+      ],
+      "job_id": "dbubanlarooc73fjjq6g",
+      "execution_mode": "batch",
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "result_file": "counts\\batch_00054.json",
+      "result_sha256": "04ad00c47102aac56a843af68b0fda4adec38c3f8af14d905fdcbfd32458af83",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T20:13:24.4015Z",
+          "finished": "2026-11-17T20:34:53.729626Z",
+          "running": "2026-11-17T20:13:25.536128Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400274688
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 55,
@@ -11092,8 +13093,70 @@
         10881,
         7917
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00055.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbtd90nasvbs73b9jp80",
+          "execution_mode": "batch",
+          "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+          "collection_error": {
+            "job_id": "dbtd90nasvbs73b9jp80",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T10:37:38.335131+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-16T20:05:33.494521+00:00"
+        },
+        {
+          "job_id": "dbtnfmrrto6s73ft2ss0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+          "collection_error": {
+            "job_id": "dbtnfmrrto6s73ft2ss0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-16T22:18:55.073319+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-17T18:35:20.742012+00:00"
+        }
+      ],
+      "job_id": "dbubge5arooc73fjk1m0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "result_file": "counts\\batch_00055.json",
+      "result_sha256": "f7765538edc043e1c7c677296e76417debfb3bfdf0381ccbaa7b075e6ba43475",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T20:25:33.839986Z",
+          "finished": "2026-11-17T20:46:54.690978Z",
+          "running": "2026-11-17T20:25:35.264386Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399321088
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 56,
@@ -11289,8 +13352,40 @@
         3579,
         7744
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbubm4tarooc73fjk8cg",
+      "records_file": "native/batch_00056.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "result_file": "counts\\batch_00056.json",
+      "result_sha256": "186b3e06fa5fdc1901eb8533d235dd8734e1c24d360a9beda9e14421b5a0c498",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-17T20:37:46.420395Z",
+          "finished": "2026-11-17T21:00:35.038684Z",
+          "running": "2026-11-17T20:37:47.433185Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399194624
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 57,
@@ -11486,8 +13581,70 @@
         1480,
         12249
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00057.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbufdhvf8rhs73bm5gd0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+          "collection_error": {
+            "job_id": "dbufdhvf8rhs73bm5gd0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T06:38:53.032633+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T07:35:53.573964+00:00"
+        },
+        {
+          "job_id": "dbulg3tarooc73fk6c7g",
+          "execution_mode": "batch",
+          "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+          "collection_error": {
+            "job_id": "dbulg3tarooc73fk6c7g",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T13:15:49.193827+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T22:56:00.851838+00:00"
+        }
+      ],
+      "job_id": "dbv2v6n82tmc73duave0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "result_file": "counts\\batch_00057.json",
+      "result_sha256": "de92996df4009c034f02fac82bab0505ef945ea41a027c663b46706580ca71d6",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-18T23:07:11.920022Z",
+          "finished": "2026-11-18T23:28:25.543308Z",
+          "running": "2026-11-18T23:07:12.913955Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400585216
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 58,
@@ -11683,8 +13840,70 @@
         4001,
         6591
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00058.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbufjqtarooc73fjraf0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+          "collection_error": {
+            "job_id": "dbufjqtarooc73fjraf0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T06:38:53.400023+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T07:35:53.573964+00:00"
+        },
+        {
+          "job_id": "dbulm56ps3fc73bj41v0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+          "collection_error": {
+            "job_id": "dbulm56ps3fc73bj41v0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T13:15:49.560832+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T22:56:00.851838+00:00"
+        }
+      ],
+      "job_id": "dbv34ltarooc73fksd00",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "result_file": "counts\\batch_00058.json",
+      "result_sha256": "0f4804f9799e6631ceccf60a1c5a44b99a03a633d0a544e371c18e2709d6ec62",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-18T23:18:52.858067Z",
+          "finished": "2026-11-18T23:40:44.228164Z",
+          "running": "2026-11-18T23:18:54.252417Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398482176
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 59,
@@ -11880,8 +14099,70 @@
         13894,
         9423
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00059.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbufqceps3fc73bip4o0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+          "collection_error": {
+            "job_id": "dbufqceps3fc73bip4o0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T06:38:53.909827+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T07:35:53.573964+00:00"
+        },
+        {
+          "job_id": "dbulsilarooc73fk6u60",
+          "execution_mode": "batch",
+          "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+          "collection_error": {
+            "job_id": "dbulsilarooc73fk6u60",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9701; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9701'",
+            "observed_utc": "2026-11-18T13:15:49.973319+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T22:56:00.851838+00:00"
+        }
+      ],
+      "job_id": "dbv3a7ups3fc73bjpov0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "result_file": "counts\\batch_00059.json",
+      "result_sha256": "7a08a63f58b1192291039003629b6d13a7bdfc90cce9ad279a9770fbdc6cf8fb",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-18T23:30:46.22151Z",
+          "finished": "2026-11-18T23:52:22.762143Z",
+          "running": "2026-11-18T23:30:47.005736Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399518208
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 60,
@@ -12077,8 +14358,70 @@
         6056,
         3540
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00060.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbug0nlarooc73fjs3ig",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+          "collection_error": {
+            "job_id": "dbug0nlarooc73fjs3ig",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T06:38:54.272958+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T07:35:53.573964+00:00"
+        },
+        {
+          "job_id": "dbum2uv82tmc73dtlps0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+          "collection_error": {
+            "job_id": "dbum2uv82tmc73dtlps0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T13:15:50.329953+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T22:56:00.851838+00:00"
+        }
+      ],
+      "job_id": "dbv3fv5arooc73fkss8g",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "result_file": "counts\\batch_00060.json",
+      "result_sha256": "f67ff94723378e480a3b4cba760d5890f623eb81595ed491dc2a265956d11dd4",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-18T23:42:58.489423Z",
+          "finished": "2026-11-19T00:05:55.39977Z",
+          "running": "2026-11-18T23:42:59.986761Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399023104
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 61,
@@ -12274,8 +14617,70 @@
         3481,
         11593
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00061.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbug6starooc73fjsfig",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+          "collection_error": {
+            "job_id": "dbug6starooc73fjsfig",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T06:38:54.641368+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T07:35:53.574945+00:00"
+        },
+        {
+          "job_id": "dbum9cff8rhs73bmi6vg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+          "collection_error": {
+            "job_id": "dbum9cff8rhs73bmi6vg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9701; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9701'",
+            "observed_utc": "2026-11-18T13:15:50.718052+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T22:56:00.851838+00:00"
+        }
+      ],
+      "job_id": "dbv3lmeps3fc73bjq8qg",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "result_file": "counts\\batch_00061.json",
+      "result_sha256": "f5f411c5fb9f9782fe747eb92745ea14f57a06f5be7aa614ac6ad2605cdff9ba",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-18T23:55:12.216531Z",
+          "finished": "2026-11-19T00:17:02.456845Z",
+          "running": "2026-11-18T23:55:15.236574Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398543104
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 62,
@@ -12471,8 +14876,70 @@
         3325,
         890
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00062.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbugddvf8rhs73bm7dk0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+          "collection_error": {
+            "job_id": "dbugddvf8rhs73bm7dk0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T06:38:55.014186+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T07:35:53.574945+00:00"
+        },
+        {
+          "job_id": "dbumflnf8rhs73bmiij0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+          "collection_error": {
+            "job_id": "dbumflnf8rhs73bmiij0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T13:15:51.098788+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T22:56:00.851838+00:00"
+        }
+      ],
+      "job_id": "dbv3r8ups3fc73bjqhe0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "result_file": "counts\\batch_00062.json",
+      "result_sha256": "a352d6f580d98a429c6aabd643608fc7259ce3e74118bed8f39e3498cc614f68",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-19T00:07:04.896198Z",
+          "finished": "2026-11-19T00:28:25.332531Z",
+          "running": "2026-11-19T00:07:05.768794Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398834432
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 63,
@@ -12668,8 +15135,70 @@
         14265,
         7729
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00063.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbugjreps3fc73biqgs0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+          "collection_error": {
+            "job_id": "dbugjreps3fc73biqgs0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T06:38:55.414934+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T07:35:53.574945+00:00"
+        },
+        {
+          "job_id": "dbumlvvf8rhs73bmirmg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+          "collection_error": {
+            "job_id": "dbumlvvf8rhs73bmirmg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T13:15:51.560555+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T22:56:00.851838+00:00"
+        }
+      ],
+      "job_id": "dbv40v7f8rhs73bn8mc0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "result_file": "counts\\batch_00063.json",
+      "result_sha256": "2208bb6ead7bb56c9b8dfcec87d4adcc5db4b87bc2db9512db0cbe48267e0eef",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-19T00:19:14.16617Z",
+          "finished": "2026-11-19T00:40:55.298493Z",
+          "running": "2026-11-19T00:19:15.684794Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2397807616
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 64,
@@ -12865,8 +15394,70 @@
         1206,
         12708
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00064.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbugq3vf8rhs73bm81l0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+          "collection_error": {
+            "job_id": "dbugq3vf8rhs73bm81l0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T06:38:55.782098+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T07:35:53.574945+00:00"
+        },
+        {
+          "job_id": "dbums7n82tmc73dtn2jg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+          "collection_error": {
+            "job_id": "dbums7n82tmc73dtn2jg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-18T13:15:51.993439+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-18T22:56:00.851838+00:00"
+        }
+      ],
+      "job_id": "dbv46p7f8rhs73bn8ud0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "result_file": "counts\\batch_00064.json",
+      "result_sha256": "8976e26a7ab89848a209588c5f38b7762ecefb826540385df2245b061e7773e2",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-19T00:31:39.399992Z",
+          "finished": "2026-11-19T00:53:22.77973Z",
+          "running": "2026-11-19T00:31:41.368182Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400701696
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 65,
@@ -13062,8 +15653,56 @@
         11161,
         5972
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00065.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbv7trvf8rhs73bne1cg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+          "collection_error": {
+            "job_id": "dbv7trvf8rhs73bne1cg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-19T07:16:11.954231+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-19T15:25:44.043532+00:00"
+        }
+      ],
+      "job_id": "dbvhg3013mdc73dfbupg",
+      "execution_mode": "batch",
+      "runtime_batch_id": "97d30d52-b381-48d1-b306-af14a1a6368e",
+      "result_file": "counts\\batch_00065.json",
+      "result_sha256": "5bb7fd68f22b7adc0de805909399685e714f8a1dc48b9a59769771c007074ee7",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-19T15:38:58.55684Z",
+          "finished": "2026-11-19T23:02:13.731368Z",
+          "running": "2026-11-19T21:58:35.900833Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400993024
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 66,
@@ -13259,8 +15898,56 @@
         11629,
         16082
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00066.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbv83ltarooc73fl34i0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+          "collection_error": {
+            "job_id": "dbv83ltarooc73fl34i0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-19T07:16:12.318623+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-19T15:25:44.043532+00:00"
+        }
+      ],
+      "job_id": "dbvhmhgl0c4s739lo44g",
+      "execution_mode": "batch",
+      "runtime_batch_id": "97d30d52-b381-48d1-b306-af14a1a6368e",
+      "result_file": "counts\\batch_00066.json",
+      "result_sha256": "27a69b83fe4a482a9389c67a325338c8bcb4be86253de41cad82aee720ec0b86",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-19T15:52:44.684392Z",
+          "finished": "2026-11-19T23:04:40.6158Z",
+          "running": "2026-11-19T21:59:03.591009Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398221056
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 67,
@@ -13456,8 +16143,56 @@
         15290,
         4667
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00067.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbv89g7f8rhs73bneh6g",
+          "execution_mode": "batch",
+          "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+          "collection_error": {
+            "job_id": "dbv89g7f8rhs73bneh6g",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-19T07:16:12.658159+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-19T15:25:44.043532+00:00"
+        }
+      ],
+      "job_id": "dbvo7g5s2omc73887f4g",
+      "execution_mode": "batch",
+      "runtime_batch_id": "9faf4b9e-c2e4-4f23-a19e-16d80cd7d9b4",
+      "result_file": "counts\\batch_00067.json",
+      "result_sha256": "fcc481fc79801cb06726caa2078892096753391f376ed658dfec32438d96869b",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-19T23:18:30.92128Z",
+          "finished": "2026-11-20T00:24:56.312181Z",
+          "running": "2026-11-19T23:37:17.028399Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399503360
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 68,
@@ -13653,8 +16388,56 @@
         12285,
         5422
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00068.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbv8f4tarooc73fl3lbg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+          "collection_error": {
+            "job_id": "dbv8f4tarooc73fl3lbg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-19T07:16:13.047448+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-19T15:25:44.043532+00:00"
+        }
+      ],
+      "job_id": "dbvodoanj2vs73dcu6cg",
+      "execution_mode": "batch",
+      "runtime_batch_id": "9faf4b9e-c2e4-4f23-a19e-16d80cd7d9b4",
+      "result_file": "counts\\batch_00068.json",
+      "result_sha256": "f744d5e853ea40efa94cc0dc7aa81135cef0b78817e07ff31c0d196f42e24614",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-19T23:31:53.547481Z",
+          "finished": "2026-11-20T00:24:51.2249Z",
+          "running": "2026-11-19T23:37:25.023117Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398577408
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 69,
@@ -13850,8 +16633,56 @@
         15918,
         5057
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00069.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbv8krv82tmc73duiqcg",
+          "execution_mode": "batch",
+          "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+          "collection_error": {
+            "job_id": "dbv8krv82tmc73duiqcg",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-19T07:16:13.375619+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-19T15:25:44.043532+00:00"
+        }
+      ],
+      "job_id": "dbvpc3ds2omc73889ao0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "d41420fa-96c3-4a88-a98a-034d94a8c693",
+      "result_file": "counts\\batch_00069.json",
+      "result_sha256": "5ddbb1a068bcc99eda0c892c5e6791558b222701a5774d1ced1a04f7623c7b2d",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T00:36:35.106389Z",
+          "finished": "2026-11-20T01:19:36.010736Z",
+          "running": "2026-11-20T00:44:46.959097Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2397947392
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 70,
@@ -14047,8 +16878,56 @@
         3852,
         13252
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00070.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbv8qmff8rhs73bnfe0g",
+          "execution_mode": "batch",
+          "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+          "collection_error": {
+            "job_id": "dbv8qmff8rhs73bnfe0g",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-19T07:16:13.703816+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-19T15:25:44.043532+00:00"
+        }
+      ],
+      "job_id": "dbvphfthdvas73bifve0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "d41420fa-96c3-4a88-a98a-034d94a8c693",
+      "result_file": "counts\\batch_00070.json",
+      "result_sha256": "d71bc21171aebc0bf898363f68200f4d754d8839fc95be9621297ff48806936d",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T00:48:05.42241Z",
+          "finished": "2026-11-20T01:20:00.62225Z",
+          "running": "2026-11-20T00:48:15.160948Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398949376
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 71,
@@ -14244,8 +17123,56 @@
         7245,
         7676
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00071.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbv90dvf8rhs73bnfni0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+          "collection_error": {
+            "job_id": "dbv90dvf8rhs73bnfni0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-19T07:16:14.071816+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-19T15:25:44.043532+00:00"
+        }
+      ],
+      "job_id": "dbvq60uq4uuc73a1jla0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "59620385-5a2c-45e3-bafd-f83152306765",
+      "result_file": "counts\\batch_00071.json",
+      "result_sha256": "e8386b91612f98e28b6d57081cc1688926d5a3bfe6fc89f77f70c6b349ce8dba",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T01:31:53.530243Z",
+          "finished": "2026-11-20T02:34:52.410503Z",
+          "running": "2026-11-20T01:33:13.64414Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398149888
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 72,
@@ -14441,8 +17368,56 @@
         14863,
         10698
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "records_file": "native/batch_00072.json",
+      "previous_attempts": [
+        {
+          "job_id": "dbv96f7f8rhs73bng2g0",
+          "execution_mode": "batch",
+          "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+          "collection_error": {
+            "job_id": "dbv96f7f8rhs73bng2g0",
+            "exception": "RuntimeJobFailureError",
+            "message": "'Unable to retrieve job result. Error code 9707; Failed to execute program: Temporary Internal Error. Try again or contact support. -- https://ibm.biz/error_codes#9707'",
+            "observed_utc": "2026-11-19T07:16:14.485021+00:00",
+            "runtime_status": "ERROR"
+          },
+          "runtime_status": "ERROR",
+          "retry_authorized_utc": "2026-11-19T15:25:44.043532+00:00"
+        }
+      ],
+      "job_id": "dbvqbk5s2omc7388aev0",
+      "execution_mode": "batch",
+      "runtime_batch_id": "59620385-5a2c-45e3-bafd-f83152306765",
+      "result_file": "counts\\batch_00072.json",
+      "result_sha256": "a2817aae0e2125a4187d94238829a82a11c717ec906c99fb59ba84c9e1ad2b19",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T01:43:50.756281Z",
+          "finished": "2026-11-20T02:48:50.116725Z",
+          "running": "2026-11-20T01:43:55.8843Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399821824
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 73,
@@ -14638,8 +17613,40 @@
         10082,
         9221
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbvs9tqnj2vs73dd35h0",
+      "records_file": "native/batch_00073.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "0e3360e4-aacc-40ba-9039-08e561af4335",
+      "result_file": "counts\\batch_00073.json",
+      "result_sha256": "8abb3fc84f4c747b618f9d751183fb87ef9adad6a7eab0d0cecd1c4e16ec3676",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T03:56:45.793104Z",
+          "finished": "2026-11-20T11:06:52.136395Z",
+          "running": "2026-11-20T10:01:29.122911Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2397823488
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 74,
@@ -14835,8 +17842,40 @@
         9933,
         4180
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dbvsfits2omc7388d1tg",
+      "records_file": "native/batch_00074.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "0e3360e4-aacc-40ba-9039-08e561af4335",
+      "result_file": "counts\\batch_00074.json",
+      "result_sha256": "baf7ee074deca9e991994d36e0482414314bb192efdf205f7e09d401d4eb2654",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T04:08:49.756125Z",
+          "finished": "2026-11-20T11:07:23.144325Z",
+          "running": "2026-11-20T10:01:49.181276Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400577280
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 75,
@@ -15032,8 +18071,40 @@
         15789,
         315
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc03nfthdvas73bitbv0",
+      "records_file": "native/batch_00075.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "fef2d872-171a-4047-9e86-d4e96c13b592",
+      "result_file": "counts\\batch_00075.json",
+      "result_sha256": "6ebe354b4e2c03ddda61aefd3eafc893ae78a1c2cca345e54a5dbdfe1602e713",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T12:23:33.595412Z",
+          "finished": "2026-11-20T14:45:10.582359Z",
+          "running": "2026-11-20T14:02:07.618541Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400657664
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 76,
@@ -15229,8 +18300,40 @@
         16225,
         9111
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc03tranj2vs73dddjdg",
+      "records_file": "native/batch_00076.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "fef2d872-171a-4047-9e86-d4e96c13b592",
+      "result_file": "counts\\batch_00076.json",
+      "result_sha256": "be11126a883e51e979241e33a0643de682b5481c9bcfb0babaaaedef111f2ec7",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T12:37:07.232082Z",
+          "finished": "2026-11-20T14:45:19.427989Z",
+          "running": "2026-11-20T14:03:39.797285Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398114560
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 77,
@@ -15426,8 +18529,40 @@
         11328,
         12128
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc06tithdvas73bj2560",
+      "records_file": "native/batch_00077.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f64da69e-4170-40bf-b074-3210d501eb24",
+      "result_file": "counts\\batch_00077.json",
+      "result_sha256": "1be057617168ad6057625ee87f38bdeb0e99b6564b9114f3b754179f5a7c2e7b",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T16:01:21.832143Z",
+          "finished": "2026-11-20T16:36:54.480783Z",
+          "running": "2026-11-20T16:01:27.759489Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2396749312
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 78,
@@ -15623,8 +18758,40 @@
         15997,
         5764
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc073muq4uuc73a25i70",
+      "records_file": "native/batch_00078.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "f64da69e-4170-40bf-b074-3210d501eb24",
+      "result_file": "counts\\batch_00078.json",
+      "result_sha256": "3816f9a7e4c5b223281ee08612b44de5ef33ddac67aed4e464877402c469c176",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T16:14:24.849487Z",
+          "finished": "2026-11-20T16:49:41.862778Z",
+          "running": "2026-11-20T16:14:31.443615Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2399923968
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 79,
@@ -15820,8 +18987,40 @@
         15684,
         14405
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc08oimq4uuc73a28f30",
+      "records_file": "native/batch_00079.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "57067f56-54d0-42c0-b72c-8e2ca74a4181",
+      "result_file": "counts\\batch_00079.json",
+      "result_sha256": "47e032be6a430bed480ceb6066a3f757f1e5f86a588ccfe8bb8c272e4b1265d2",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T18:07:12.262663Z",
+          "finished": "2026-11-21T15:16:25.594828Z",
+          "running": "2026-11-21T14:37:01.315889Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2401107712
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 80,
@@ -16017,8 +19216,40 @@
         6090,
         16316
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc08uu2nj2vs73ddljh0",
+      "records_file": "native/batch_00080.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "57067f56-54d0-42c0-b72c-8e2ca74a4181",
+      "result_file": "counts\\batch_00080.json",
+      "result_sha256": "7913d14cfab875a27ef114f5358d2904b5385724cdcd550780d558b6c704e8cc",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-20T18:20:46.073657Z",
+          "finished": "2026-11-21T15:16:37.337553Z",
+          "running": "2026-11-21T14:37:13.269617Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398904320
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 81,
@@ -16214,8 +19445,40 @@
         11515,
         5672
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc0sfmeq4uuc73a34f40",
+      "records_file": "native/batch_00081.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8b84613b-b0a0-48f6-9b97-ddb1c185ca78",
+      "result_file": "counts\\batch_00081.json",
+      "result_sha256": "2cb2f72571ad4d6bbe4e3bbf1fe44a42aae4206b707ceba5d6247c6495ba175c",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-21T16:33:35.07829Z",
+          "finished": "2026-11-21T17:26:00.06023Z",
+          "running": "2026-11-21T16:50:47.653685Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2397957632
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 82,
@@ -16411,8 +19674,40 @@
         12044,
         2489
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc0smaqnj2vs73dehsfg",
+      "records_file": "native/batch_00082.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "8b84613b-b0a0-48f6-9b97-ddb1c185ca78",
+      "result_file": "counts\\batch_00082.json",
+      "result_sha256": "65fc85d6fee845ed99b2529be4e1a309afe41db5e41082aea149b1948e1b0bb1",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-21T16:47:44.971289Z",
+          "finished": "2026-11-21T17:28:06.581354Z",
+          "running": "2026-11-21T16:50:59.71011Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2398977536
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 83,
@@ -16608,8 +19903,40 @@
         15069,
         3550
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc0ud7anj2vs73dekp7g",
+      "records_file": "native/batch_00083.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "7bf2a654-2c70-414c-9b57-97fd7b467d2e",
+      "result_file": "counts\\batch_00083.json",
+      "result_sha256": "f5cb5e07e90be236abc9dc61ea14c651eff69b31906350dad799f66d342fd0bf",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-21T18:44:50.986527Z",
+          "finished": "2026-11-21T19:18:45.622466Z",
+          "running": "2026-11-21T18:44:56.464568Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400330752
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 84,
@@ -16805,8 +20132,40 @@
         12131,
         7064
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc0uj26q4uuc73a37sfg",
+      "records_file": "native/batch_00084.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "7bf2a654-2c70-414c-9b57-97fd7b467d2e",
+      "result_file": "counts\\batch_00084.json",
+      "result_sha256": "0639d28f2274ee76eae7e0d0f713f0df8ec615c68f6c3d146cba58e772e03366",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-21T18:57:17.811395Z",
+          "finished": "2026-11-21T19:35:39.453043Z",
+          "running": "2026-11-21T18:58:30.098709Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400576256
+      },
+      "native_qpy_retained": false
     },
     {
       "index": 85,
@@ -17002,8 +20361,442 @@
         8404,
         14129
       ],
-      "status": "not_submitted",
-      "job_id": null
+      "status": "collected",
+      "job_id": "dc0vnmuq4uuc73a39gug",
+      "records_file": "native/batch_00085.json",
+      "execution_mode": "batch",
+      "runtime_batch_id": "94669071-6cf6-4182-809e-83182d044398",
+      "result_file": "counts\\batch_00085.json",
+      "result_sha256": "2c530d52a9402f5c543ec632568c25777e29c5be71ec636f7a0ae8e129d82fcb",
+      "job_metrics": {
+        "caller": "qiskit_ibm_runtime~sampler.py",
+        "qiskit_version": "qiskit_ibm_runtime-0.49.0,qiskit-2.5.2*,qiskit_aer-0.17.2",
+        "timestamps": {
+          "created": "2026-11-21T20:15:28.60792Z",
+          "finished": "2026-11-21T20:56:32.394071Z",
+          "running": "2026-11-21T20:17:41.740786Z"
+        },
+        "usage": {
+          "qpu_charge_time_seconds": 18,
+          "value": 0.292506,
+          "unit": "resource_units",
+          "status": "complete",
+          "details": [
+            {
+              "value": 0.292506,
+              "unit": "resource_units",
+              "metric": {
+                "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+                "value": 18
+              }
+            }
+          ]
+        },
+        "circuits_execution_time_ns": 2400134912
+      },
+      "native_qpy_retained": false
+    }
+  ],
+  "runtime_batches": [
+    {
+      "runtime_batch_id": "5ba2deb8-547c-4e25-a69d-38f966a480b6",
+      "job_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-13T11:36:36.551418+00:00",
+      "closed_utc": "2026-11-14T19:01:48.768649+00:00"
+    },
+    {
+      "runtime_batch_id": "f72946ee-4ec3-4fda-8f9b-bd20688d91e1",
+      "job_indices": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-14T20:06:46.640034+00:00",
+      "closed_utc": "2026-11-14T21:59:59.450610+00:00"
+    },
+    {
+      "runtime_batch_id": "602012c7-60c5-40cf-b423-d2e46ec83f6b",
+      "job_indices": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-15T02:09:02.801433+00:00",
+      "closed_utc": "2026-11-15T03:47:56.744429+00:00"
+    },
+    {
+      "runtime_batch_id": "b3b9a9d8-2c79-490f-a448-88502a926854",
+      "job_indices": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-15T09:21:27.370068+00:00",
+      "closed_utc": "2026-11-15T11:04:54.366639+00:00"
+    },
+    {
+      "runtime_batch_id": "a14ba656-5b7e-48ec-ab6d-4250f46c80a1",
+      "job_indices": [
+        23,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-15T14:42:15.003729+00:00",
+      "closed_utc": "2026-11-15T16:10:06.112833+00:00"
+    },
+    {
+      "runtime_batch_id": "a079eb3a-2458-42a3-9b81-18d1813a0e4a",
+      "job_indices": [
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-15T21:38:13.040172+00:00",
+      "closed_utc": "2026-11-15T23:09:06.534346+00:00"
+    },
+    {
+      "runtime_batch_id": "8e323286-211a-4ccf-a5d5-b4b5fa70b6f8",
+      "job_indices": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-16T03:12:54.561169+00:00",
+      "closed_utc": "2026-11-16T04:45:05.129361+00:00"
+    },
+    {
+      "runtime_batch_id": "dd65971e-73d7-47c9-91df-9fd6d96f5756",
+      "job_indices": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-16T08:33:15.892264+00:00",
+      "closed_utc": "2026-11-16T10:01:44.447206+00:00"
+    },
+    {
+      "runtime_batch_id": "0019002c-372c-40be-81a2-64cba4ce1db7",
+      "job_indices": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-16T20:05:38.264709+00:00",
+      "closed_utc": "2026-11-16T21:38:43.584914+00:00"
+    },
+    {
+      "runtime_batch_id": "02fe7a2e-29df-416d-b387-786d19e31ae8",
+      "job_indices": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-17T19:02:17.870826+00:00",
+      "closed_utc": "2026-11-17T20:37:46.793915+00:00"
+    },
+    {
+      "runtime_batch_id": "0731c985-76c4-49cb-8204-cd5216d3d80b",
+      "job_indices": [
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-18T00:40:45.558767+00:00",
+      "closed_utc": "2026-11-18T02:27:33.113907+00:00"
+    },
+    {
+      "runtime_batch_id": "7f1ef899-e571-49f6-bd2e-35fb2eeac0a6",
+      "job_indices": [
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-18T07:35:58.226091+00:00",
+      "closed_utc": "2026-11-18T09:21:42.205186+00:00"
+    },
+    {
+      "runtime_batch_id": "b38201cc-f78f-4969-9513-eb4b29c3af22",
+      "job_indices": [
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-18T22:56:05.813201+00:00",
+      "closed_utc": "2026-11-19T00:31:39.716191+00:00"
+    },
+    {
+      "runtime_batch_id": "4deed2f5-c502-47d7-8312-1495cac2693e",
+      "job_indices": [
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-19T04:33:19.568683+00:00",
+      "closed_utc": "2026-11-19T06:12:19.679702+00:00"
+    },
+    {
+      "runtime_batch_id": "97d30d52-b381-48d1-b306-af14a1a6368e",
+      "job_indices": [
+        65,
+        66
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-19T15:25:45.527357+00:00",
+      "closed_utc": "2026-11-19T15:52:44.921232+00:00"
+    },
+    {
+      "runtime_batch_id": "9faf4b9e-c2e4-4f23-a19e-16d80cd7d9b4",
+      "job_indices": [
+        67,
+        68
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-19T23:04:44.407885+00:00",
+      "closed_utc": "2026-11-19T23:31:53.749920+00:00"
+    },
+    {
+      "runtime_batch_id": "d41420fa-96c3-4a88-a98a-034d94a8c693",
+      "job_indices": [
+        69,
+        70
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-20T00:25:08.300712+00:00",
+      "closed_utc": "2026-11-20T00:48:05.674477+00:00"
+    },
+    {
+      "runtime_batch_id": "59620385-5a2c-45e3-bafd-f83152306765",
+      "job_indices": [
+        71,
+        72
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-20T01:20:07.923746+00:00",
+      "closed_utc": "2026-11-20T01:43:51.047600+00:00"
+    },
+    {
+      "runtime_batch_id": "0e3360e4-aacc-40ba-9039-08e561af4335",
+      "job_indices": [
+        73,
+        74
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-20T03:44:58.758667+00:00",
+      "closed_utc": "2026-11-20T04:08:49.960335+00:00"
+    },
+    {
+      "runtime_batch_id": "fef2d872-171a-4047-9e86-d4e96c13b592",
+      "job_indices": [
+        75,
+        76
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-20T12:10:07.708372+00:00",
+      "closed_utc": "2026-11-20T12:37:07.519579+00:00"
+    },
+    {
+      "runtime_batch_id": "f64da69e-4170-40bf-b074-3210d501eb24",
+      "job_indices": [
+        77,
+        78
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-20T15:48:15.813672+00:00",
+      "closed_utc": "2026-11-20T16:14:24.930988+00:00"
+    },
+    {
+      "runtime_batch_id": "57067f56-54d0-42c0-b72c-8e2ca74a4181",
+      "job_indices": [
+        79,
+        80
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-20T17:52:55.121227+00:00",
+      "closed_utc": "2026-11-20T18:20:46.353004+00:00"
+    },
+    {
+      "runtime_batch_id": "8b84613b-b0a0-48f6-9b97-ddb1c185ca78",
+      "job_indices": [
+        81,
+        82
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-21T16:19:48.739483+00:00",
+      "closed_utc": "2026-11-21T16:47:45.161612+00:00"
+    },
+    {
+      "runtime_batch_id": "7bf2a654-2c70-414c-9b57-97fd7b467d2e",
+      "job_indices": [
+        83,
+        84
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-21T18:30:58.338662+00:00",
+      "closed_utc": "2026-11-21T18:57:17.916235+00:00"
+    },
+    {
+      "runtime_batch_id": "94669071-6cf6-4182-809e-83182d044398",
+      "job_indices": [
+        85
+      ],
+      "status": "closed",
+      "max_time": 28800,
+      "created_utc": "2026-11-21T20:03:28.372202+00:00",
+      "closed_utc": "2026-11-21T20:15:28.782627+00:00"
+    }
+  ],
+  "execution_updates": [
+    {
+      "revision": {
+        "patch_id": "seekable-qpy-cache-v1",
+        "original_source_sha256": "3d9fa2a3e9ac3e847cf848f05671ec1bf7becf3c774ed0d7c76f74473bf90aa6",
+        "files": {
+          "FinalModel/Model3Experiment/circuits.py": {
+            "original_sha256": "2775bcee66264fb13408072c27346797986bb831405d2219d0df4b423c08f96c",
+            "replacement_sha256": "ac28308749eb74dd25d77a07f72e1074a4b8b3be57071e3e57df4630edab4f62",
+            "checkout_match": "matches_original_LF_line_endings"
+          },
+          "FinalModel/Model3Experiment/run.py": {
+            "original_sha256": "c1bf9f5fec858e9d65003da7a3ae8fcd0df16f0f64e1d2f7a76011fbb781cfe1",
+            "replacement_sha256": "06e7e634d004d2b48e1709eb2a9c7cfc9f4720b98537c832e71c09d0666acadd",
+            "checkout_match": "matches_original_LF_line_endings"
+          }
+        }
+      },
+      "revision_sha256": "a41cdbac88e9cf4133f99cd880d5bec732dd35aa83fc27807906408a22ff42db",
+      "applied_utc": "2026-11-14T19:05:57.902490+00:00"
+    },
+    {
+      "revision": {
+        "patch_id": "seekable-qpy-cache-and-job-recovery-v2",
+        "original_source_sha256": "3d9fa2a3e9ac3e847cf848f05671ec1bf7becf3c774ed0d7c76f74473bf90aa6",
+        "files": {
+          "FinalModel/Model3Experiment/circuits.py": {
+            "original_sha256": "2775bcee66264fb13408072c27346797986bb831405d2219d0df4b423c08f96c",
+            "replacement_sha256": "ac28308749eb74dd25d77a07f72e1074a4b8b3be57071e3e57df4630edab4f62",
+            "checkout_match": "matches_original_LF_line_endings"
+          },
+          "FinalModel/Model3Experiment/run.py": {
+            "original_sha256": "c1bf9f5fec858e9d65003da7a3ae8fcd0df16f0f64e1d2f7a76011fbb781cfe1",
+            "replacement_sha256": "977377c8037a50b9faa988722d9e3562aee65c983ff0a9202f2077ef6c404c57",
+            "checkout_match": "matches_original_LF_line_endings"
+          }
+        }
+      },
+      "revision_sha256": "e571c07ebba5b3d4de55cf14ab0dd02576b6ab1703fbfd5a2ef9d58be3bf038c",
+      "applied_utc": "2026-11-15T06:10:06.699113+00:00"
     }
   ]
 }
